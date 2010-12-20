@@ -6,7 +6,7 @@ The source code for scala-attoparsec is hosted on GitHub: http://github.com/ekme
 
 Documentation and downloads are on Google Code: http://github.com/ekmett/scala-attoparsec
 
-Snapshots and Releases published to the repository on scala-tools.org.
+Snapshots and Releases published to the Maven repository at maven.comonad.com
 
 Build Instructions
 ------------------
@@ -49,3 +49,6 @@ $ ./sbt
 > ~ compile
 
 For other options, read: http://code.google.com/p/simple-build-tool/wiki/DocumentationHome
+
+  val comonadMaven = "comonad.com Maven Repository" at "http://maven.comonad.com/"
+  val attoparsec = "com.comonad" %% "scala-attoparsec" % "0.1"

@@ -3,27 +3,38 @@ package attoparsec
 import scalaz._
 import scalaz.Scalaz._
 
+
 abstract class Parser[+A] { m => 
   import Parser._
   import Parser.Internal._
   def apply[R](st0: State, kf:Failure[R], ks: Success[A,R]): Result[R]
   def infix(s: String) = "(" + m.toString + ") " + s
 
-  final def flatMap[B](f: A => Parser[B]): Parser[B] = new Parser[B] {
+  def flatMap[B](f: A => Parser[B]): Parser[B] = new Parser[B] {
     override def toString = m infix "flatMap ..."
     def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Result[R] = 
       m(st0,kf,(s:State, a:A) => f(a)(s,kf,ks))
   }
-  final def map[B](f: A => B): Parser[B] = new Parser[B] { 
+  def map[B](f: A => B): Parser[B] = new Parser[B] { 
     override def toString = m infix "map ..."
     def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Result[R] =
       m(st0,kf,(s:State, a:A) => ks(s,f(a)))
   }
-  final def filter(p: A => Boolean): Parser[A] = new Parser[A] { 
-    override def toString = m infix "filter ..."
+
+  class WithFilter(p: A => Boolean) extends Parser[A] { 
+    override def toString = m infix "withFilter ..."
     def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Result[R] =
-      m(st0,kf,(s:State, a:A) => if (p(a)) ks(s,a) else kf(s, Nil, "filter"))
+      m(st0,kf,(s:State, a:A) => if (p(a)) ks(s,a) else kf(s, Nil, "withFilter"))
+    override def map[B](f: A => B) = m filter p map f
+    override def flatMap[B](f: A => Parser[B]) = m filter p flatMap f
+    override def withFilter(q: A => Boolean): WithFilter =
+      new WithFilter(x => p(x) && q(x))
+    override def filter(q: A => Boolean): WithFilter = 
+      new WithFilter(x => p(x) && q(x))
   }
+  def withFilter(p: A => Boolean): WithFilter = new WithFilter(p)
+  def filter(p: A => Boolean): Parser[A]      = new WithFilter(p)
+
   final def ~> [B](n: Parser[B]): Parser[B] = new Parser[B] { 
     override def toString = m infix ("~> " + n)
     def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Result[R] =
@@ -75,6 +86,7 @@ abstract class Parser[+A] { m =>
     def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Result[R] = 
       m(st0, (st1: State, stack: List[String], msg: String) => kf(st1, Nil, "Failure reading:" + s), ks)
   }
+
 }
 
 sealed abstract class ParseResult[+A] { 

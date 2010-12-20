@@ -40,13 +40,13 @@ abstract class Parser[+A] { m =>
       m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, (a, b))))
   }
   final def | [B >: A](n: => Parser[B]): Parser[B] = new Parser[B] {
-    override def toString = m infix ("| " + n)
+    override def toString = m infix ("| ...")
     def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Result[R] = 
       m(st0.noAdds, (st1: State, stack: List[String], msg: String) => n(st0 + st1, kf, ks), ks)
   }
   final def cons [B >: A](n: => Parser[List[B]]): Parser[List[B]] = m flatMap (x => n map (xs => x :: xs))
   final def || [B >: A](n: => Parser[B]): Parser[Either[A,B]] = new Parser[Either[A,B]] { 
-    override def toString = m infix ("|| ...")
+    override def toString = m infix ("|| " + n)
     def apply[R](st0: State, kf: Failure[R], ks: Success[Either[A,B],R]): Result[R] = 
       m(
         st0.noAdds, 
@@ -70,13 +70,11 @@ abstract class Parser[+A] { m =>
     def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Result[R] = 
       m(st0, (st1: State, stack: List[String], msg: String) => kf(st1, s :: stack, msg), ks)
   }
-
   final def asOpaque(s: => String): Parser[A] = new Parser[A] { 
     override def toString = s
     def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Result[R] = 
       m(st0, (st1: State, stack: List[String], msg: String) => kf(st1, Nil, "Failure reading:" + s), ks)
   }
-
 }
 
 sealed abstract class ParseResult[+A] { 
@@ -297,6 +295,9 @@ object Parser {
 
   def choice[A](xs : Parser[A]*) : Parser[A] = 
     (err("choice").asInstanceOf[Parser[A]] /: xs)(_ | _) as ("choice(" + xs.toString + " :_*)")
+
+  def choice[A](xs : TraversableOnce[Parser[A]]) : Parser[A] = 
+    (err("choice").asInstanceOf[Parser[A]] /: xs)(_ | _) as ("choice(...)")
 
   def opt[A](m: Parser[A]): Parser[Option[A]] = (attempt(m).map(some(_)) | ok(none)) as ("opt(" + m + ")")
 

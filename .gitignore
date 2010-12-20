@@ -1,0 +1,13 @@
+*.swo
+*.swp
+lib_managed
+project/boot
+full/project/boot
+src_managed
+target
+.DS_Store
+out
+tags
+*~
+build.log
+.history

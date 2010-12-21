@@ -4,8 +4,6 @@ scala-attoparsec is released under a BSD open source licence
 
 The source code for scala-attoparsec is hosted on GitHub: http://github.com/ekmett/scala-attoparsec
 
-Documentation and downloads are on Google Code: http://github.com/ekmett/scala-attoparsec
-
 Snapshots and Releases published to the Maven repository at maven.comonad.com
 
 Build Instructions

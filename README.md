@@ -1,3 +1,13 @@
+
+scala-attoparsec
+================
+
+Forked from kmett, updated for scala 2.10 and scalaz 7. In progress.
+
+Original readme (wildly inaccurate at this point) below:
+
+
+```
 scala-attoparsec is a port of Bryan O'Sullivan's attoparsec library from Haskell to Scala.
 
 scala-attoparsec is released under a BSD open source licence
@@ -50,3 +60,5 @@ For other options, read: http://code.google.com/p/simple-build-tool/wiki/Documen
 
   val comonadMaven = "comonad.com Maven Repository" at "http://maven.comonad.com/"
   val attoparsec = "com.comonad" %% "scala-attoparsec" % "0.1"
+
+```

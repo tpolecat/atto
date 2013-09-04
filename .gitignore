@@ -1,13 +1,22 @@
-*.swo
-*.swp
-lib_managed
-project/boot
-full/project/boot
-src_managed
-target
+*.class
+*.log
+
+# sbt specific
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+
+# Scala-IDE specific
+.scala_dependencies
+.cache
+.classpath
+.project
+.worksheet/
+bin/
+.settings/
+
+# OS X
 .DS_Store
-out
-tags
-*~
-build.log
-.history

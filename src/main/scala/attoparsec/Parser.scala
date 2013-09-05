@@ -6,12 +6,11 @@ import scala.language.higherKinds
 import scalaz._
 import scalaz.Scalaz._
 
-
 abstract class Parser[+A] { m => 
   import Parser._
   import Parser.Internal._
 
-  def apply[R](st0: State, kf:Failure[R], ks: Success[A,R]): Result[R]
+  def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Result[R]
   
   def infix(s: String): String = 
     "(" + m.toString + ") " + s
@@ -48,38 +47,38 @@ abstract class Parser[+A] { m =>
   def filter(p: A => Boolean): Parser[A] = 
     new WithFilter(p)
 
-  final def ~> [B](n: Parser[B]): Parser[B] = 
+  final def ~>[B](n: Parser[B]): Parser[B] = 
     new Parser[B] { 
       override def toString = m infix ("~> " + n)
       def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Result[R] =
         m(st0,kf,(s:State, a: A) => n(s, kf, ks))
     }
 
-  final def <~ [B](n: Parser[B]): Parser[A] = 
+  final def <~[B](n: Parser[B]): Parser[A] = 
     new Parser[A] {
       override def toString = m infix ("<~ " + n)
       def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Result[R] =
         m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, a)))
     }
   
-  final def ~ [B](n: Parser[B]): Parser[(A,B)] = 
+  final def ~[B](n: Parser[B]): Parser[(A,B)] = 
     new Parser[(A,B)] { 
       override def toString = m infix ("~ " + n)
       def apply[R](st0: State, kf: Failure[R], ks: Success[(A,B),R]): Result[R] =
         m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, (a, b))))
     }
 
-  final def | [B >: A](n: => Parser[B]): Parser[B] = 
+  final def |[B >: A](n: => Parser[B]): Parser[B] = 
     new Parser[B] {
       override def toString = m infix ("| ...")
       def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Result[R] = 
         m(st0.noAdds, (st1: State, stack: List[String], msg: String) => n(st0 + st1, kf, ks), ks)
     }
 
-  final def cons [B >: A](n: => Parser[List[B]]): Parser[List[B]] = 
+  final def cons[B >: A](n: => Parser[List[B]]): Parser[List[B]] = 
     m flatMap (x => n map (xs => x :: xs))
 
-  final def || [B >: A](n: => Parser[B]): Parser[Either[A,B]] = 
+  final def ||[B >: A](n: => Parser[B]): Parser[Either[A,B]] = 
     new Parser[Either[A,B]] { 
       override def toString = m infix ("|| " + n)
       def apply[R](st0: State, kf: Failure[R], ks: Success[Either[A,B],R]): Result[R] = 
@@ -101,7 +100,10 @@ abstract class Parser[+A] { m =>
   final def +(s: Parser[Any]): Parser[List[A]] = sepBy1(m,s) 
 
   final def parse(b: String): ParseResult[A] = 
-    m(b, Fail(_,_,_), Done(_,_)).translate
+    m(State(b, "", false), Fail(_,_,_), Done(_,_)).translate
+
+  final def parseOnly(b: String): ParseResult[A] = 
+    m(State(b, "", true), Fail(_,_,_), Done(_,_)).translate
 
   final def as(s: => String): Parser[A] = 
     new Parser[A] { 
@@ -123,7 +125,7 @@ sealed abstract class ParseResult[+A] {
   def map[B](f: A => B): ParseResult[B]
   def feed(s: String): ParseResult[A]
   def option: Option[A]
-  def either: Either[String,A]
+  def either: String \/ A
   def done: ParseResult[A] = feed("")
 }
 
@@ -134,14 +136,14 @@ object ParseResult {
     def feed(s: String) = this
     override def done = this
     def option = None
-    def either = Left(message)
+    def either = -\/(message)
   }
 
   case class Partial[+T](k: String => ParseResult[T]) extends ParseResult[T] { 
     def map[B](f: T => B) = Partial(s => k(s).map(f))
     def feed(s: String) = k(s)
     def option = None
-    def either = Left("incomplete input")
+    def either = -\/("incomplete input")
   }
 
   case class Done[+T](input: String, result: T) extends ParseResult[T] { 
@@ -149,16 +151,18 @@ object ParseResult {
     def feed(s: String) = Done(input + s, result)
     override def done = this
     def option = Some(result)
-    def either = Right(result)
+    def either = \/-(result)
   }
 
-  implicit def translate[T](r: Parser.Internal.Result[T]) : ParseResult[T] = r.translate
-  implicit def option[T](r: ParseResult[T]): Option[T] = r.option
-  implicit def either[T](r: ParseResult[T]): Either[String,T] = r.either
+  // RCN: not sure about these...
+
+  // implicit def translate[T](r: Parser.Internal.Result[T]) : ParseResult[T] = r.translate
+  // implicit def option[T](r: ParseResult[T]): Option[T] = r.option
+  // implicit def either[T](r: ParseResult[T]): Either[String,T] = r.either
 
 }
 
-object Parser { 
+object Parser extends ParserInstances with ParserConstructors with ParserFunctions { 
 
   object Internal { 
     sealed abstract class Result[+T] { 
@@ -178,35 +182,47 @@ object Parser {
 
   import Internal._
 
-  implicit def Monad : Monad[Parser] = 
-    new Monad[Parser] { 
-      def point[A](a: => A): Parser[A] = ok(a)
-      def bind[A,B](ma: Parser[A])(f: A => Parser[B]) = ma flatMap f
-    }
-
-  implicit def Plus: Plus[Parser] = 
-    new Plus[Parser] { 
-      def plus[A](a: Parser[A], b: => Parser[A]): Parser[A] = a | b
-    }
-
-  implicit def Monoid[A]: Monoid[Parser[A]] = 
-    new Monoid[Parser[A]] { 
-      def append(s1: Parser[A], s2: => Parser[A]): Parser[A] = s1 | s2
-      val zero: Parser[A] = err("zero")
-    }
-
   case class State(input: String, added: String, complete: Boolean) {
     def +(rhs: State) = State(input + rhs.added, added + rhs.added, complete | rhs.complete)
     def +(rhs: String) = State(input + rhs, added + rhs, complete)
-    def completed: State = copy (complete = true)
-    def noAdds: State = copy (added = "")
+    def completed: State = copy(complete = true)
+    def noAdds: State = copy(added = "")
   }
-
-  implicit def stateString(s: State): String = s.input
-  implicit def stringState(s: String): State = State(s, "", false)
 
   type Failure[+R] = (State,List[String],String) => Result[R]
   type Success[-A,+R] = (State, A) => Result[R]
+
+}
+
+trait ParserFunctions { this: Parser.type =>
+
+  import Parser.Internal._
+
+  def parse[A](m: Parser[A], init: String): ParseResult[A] = 
+    m parse init
+  
+  def parse[M[_]:Monad, A](m: Parser[A], refill: M[String], init: String): M[ParseResult[A]] = {
+    def step[A] (r: Result[A]): M[ParseResult[A]] = r match {
+      case Partial(k) => refill flatMap (a => step(k(a)))
+      case x => x.translate.pure[M]
+    }
+    step(m(State(init, "", false),Fail(_,_,_),Done(_,_)))
+  }
+
+  def parseAll[A](m: Parser[A], init: String): ParseResult[A] = 
+    phrase(m) parse init
+
+  def parseAll[M[_]:Monad, A](m: Parser[A], refill: M[String], init: String): M[ParseResult[A]] =
+    parse[M,A](phrase(m), refill, init)
+
+}
+
+trait ParserConstructors {
+  
+  import Parser.State
+  import Parser.Success
+  import Parser.Failure
+  import Parser.Internal._
 
   def ok[A](a: A): Parser[A] = 
     new Parser[A] { 
@@ -248,7 +264,7 @@ object Parser {
           (demandInput ~> ensure(n))(st0,kf,ks)
     }
 
-  def wantInput: Parser[Boolean] = 
+  val wantInput: Parser[Boolean] = 
     new Parser[Boolean] {
       override def toString = "wantInput"
       def apply[R](st0: State, kf: Failure[R], ks: Success[Boolean,R]): Result[R] = 
@@ -257,7 +273,7 @@ object Parser {
         else prompt(st0, a => ks(a,false), a => ks(a,true))
     }
 
-  def get: Parser[String] = 
+  val get: Parser[String] = 
     new Parser[String] {
       override def toString = "get"
       def apply[R](st0: State, kf: Failure[R], ks: Success[String,R]): Result[R] = 
@@ -302,13 +318,16 @@ object Parser {
   def take(n: Int): Parser[String] = 
     takeWith(n, _ => true, "take(" + n + ")")
 
-  implicit def char(c: Char): Parser[Char] = elem(_==c, "'" + c.toString + "'")
-  implicit def string(s: String): Parser[String] = takeWith(s.length, _ == s, "\"" + s + "\"")
+  def char(c: Char): Parser[Char] = 
+    elem(_==c, "'" + c.toString + "'")
+
+  def string(s: String): Parser[String] = 
+    takeWith(s.length, _ == s, "\"" + s + "\"")
 
   def stringTransform(f: String => String, s: String, what: => String = "stringTransform(...)"): Parser[String] = 
     takeWith(s.length, f(_) == f(s), what)
 
-  def endOfInput: Parser[Unit] = 
+  val endOfInput: Parser[Unit] = 
     new Parser[Unit] {
       override def toString = "endOfInput"
       def apply[R](st0: State, kf: Failure[R], ks: Success[Unit,R]): Result[R] = 
@@ -319,7 +338,7 @@ object Parser {
             demandInput(
               st0,
               (st1: State, stack: List[String], msg: String) => ks(st0 + st1,()), 
-              (st1: State, u: Unit) => kf(st0 + st1,Nil,"endOfInput")
+              (st1: State, u: Unit) => kf(st0 + st1, Nil, "endOfInput")
             )
         } else kf(st0,Nil,"endOfInput")
     }
@@ -337,7 +356,7 @@ object Parser {
     p cons many(p)
 
   def manyTill[A](p: Parser[A], q: Parser[Any]): Parser[List[A]] = { 
-    lazy val scan : Parser[List[A]] = (q ~> ok(Nil)) | (p cons scan)
+    lazy val scan : Parser[List[A]] = (q ~> ok(Nil)) | (p cons scan) // RCN: what is the intent here (and others similar)
     scan as ("manyTill(" + p + "," + q + ")")
   }
 
@@ -366,22 +385,26 @@ object Parser {
   def opt[A](m: Parser[A]): Parser[Option[A]] = 
     (attempt(m).map(some(_)) | ok(none)) as ("opt(" + m + ")")
 
-  def parse[A](m: Parser[A], init: String): ParseResult[A] = 
-    m parse init
-  
-  def parse[M[_]:Monad, A](m: Parser[A], refill: M[String], init: String): M[ParseResult[A]] = {
-    def step[A] (r: Result[A]): M[ParseResult[A]] = r match {
-      case Partial(k) => refill flatMap (a => step(k(a)))
-      case x => x.translate.pure[M]
+}
+
+trait ParserInstances {
+
+  implicit def monad: Monad[Parser] = 
+    new Monad[Parser] { 
+      def point[A](a: => A): Parser[A] = Parser.ok(a)
+      def bind[A,B](ma: Parser[A])(f: A => Parser[B]) = ma flatMap f
     }
-    step(m(init,Fail(_,_,_),Done(_,_)))
-  }
 
-  def parseAll[A](m: Parser[A], init: String) = 
-    phrase(m) parse init
+  implicit def plus: Plus[Parser] = 
+    new Plus[Parser] { 
+      def plus[A](a: Parser[A], b: => Parser[A]): Parser[A] = a | b
+    }
 
-  def parseAll[M[_]:Monad, A](m: Parser[A], refill: M[String], init: String): M[ParseResult[A]] =
-    parse[M,A](phrase(m), refill, init)
+  implicit def monoid[A]: Monoid[Parser[A]] = 
+    new Monoid[Parser[A]] { 
+      def append(s1: Parser[A], s2: => Parser[A]): Parser[A] = s1 | s2
+      val zero: Parser[A] = Parser.err("zero")
+    }
 
 }
 

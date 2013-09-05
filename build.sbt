@@ -38,11 +38,10 @@ scalacOptions ++= Seq(
 	"-Xfatal-warnings"
 )
 
-// initialCommands :=
-//   """import scalaz._
-//      import Scalaz._
-//      import tick._
-//      import Tick._"""
-//     val d = Date.fromModifiedJulianDate(56519)"""
+initialCommands :=
+  """import scalaz._
+     import Scalaz._
+     import attoparsec._
+     import Parser._"""
 
 

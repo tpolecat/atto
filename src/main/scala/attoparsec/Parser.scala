@@ -5,34 +5,36 @@ import scala.language.higherKinds
 
 import scalaz._
 import scalaz.Scalaz._
+import Free.Trampoline
 
 abstract class Parser[+A] { m => 
   import Parser._
   import Parser.Internal._
+  import Trampoline._
 
-  def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Result[R]
+  def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Trampoline[Result[R]]
   
   def infix(s: String): String = 
     "(" + m.toString + ") " + s
 
   def flatMap[B](f: A => Parser[B]): Parser[B] = 
     new Parser[B] {
-      def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Result[R] = 
-        m(st0,kf,(s:State, a:A) => f(a)(s,kf,ks))
+      def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Trampoline[Result[R]] = 
+        suspend(m(st0,kf,(s:State, a:A) => f(a)(s,kf,ks)))
       override def toString = m infix "flatMap ..."
     }
 
   def map[B](f: A => B): Parser[B] = 
     new Parser[B] { 
       override def toString = m infix "map ..."
-      def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Result[R] =
-        m(st0,kf,(s:State, a:A) => ks(s,f(a)))
+      def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Trampoline[Result[R]] =
+        suspend(m(st0,kf,(s:State, a:A) => suspend(ks(s,f(a)))))
     }
 
   class WithFilter(p: A => Boolean) extends Parser[A] { 
     override def toString = m infix "withFilter ..."
-    def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Result[R] =
-      m(st0,kf,(s:State, a:A) => if (p(a)) ks(s,a) else kf(s, Nil, "withFilter"))
+    def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Trampoline[Result[R]] =
+      suspend(m(st0,kf,(s:State, a:A) => if (p(a)) ks(s,a) else kf(s, Nil, "withFilter")))
     override def map[B](f: A => B) = m filter p map f
     override def flatMap[B](f: A => Parser[B]) = m filter p flatMap f
     override def withFilter(q: A => Boolean): WithFilter =
@@ -50,28 +52,29 @@ abstract class Parser[+A] { m =>
   final def ~>[B](n: Parser[B]): Parser[B] = 
     new Parser[B] { 
       override def toString = m infix ("~> " + n)
-      def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Result[R] =
-        m(st0,kf,(s:State, a: A) => n(s, kf, ks))
+      def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Trampoline[Result[R]] =
+        suspend(m(st0,kf,(s:State, a: A) => n(s, kf, ks)))
     }
 
   final def <~[B](n: Parser[B]): Parser[A] = 
     new Parser[A] {
       override def toString = m infix ("<~ " + n)
-      def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Result[R] =
-        m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, a)))
+      def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Trampoline[Result[R]] =
+        suspend(m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, a))))
     }
   
   final def ~[B](n: Parser[B]): Parser[(A,B)] = 
     new Parser[(A,B)] { 
       override def toString = m infix ("~ " + n)
-      def apply[R](st0: State, kf: Failure[R], ks: Success[(A,B),R]): Result[R] =
-        m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, (a, b))))
+      def apply[R](st0: State, kf: Failure[R], ks: Success[(A,B),R]): Trampoline[Result[R]] =
+        suspend(m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, (a, b)))))
     }
 
   final def |[B >: A](n: => Parser[B]): Parser[B] = 
     new Parser[B] {
       override def toString = m infix ("| ...")
-      def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Result[R] = 
+      def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Trampoline[Result[R]] = 
+        
         m(st0.noAdds, (st1: State, stack: List[String], msg: String) => n(st0 + st1, kf, ks), ks)
     }
 
@@ -81,12 +84,12 @@ abstract class Parser[+A] { m =>
   final def ||[B >: A](n: => Parser[B]): Parser[Either[A,B]] = 
     new Parser[Either[A,B]] { 
       override def toString = m infix ("|| " + n)
-      def apply[R](st0: State, kf: Failure[R], ks: Success[Either[A,B],R]): Result[R] = 
-        m(
+      def apply[R](st0: State, kf: Failure[R], ks: Success[Either[A,B],R]): Trampoline[Result[R]] = 
+        suspend(m(
           st0.noAdds, 
           (st1: State, stack: List[String], msg: String) => n (st0 + st1, kf, (st1: State, b: B) => ks(st1, Right(b))), 
           (st1: State, a: A) => ks(st1, Left(a))
-        )
+        ))
     }
 
   final def matching[B](f: PartialFunction[A,B]): Parser[B] = 
@@ -100,23 +103,23 @@ abstract class Parser[+A] { m =>
   // final def +(s: Parser[Any]): Parser[List[A]] = sepBy1(m,s) 
 
   final def parse(b: String): ParseResult[A] = 
-    m(State(b, "", false), Fail(_,_,_), Done(_,_)).translate
+    m(State(b, "", false), (a,b,c) => done(Fail(a, b, c)), (a,b) => done(Done(a, b))).run.translate
 
   final def parseOnly(b: String): ParseResult[A] = 
-    m(State(b, "", true), Fail(_,_,_), Done(_,_)).translate
+    m(State(b, "", true),  (a,b,c) => done(Fail(a, b, c)), (a,b) => done(Done(a, b))).run.translate
 
   final def as(s: => String): Parser[A] = // attoparsec <?>
     new Parser[A] { 
       override def toString = s
-      def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Result[R] = 
-        m(st0, (st1: State, stack: List[String], msg: String) => kf(st1, s :: stack, msg), ks)
+      def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Trampoline[Result[R]] = 
+        suspend(m(st0, (st1: State, stack: List[String], msg: String) => kf(st1, s :: stack, msg), ks))
     }
 
   final def asOpaque(s: => String): Parser[A] = 
     new Parser[A] { 
       override def toString = s
-      def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Result[R] = 
-        m(st0, (st1: State, stack: List[String], msg: String) => kf(st1, Nil, "Failure reading:" + s), ks)
+      def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): Trampoline[Result[R]] = 
+        suspend(m(st0, (st1: State, stack: List[String], msg: String) => kf(st1, Nil, "Failure reading:" + s), ks))
     }
 
 }
@@ -189,25 +192,25 @@ object Parser extends ParserInstances with Text {
     def noAdds: State = copy(added = "")
   }
 
-  type Failure[+R] = (State,List[String],String) => Result[R]
-  type Success[-A,+R] = (State, A) => Result[R]
+  type Failure[+R] = (State,List[String],String) => Trampoline[Result[R]]
+  type Success[-A,+R] = (State, A) => Trampoline[Result[R]]
 
-  def parse[A](m: Parser[A], init: String): ParseResult[A] = 
-    m parse init
+  // def parse[A](m: Parser[A], init: String): ParseResult[A] = 
+  //   m parse init
   
-  def parse[M[_]:Monad, A](m: Parser[A], refill: M[String], init: String): M[ParseResult[A]] = {
-    def step[A] (r: Result[A]): M[ParseResult[A]] = r match {
-      case Partial(k) => refill flatMap (a => step(k(a)))
-      case x => x.translate.pure[M]
-    }
-    step(m(State(init, "", false),Fail(_,_,_),Done(_,_)))
-  }
+  // def parse[M[_]:Monad, A](m: Parser[A], refill: M[String], init: String): M[ParseResult[A]] = {
+  //   def step[A] (r: Result[A]): M[ParseResult[A]] = r match {
+  //     case Partial(k) => refill flatMap (a => step(k(a)))
+  //     case x => x.translate.pure[M]
+  //   }
+  //   step(m(State(init, "", false),(a,b,c) => done(Fail(a, b, c)), (a,b) => done(Done(a, b))))
+  // }
 
-  def parseAll[A](m: Parser[A], init: String): ParseResult[A] = 
-    Parser.phrase(m) parse init
+  // def parseAll[A](m: Parser[A], init: String): ParseResult[A] = 
+  //   Parser.phrase(m) parse init
 
-  def parseAll[M[_]:Monad, A](m: Parser[A], refill: M[String], init: String): M[ParseResult[A]] =
-    parse[M,A](Parser.phrase(m), refill, init)
+  // def parseAll[M[_]:Monad, A](m: Parser[A], refill: M[String], init: String): M[ParseResult[A]] =
+  //   parse[M,A](Parser.phrase(m), refill, init)
 
 }
 

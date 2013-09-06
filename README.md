@@ -4,61 +4,35 @@ scala-attoparsec
 
 Forked from kmett, updated for scala 2.10 and scalaz 7. In progress.
 
-Original readme (wildly inaccurate at this point) below:
+```scala
 
+scala> import attoparsec._; import Parser._
+import attoparsec._
+import Parser._
 
-```
-scala-attoparsec is a port of Bryan O'Sullivan's attoparsec library from Haskell to Scala.
+scala> case class IP(a: Int, b: Int, c: Int, d:Int)
+defined class IP
 
-scala-attoparsec is released under a BSD open source licence
+scala> val dot = char('.')
+dot: attoparsec.Parser[Char] = '.'
 
-The source code for scala-attoparsec is hosted on GitHub: http://github.com/ekmett/scala-attoparsec
+scala> val ip = for { 
+     |   a <- int
+     |   _ <- dot
+     |   b <- int
+     |   _ <- dot
+     |   c <- int
+     |   _ <- dot
+     |   d <- int 
+     | } yield IP(a, b, c, d)
+ip: attoparsec.Parser[IP] = (int) flatMap ...
 
-Snapshots and Releases published to the Maven repository at maven.comonad.com
+scala> ip parseOnly "123.87.69.9 and some more text"
+res1: attoparsec.ParseResult[IP] = Done( and some more text,IP(123,87,69,9))
 
-Build Instructions
-------------------
-
-The root directory of the project contains the SBT launcher, shell script, and Windows command script.
-
-This is the directory structure of the build.
-
-|- project +
-|          |-build +
-|          |       |- attoparsec.scala       Project Definition, containing module structure, compiler
-|          |       |                         options, cross module dependencies, etc.
-|          |       |- build.properties       Version of SBT, Scala, and scala-attoparsec
-|          |                                 A different version of Scala is used to run SBT and compile
-|          |                                 the Project Definition than is used to compile scala-attoparsec
-|          |-target                          Compiled Project Definition
-|          |
-|          +-boot                            Versions of Scala Compiler and Library.
-|
-|-src   +
-|       |-main +
-|       |      |-scala            Source files
-|       |
-|       |-test +
-|              |-scala            Test source files
-|
-|-lib_managed                     Managed Dependencies for this module, e.g. Scalacheck.
-|
-|-target +
-         |- <scala version M>    All built artifacts (classes, jars, scaladoc) for module N
-                                 built for version M of Scala.
-
-1. ./sbt update (this step is required after a fresh checkout, after changing the version of
-                 SBT, Scala, or other dependencies)
-2. ./sbt [compile | package | test-compile | test | publish-local | publish]
-
-For continuous compilation:
-
-$ ./sbt
-> ~ compile
-
-For other options, read: http://code.google.com/p/simple-build-tool/wiki/DocumentationHome
-
-  val comonadMaven = "comonad.com Maven Repository" at "http://maven.comonad.com/"
-  val attoparsec = "com.comonad" %% "scala-attoparsec" % "0.1"
+scala> ip parseOnly "foo"
+res2: attoparsec.ParseResult[IP] = Fail(foo,List(int, long),Failure reading:digit)
 
 ```
+
+

@@ -21,9 +21,9 @@ libraryDependencies ++= Seq(
 )
 
 // Let's add a linter
-//resolvers += "linter" at "http://hairyfotr.github.io/linteRepo/releases"
+resolvers += "linter" at "http://hairyfotr.github.io/linteRepo/releases"
 
-//addCompilerPlugin("com.foursquare.lint" %% "linter" % "0.1-SNAPSHOT")
+addCompilerPlugin("com.foursquare.lint" %% "linter" % "0.1-SNAPSHOT")
 
 // And turn warnings all the way up
 scalacOptions ++= Seq(

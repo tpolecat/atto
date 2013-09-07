@@ -73,9 +73,8 @@ abstract class Parser[+A] { m =>
   final def |[B >: A](n: => Parser[B]): Parser[B] = 
     new Parser[B] {
       override def toString = m infix ("| ...")
-      def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Trampoline[Result[R]] = 
-        
-        m(st0.noAdds, (st1: State, stack: List[String], msg: String) => n(st0 + st1, kf, ks), ks)
+      def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): Trampoline[Result[R]] =         
+        suspend(m(st0.noAdds, (st1: State, stack: List[String], msg: String) => n(st0 + st1, kf, ks), ks))
     }
 
   final def cons[B >: A](n: => Parser[List[B]]): Parser[List[B]] = 
@@ -175,8 +174,8 @@ object Parser extends ParserInstances with Text {
       def translate = ParseResult.Fail(input.input, stack, message)
       def push(s: String) = Fail(input, stack = s :: stack, message)
     }
-    case class Partial[+T](k: String => Result[T]) extends Result[T] { 
-      def translate = ParseResult.Partial(a => k(a).translate)
+    case class Partial[+T](k: String => Trampoline[Result[T]]) extends Result[T] { 
+      def translate = ParseResult.Partial(a => k(a).run.translate)
     }
     case class Done[+T](input: State, result: T) extends Result[T] { 
       def translate = ParseResult.Done(input.input, result)

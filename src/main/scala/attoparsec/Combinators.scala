@@ -31,11 +31,11 @@ trait Combinators {
 
   //////
 
-  private def prompt[R](st0: State, kf: State => Trampoline[Result[R]], ks: State => Trampoline[Result[R]]): Trampoline[Result[R]] = 
-    done(Partial[R](s => 
-      if (s == "") kf(st0 copy (complete = true)).run
-      else ks(st0 + s).run
-    ))
+  private def prompt[R](st0: State, kf: State => Trampoline[Result[R]], ks: State => Trampoline[Result[R]]): Result[R] = 
+    Partial[R](s => 
+      if (s == "") suspend(kf(st0 copy (complete = true)))
+      else suspend(ks(st0 + s))
+    )
 
   def demandInput: Parser[Unit] = 
     new Parser[Unit] {
@@ -44,7 +44,7 @@ trait Combinators {
         if (st0.complete)
           suspend(kf(st0,List("demandInput"),"not enough bytes"))
         else
-          suspend(prompt(st0, st => kf(st,List("demandInput"),"not enough bytes"), a => ks(a,())))
+          done(prompt(st0, st => kf(st,List("demandInput"),"not enough bytes"), a => ks(a,())))
     }
 
   def ensure(n: Int): Parser[Unit] = 
@@ -61,9 +61,9 @@ trait Combinators {
     new Parser[Boolean] {
       override def toString = "wantInput"
       def apply[R](st0: State, kf: Failure[R], ks: Success[Boolean,R]): Trampoline[Result[R]] = 
-        suspend(if (st0.input != "")   ks(st0,true)
-        else if (st0.complete) ks(st0,false)
-        else prompt(st0, a => ks(a,false), a => ks(a,true)))
+        if (st0.input != "")   suspend(ks(st0,true))
+        else if (st0.complete) suspend(ks(st0,false))
+        else done(prompt(st0, a => ks(a,false), a => ks(a,true)))
     }
 
   //////

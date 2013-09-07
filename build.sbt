@@ -11,13 +11,15 @@ resolvers ++= Seq(
 
 // Main
 libraryDependencies ++= Seq(
-  "org.scalaz"     %% "scalaz-core"       % "7.0.2"
+  "org.scalaz" %% "scalaz-core" % "7.0.2"
 )
 
 // Test
 libraryDependencies ++= Seq(     
-  "org.scalacheck" %% "scalacheck"                % "1.10.1" % "test",
-  "org.specs2"     %% "specs2"                    % "1.12.3" % "test"
+  "org.scalacheck" %% "scalacheck"    % "1.10.1" % "test",
+  "org.specs2"     %% "specs2"        % "1.12.3" % "test",
+  "org.spire-math" %% "spire"         % "0.6.0"  % "test",
+  "org.scalaz"     %% "scalaz-effect" % "7.0.2"
 )
 
 // Let's add a linter

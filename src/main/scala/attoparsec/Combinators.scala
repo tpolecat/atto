@@ -127,6 +127,9 @@ trait Combinators {
   def many1[A](p: => Parser[A]): Parser[List[A]] = 
     p cons many(p)
 
+  def manyN[A](n: Int, a: Parser[A]): Parser[List[A]] =
+    ((1 to n) :\ ok(List[A]()))((_, p) => a cons p) as s"ManyN($n, $a)"
+
   def manyTill[A](p: Parser[A], q: Parser[Any]): Parser[List[A]] = { 
     lazy val scan : Parser[List[A]] = (q ~> ok(Nil)) | (p cons scan) 
     scan as ("manyTill(" + p + "," + q + ")")
@@ -156,5 +159,6 @@ trait Combinators {
 
   def opt[A](m: Parser[A]): Parser[Option[A]] = 
     (attempt(m).map(some(_)) | ok(none)) as ("opt(" + m + ")")
+
 
 }

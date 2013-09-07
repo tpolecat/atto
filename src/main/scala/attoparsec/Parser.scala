@@ -156,6 +156,9 @@ object ParseResult {
     def either = \/-(result)
   }
 
+  implicit def show[A] = Show.showA[ParseResult[A]]
+
+
   // RCN: not sure about these...
 
   // implicit def translate[T](r: Parser.Internal.Result[T]) : ParseResult[T] = r.translate

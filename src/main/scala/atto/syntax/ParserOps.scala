@@ -3,7 +3,7 @@ package syntax
 
 import scala.language.implicitConversions
 import scalaz.syntax.Ops
-import atto._
+import atto.parser._
 
 trait ParserOps[A] extends Ops[Parser[A]] {
 
@@ -15,28 +15,28 @@ trait ParserOps[A] extends Ops[Parser[A]] {
   def parseOnly(b: String): ParseResult[A] = 
     Parser.parseOnly(self, b)
 
-  // Combinators
+  // Combinator
 
   def ~>[B](n: Parser[B]): Parser[B] =
-    Combinators.discardLeft(self, n)
+    combinator.discardLeft(self, n)
 
   def <~[B](n: Parser[B]): Parser[A] =
-    Combinators.discardRight(self, n)
+    combinator.discardRight(self, n)
 
   def ~[B](n: Parser[B]): Parser[(A, B)] =
-    Combinators.andThen(self, n)
+    combinator.andThen(self, n)
 
   def |[B >: A](n: Parser[B]): Parser[B] =
-    Combinators.orElse(self, n)
+    combinator.orElse(self, n)
 
   def ||[B](n: Parser[B]): Parser[Either[A, B]] =
-    Combinators.either(self, n)
+    combinator.either(self, n)
 
   def as(s: => String): Parser[A] = 
-    Combinators.named(self, s)
+    combinator.named(self, s)
 
   def asOpaque(s: => String): Parser[A] = 
-    Combinators.namedOpaque(self, s)
+    combinator.namedOpaque(self, s)
 
 }
 

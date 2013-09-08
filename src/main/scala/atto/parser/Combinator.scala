@@ -1,15 +1,14 @@
 package atto
+package parser
 
-import scalaz._
-import Scalaz._
-import Parser._
-
-object Combinators extends Combinators
+import scalaz.Scalaz.{some, none}
+import atto.syntax.all._
 
 // These guys need access to the implementation
-trait Combinators0 {
+trait Combinator0 {
   
-  import Free.Trampoline
+  import scalaz.Free.Trampoline
+  import scalaz.Trampoline
   import Trampoline._
   import Parser._
   import Parser.Internal._
@@ -170,8 +169,7 @@ trait Combinators0 {
 }
 
 // These don't need access to the implementation
-trait Combinators extends Combinators0 {
-  import atto.syntax.all._
+trait Combinator extends Combinator0 {
 
   def matching[A, B](m: Parser[A], f: PartialFunction[A,B]): Parser[B] = 
     m.filter(f isDefinedAt _).map(f)

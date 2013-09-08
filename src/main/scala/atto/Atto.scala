@@ -1,7 +1,5 @@
 package atto
 
-object Atto extends Combinators 
-               with Text 
+object Atto extends parser.Parsers
                with syntax.Syntaxes
 
-               

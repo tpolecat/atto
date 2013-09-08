@@ -68,9 +68,6 @@ final class WithFilter[+A](m: Parser[A], p: A => Boolean) extends Parser[A] {
 
 object Parser extends ParserInstances with ParserFunctions { 
 
-  import Combinators._
-  import Text._
-
   case class State(input: String, added: String, complete: Boolean) {
     def +(rhs: State) = State(input + rhs.added, added + rhs.added, complete | rhs.complete)
     def +(rhs: String) = State(input + rhs, added + rhs, complete)
@@ -132,7 +129,7 @@ trait ParserFunctions {
 }
 
 trait ParserInstances {
-  import Combinators._
+  import parser.combinator._
   import syntax.parser._
 
   implicit def monad: Monad[Parser] = 

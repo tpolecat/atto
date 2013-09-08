@@ -1,14 +1,12 @@
 package atto
+package parser
 
-import scalaz._
-import Scalaz._
-
-object Text extends Text
+import scalaz.syntax.std.option._
+import atto.syntax.parser._
 
 /** Text parsers. */
 trait Text {
-  import Combinators._
-  import atto.syntax.parser._
+  import combinator._
 
   /** Parser that returns a `Char` if it satisfies predicate `p`. */
   def elem(p: Char => Boolean, what: => String = "elem(...)"): Parser[Char] = 
@@ -54,16 +52,4 @@ trait Text {
       p(s.head).cata(a => put(s.tail) ~> ok(a), err(what))
     } asOpaque what
  
-  /** Parser for a decimal digit. */
-  val digit: Parser[Digit] = 
-    optElem(Digit.digitFromChar, "digit")
-
-  /** Parser for a decimal number. */
-  val long: Parser[Long] =
-    many1(digit).map(Digit.longDigits(_)) as "long"
-
-  /** Parser for a decimal number. */
-  val int: Parser[Int] =
-    long.map(_.toInt) as "int"
-
 }

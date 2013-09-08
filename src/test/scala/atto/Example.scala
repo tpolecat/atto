@@ -5,7 +5,7 @@ import Scalaz._
 import spire.math.UByte
 
 // This is adapted from https://www.fpcomplete.com/school/text-manipulation/attoparsec
-object Example extends App with SpireParsers {
+object Example extends App {
   import Atto._
 
   // IP Address
@@ -67,15 +67,3 @@ object Example extends App with SpireParsers {
 
 }
 
-trait SpireParsers {
-  import Atto._
-
-  // Main source doesn't depend on spire, so we define this here. Nice example of how easy it is to
-  // take an existing parser and further constrain it.
-  val ubyte: Parser[UByte] = 
-    int.flatMap { n =>
-      if (n >= UByte.MinValue.toInt && n <= UByte.MaxValue.toInt) ok(UByte(n)) 
-      else err(s"ubyte (out of range: $n)")
-    } as "ubyte"
-
-}

@@ -1,10 +1,20 @@
 
-scala-attoparsec
-================
+atto
+====
 
-Forked from kmett, updated for scala 2.10 and scalaz 7. In progress.
+Scala port of `attoparsec`, forked from kmett. Progress thus far:
 
-I had to trampoline the whole damn thing because the combinators are mutually recursive. Seems to work but still barfs on larger stuff.
+   * Updated to Scala 2.10 and scalaz 7.0
+   * Implementation is now trampolined (no more stack overflows)
+   * Additional combinators and parsing options
+   * Beginnings of a tutorial
+
+There are still no tests. So, um, need to do that.
+
+quick start
+-----------
+
+Clone, build, and play around. That's as quick as it gets at the moment.
 
 ```scala
 

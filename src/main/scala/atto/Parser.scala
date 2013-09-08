@@ -31,40 +31,13 @@ abstract class Parser[+A] { m =>
         suspend(m(st0,kf,(s:State, a:A) => suspend(ks(s,f(a)))))
     }
 
-  def withFilter(p: A => Boolean): WithFilter[A] = 
-    new WithFilter(m, p)
-
   def filter(p: A => Boolean): Parser[A] = 
-    new WithFilter(m, p)
+    parser.combinator.filter(this, p)
+
+  def withFilter(p: A => Boolean): Parser[A] = 
+    filter(p)
 
 }
-
-// This is just another combinator innit?
-final class WithFilter[+A](m: Parser[A], p: A => Boolean) extends Parser[A] { 
-  import Parser._
-  import Parser.Internal._
-  import Trampoline._
-
-  override def toString = 
-    m infix "withFilter ..."
-  
-  def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R] =
-    suspend(m(st0,kf,(s:State, a:A) => if (p(a)) ks(s,a) else kf(s, Nil, "withFilter")))
-  
-  override def map[B](f: A => B) = 
-    m filter p map f
-  
-  override def flatMap[B](f: A => Parser[B]) = 
-    m filter p flatMap f
-  
-  override def withFilter(q: A => Boolean): WithFilter[A] =
-    new WithFilter[A](this, x => p(x) && q(x))
-  
-  override def filter(q: A => Boolean): WithFilter[A] = 
-    new WithFilter[A](this, x => p(x) && q(x))
-
-}
-
 
 object Parser extends ParserInstances with ParserFunctions { 
 
@@ -108,9 +81,6 @@ trait ParserFunctions {
 
   def parseOnly[A](m: Parser[A], b: String): ParseResult[A] = 
     m(State(b, "", true),  (a,b,c) => done(Fail(a, b, c)), (a,b) => done(Done(a, b))).run.translate
-
-  // def parse[A](m: Parser[A], init: String): ParseResult[A] = 
-  //   m parse init
   
   // def parse[M[_]:Monad, A](m: Parser[A], refill: M[String], init: String): M[ParseResult[A]] = {
   //   def step[A] (r: Result[A]): M[ParseResult[A]] = r match {

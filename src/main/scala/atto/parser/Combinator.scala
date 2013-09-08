@@ -225,4 +225,34 @@ trait Combinator extends Combinator0 {
   def opt[A](m: Parser[A]): Parser[Option[A]] = 
     (attempt(m).map(some(_)) | ok(none)) as ("opt(" + m + ")")
 
+  def filter[A](m: Parser[A], p: A => Boolean): Parser[A] =
+    new WithFilter(m, p)
+
 }
+
+
+final class WithFilter[+A](m: Parser[A], p: A => Boolean) extends Parser[A] { 
+  import Parser._
+  import Parser.Internal._
+  import scalaz.Trampoline._
+
+  override def toString = 
+    m infix "withFilter ..."
+  
+  def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R] =
+    suspend(m(st0,kf,(s:State, a:A) => if (p(a)) ks(s,a) else kf(s, Nil, "withFilter")))
+  
+  override def map[B](f: A => B) = 
+    m filter p map f
+  
+  override def flatMap[B](f: A => Parser[B]) = 
+    m filter p flatMap f
+  
+  override def withFilter(q: A => Boolean): Parser[A] =
+    new WithFilter[A](m, x => p(x) && q(x))
+  
+  override def filter(q: A => Boolean): Parser[A] = 
+    new WithFilter[A](m, x => p(x) && q(x))
+
+}
+

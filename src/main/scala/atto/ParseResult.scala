@@ -11,7 +11,7 @@ sealed abstract class ParseResult[+A] {
   def done: ParseResult[A] = feed("")
 }
 
-object ParseResult { 
+object ParseResult extends ParseResultInstances { 
 
   case class Fail(input: String, stack: List[String], message: String) extends ParseResult[Nothing] { 
     def map[B](f: Nothing => B) = Fail(input, stack, message)
@@ -36,10 +36,14 @@ object ParseResult {
     def either = \/-(result)
   }
 
-  // RCN: not sure about these...
+}
 
-  // implicit def translate[T](r: Parser.Internal.Result[T]) : ParseResult[T] = r.translate
-  // implicit def option[T](r: ParseResult[T]): Option[T] = r.option
-  // implicit def either[T](r: ParseResult[T]): Either[String,T] = r.either
+trait ParseResultInstances {
+
+  implicit val functor: Functor[ParseResult] =
+    new Functor[ParseResult] {
+      def map[A,B](ma: ParseResult[A])(f: A => B) = 
+        ma map f
+    }
 
 }

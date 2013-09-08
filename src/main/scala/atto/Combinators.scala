@@ -1,4 +1,4 @@
-package attoparsec
+package atto
 
 import scalaz._
 import Scalaz._

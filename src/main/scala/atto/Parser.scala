@@ -1,4 +1,4 @@
-package attoparsec
+package atto
 
 import scala.language.implicitConversions
 import scala.language.higherKinds

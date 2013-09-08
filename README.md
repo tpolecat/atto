@@ -18,15 +18,15 @@ Clone, build, and play around. That's as quick as it gets at the moment.
 
 ```scala
 
-scala> import attoparsec._; import Parser._
-import attoparsec._
+scala> import atto._; import Parser._
+import atto._
 import Parser._
 
 scala> case class IP(a: Int, b: Int, c: Int, d:Int)
 defined class IP
 
 scala> val dot = char('.')
-dot: attoparsec.Parser[Char] = '.'
+dot: atto.Parser[Char] = '.'
 
 scala> val ip = for { 
      |   a <- int
@@ -37,16 +37,16 @@ scala> val ip = for {
      |   _ <- dot
      |   d <- int 
      | } yield IP(a, b, c, d)
-ip: attoparsec.Parser[IP] = (int) flatMap ...
+ip: atto.Parser[IP] = (int) flatMap ...
 
 scala> ip parseOnly "123.87.69.9 and some more text"
-res1: attoparsec.ParseResult[IP] = Done( and some more text,IP(123,87,69,9))
+res1: atto.ParseResult[IP] = Done( and some more text,IP(123,87,69,9))
 
 scala> ip parseOnly "foo"
-res2: attoparsec.ParseResult[IP] = Fail(foo,List(int, long),Failure reading:digit)
+res2: atto.ParseResult[IP] = Fail(foo,List(int, long),Failure reading:digit)
 
 scala> many(char('a')) parseOnly List.fill(20000)("a").mkString // Trampolining
-res1: attoparsec.ParseResult[List[Char]] = Done(,List(a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, 
+res1: atto.ParseResult[List[Char]] = Done(,List(a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, 
 a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, 
 a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, 
 a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, a, 

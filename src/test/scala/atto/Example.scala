@@ -1,4 +1,4 @@
-package attoparsec
+package atto
 
 import scalaz._
 import scalaz.effect._
@@ -57,7 +57,7 @@ object Example extends App with SpireParsers {
 
   // Since nothing that occurs on the left-hand side of our <- appears on the right-hand side, we
   // don't actually need a monad; we can use applicative syntax.
-  val ubyteDot = ubyte <~ char('.') // why not?
+  val ubyteDot = ubyte <~ dot // why not?
   val ip4 = (ubyteDot |@| ubyteDot |@| ubyteDot |@| ubyte)(IP.apply) as "ip-address"
 
   // Try it!

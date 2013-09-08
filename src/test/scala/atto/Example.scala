@@ -1,14 +1,12 @@
 package atto
 
 import scalaz._
-import scalaz.effect._
 import Scalaz._
 import spire.math.UByte
 
 // This is adapted from https://www.fpcomplete.com/school/text-manipulation/attoparsec
 object Example extends App with SpireParsers {
-  import Parser._
-  import IO._
+  import Atto._
 
   // IP Address
   case class IP(a: UByte, b: UByte, c: UByte, d: UByte) 
@@ -70,7 +68,7 @@ object Example extends App with SpireParsers {
 }
 
 trait SpireParsers {
-  import Parser._
+  import Atto._
 
   // Main source doesn't depend on spire, so we define this here. Nice example of how easy it is to
   // take an existing parser and further constrain it.

@@ -3,8 +3,12 @@ package atto
 import scalaz._
 import Scalaz._
 
+object Text extends Text
+
 /** Text parsers. */
-trait Text extends Combinators {
+trait Text {
+  import Combinators._
+  import atto.syntax.parser._
 
   /** Parser that returns a `Char` if it satisfies predicate `p`. */
   def elem(p: Char => Boolean, what: => String = "elem(...)"): Parser[Char] = 

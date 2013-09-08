@@ -43,7 +43,7 @@ scalacOptions ++= Seq(
 initialCommands :=
   """import scalaz._
      import Scalaz._
-     import attoparsec._
-     import Parser._"""
+     import atto._
+     import Atto._"""
 
 

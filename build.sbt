@@ -11,8 +11,8 @@ resolvers ++= Seq(
 
 // Main
 libraryDependencies ++= Seq(
-  "org.scalaz" %% "scalaz-core" % "7.0.2",
-  "org.spire-math" %% "spire"   % "0.6.0"
+  "org.scalaz"     %% "scalaz-core" % "7.0.2",
+  "org.spire-math" %% "spire"       % "0.6.0"
 )
 
 // Test
@@ -25,6 +25,14 @@ libraryDependencies ++= Seq(
 resolvers += "linter" at "http://hairyfotr.github.io/linteRepo/releases"
 
 addCompilerPlugin("com.foursquare.lint" %% "linter" % "0.1-SNAPSHOT")
+
+// And WartRemover (!)
+
+resolvers += Resolver.sonatypeRepo("releases")
+
+addCompilerPlugin("org.brianmckenna" % "wartremover" % "0.4" cross CrossVersion.full)
+
+scalacOptions += "-P:wartremover:traverser:org.brianmckenna.wartremover.warts.Unsafe"
 
 // And turn warnings all the way up
 scalacOptions ++= Seq(

@@ -7,14 +7,10 @@ import atto.syntax.parser._
 /** Text parsers. */
 trait Text {
   import combinator._
+  import character._
 
-  /** Parser that returns a `Char` if it satisfies predicate `p`. */
-  def elem(p: Char => Boolean, what: => String = "elem(...)"): Parser[Char] = 
-    ensure(1) ~> get flatMap (s => {
-      val c = s.charAt(0)
-      if (p(c)) put(s.substring(1)) ~> ok(c)
-      else err(what)
-    }) asOpaque what
+  def stringOf(p: Parser[Char]): Parser[String] =
+    many1(p).map(_.mkString) as "stringOf(" + p + ")"
 
   /** Parser that skips a `Char` if it satisfies predicate `p`. */
   def skip(s: String, p: Char => Boolean, what: => String = "skip(...)"): Parser[Unit] = 
@@ -34,10 +30,6 @@ trait Text {
   /** Parser that returns the next `n` characters as a `String`. */
   def take(n: Int): Parser[String] = 
     takeWith(n, _ => true, "take(" + n + ")")
-
-  /** Parser that matches and returns only `c`. */
-  def char(c: Char): Parser[Char] = 
-    elem(_==c, "'" + c.toString + "'")
 
   /** Parser that matches and returns only `s`. */
   def string(s: String): Parser[String] = 

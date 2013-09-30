@@ -53,8 +53,8 @@ object Example extends App {
   println(ip2 parseOnly "foo.bar") // Fail(foo.bar,List(ip-address, ubyte, int, long),Failure reading:digit)
   println(ip3 parseOnly "foo.bar") // Fail(foo.bar,List(),Failure reading:ip-address)
 
-  // Since nothing that occurs on the left-hand side of our <- appears on the right-hand side, we
-  // don't actually need a monad; we can use applicative syntax.
+  // Since nothing that occurs on the right-hand side of our <- appears on the left-hand side, we
+  // don't actually need a monad; we can use applicative syntax here.
   val ubyteDot = ubyte <~ dot // why not?
   val ip4 = (ubyteDot |@| ubyteDot |@| ubyteDot |@| ubyte)(IP.apply) as "ip-address"
 

@@ -32,7 +32,7 @@ resolvers += Resolver.sonatypeRepo("releases")
 
 addCompilerPlugin("org.brianmckenna" % "wartremover" % "0.4" cross CrossVersion.full)
 
-scalacOptions in (Compile, compile) += "-P:wartremover:traverser:org.brianmckenna.wartremover.warts.Unsafe"
+// scalacOptions in (Compile, compile) += "-P:wartremover:traverser:org.brianmckenna.wartremover.warts.Unsafe"
 
 // And turn warnings all the way up
 scalacOptions ++= Seq(

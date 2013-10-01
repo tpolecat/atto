@@ -32,6 +32,8 @@ trait ParserOps[A] extends Ops[Parser[A]] {
   def ||[B](n: Parser[B]): Parser[Either[A, B]] =
     combinator.either(self, n)
 
+  // Naming
+
   def as(s: => String): Parser[A] = 
     combinator.named(self, s)
 

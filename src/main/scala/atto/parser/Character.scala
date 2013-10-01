@@ -7,6 +7,7 @@ import scalaz.Digit._
 import scalaz.std.list._
 import atto.syntax.parser._
 
+/** Parsers for various kinds of characters. */
 trait Character {
   import combinator._
   import text._
@@ -21,7 +22,7 @@ trait Character {
 
   /** Parser that matches and returns only `c`. */
   def char(c: Char): Parser[Char] = 
-    elem(_==c, "'" + c.toString + "'")
+    elem(_ == c, s"'$c'")
 
   def digit: Parser[Char] =
     elem(_.isDigit, "digit")

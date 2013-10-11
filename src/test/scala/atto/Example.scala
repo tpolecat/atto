@@ -65,5 +65,80 @@ object Example extends App {
   println(ip4.parseOnly("abc.42.42.1").either) // -\/(Failure reading:digit)
   println(ip4.parseOnly("128.42.42.1").either) // \/-(IP(128,42,42,1))
 
+  // Parsing logs
+
+  // Here's an example log
+  val logData = 
+    """|2013-06-29 11:16:23 124.67.34.60 keyboard
+       |2013-06-29 11:32:12 212.141.23.67 mouse
+       |2013-06-29 11:33:08 212.141.23.67 monitor
+       |2013-06-29 12:12:34 125.80.32.31 speakers
+       |2013-06-29 12:51:50 101.40.50.62 keyboard
+       |2013-06-29 13:10:45 103.29.60.13 mouse
+       |""".stripMargin
+
+  // Step 1: Define types
+
+  // My date/time lib isn't done yet so let's just pretend
+  case class Date(year: Int, month: Int, day: Int)
+  case class Time(hour: Int, minutes: Int, seconds: Int)
+  case class DateTime(date: Date, time: Time)
+
+  sealed trait Product
+  case object Mouse extends Product
+  case object Keyboard extends Product
+  case object Monitor extends Product
+  case object Speakers extends Product
+
+  case class LogEntry(entryTime: DateTime, entryIP: IP, entryProduct: Product)
+
+  type Log = List[LogEntry]
+
+  // Step 2: Follow the syntax
+
+  // Parser for a fixed-width int. TODO: this should be better
+  def fixed(n:Int): Parser[Int] =
+    count(n, digit).flatMap { s => 
+      try ok(s.mkString.toInt) catch { case nfe: NumberFormatException => err(nfe.toString) }
+    }
+
+  val date: Parser[Date] =
+    for {
+      y <- fixed(4) <~ char('-')
+      m <- fixed(2) <~ char('-')
+      d <- fixed(2)
+    } yield Date(y, m, d)
+
+  val time: Parser[Time] =
+    for {
+      h <- fixed(2) <~ char(':')
+      m <- fixed(2) <~ char(':')
+      s <- fixed(2)
+    } yield Time(h, m, s)
+
+  val dateTime: Parser[DateTime] =
+    (date <~ char(' ') |@| time)(DateTime.apply)
+
+  val product: Parser[Product] =
+    string("keyboard").map(_ => Keyboard) |
+    string("mouse")   .map(_ => Mouse)    |
+    string("monitor") .map(_ => Monitor)  |
+    string("speakers").map(_ => Speakers)
+
+  val logEntry: Parser[LogEntry] =
+    (dateTime <~ char(' ') |@| ip <~ char(' ') |@| product)(LogEntry.apply)
+
+  val log: Parser[Log] =
+    sepBy(logEntry, char('\n'))
+
+  // Try it!
+  (log parseOnly logData).option.foreach(_.foreach(println))
+  // LogEntry(DateTime(Date(2013,6,29),Time(11,16,23)),IP(124,67,34,60),Keyboard)
+  // LogEntry(DateTime(Date(2013,6,29),Time(11,32,12)),IP(212,141,23,67),Mouse)
+  // LogEntry(DateTime(Date(2013,6,29),Time(11,33,8)),IP(212,141,23,67),Monitor)
+  // LogEntry(DateTime(Date(2013,6,29),Time(12,12,34)),IP(125,80,32,31),Speakers)
+  // LogEntry(DateTime(Date(2013,6,29),Time(12,51,50)),IP(101,40,50,62),Keyboard)
+  // LogEntry(DateTime(Date(2013,6,29),Time(13,10,45)),IP(103,29,60,13),Mouse)
+
 }
 

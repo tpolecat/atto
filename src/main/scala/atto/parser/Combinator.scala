@@ -229,6 +229,11 @@ trait Combinator extends Combinator0 {
   def filter[A](m: Parser[A], p: A => Boolean): Parser[A] =
     new WithFilter(m, p)
 
+  def count[A](n: Int, p: Parser[A]): Parser[List[A]] =
+    ((1 to n) :\ ok(List[A]()))((_, a) => cons(p, a))
+
+    
+
 }
 
 

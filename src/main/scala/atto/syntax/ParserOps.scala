@@ -3,6 +3,7 @@ package syntax
 
 import scala.language.implicitConversions
 import scalaz.syntax.Ops
+import scalaz.\/
 import atto.parser._
 
 trait ParserOps[A] extends Ops[Parser[A]] {
@@ -29,7 +30,7 @@ trait ParserOps[A] extends Ops[Parser[A]] {
   def |[B >: A](n: Parser[B]): Parser[B] =
     combinator.orElse(self, n)
 
-  def ||[B](n: Parser[B]): Parser[Either[A, B]] =
+  def ||[B](n: Parser[B]): Parser[\/[A, B]] =
     combinator.either(self, n)
 
   // Naming

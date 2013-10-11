@@ -14,4 +14,11 @@ trait Spire {
       else err(s"out of range: $n)")
     } as "ubyte"
 
+  ////// Helpers
+
+  // private def narrow[A,B](p: Parser[A])(f: A => Boolean, g: A => B, as: String): Parser[B] =
+  //   p flatMap { a => 
+  //     if (f(a)) ok(g(a)) else err("too large, too small, or too precise: " + a)
+  //   } as as
+
 }

@@ -1,4 +1,4 @@
-name := "scala-attoparsec"
+name := "atto"
 
 version := "0.1"
 

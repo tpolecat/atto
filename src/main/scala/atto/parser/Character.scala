@@ -42,4 +42,9 @@ trait Character {
   def upper: Parser[Char] =
     elem(_.isUpper, "upper")
 
+  type CharRange = collection.immutable.NumericRange[Char]
+
+  def charRange(rs: CharRange*) =
+    elem(c => rs.exists(_.contains(c)))
+
 }

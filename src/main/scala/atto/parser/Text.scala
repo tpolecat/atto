@@ -10,7 +10,10 @@ trait Text {
   import character._
 
   def stringOf(p: Parser[Char]): Parser[String] =
-    many1(p).map(_.mkString) as "stringOf(" + p + ")"
+    many(p).map(_.mkString) as "stringOf(" + p + ")"
+
+  def stringOf1(p: Parser[Char]): Parser[String] =
+    many1(p).map(_.mkString) as "stringOf1(" + p + ")"
 
   /** Parser that skips a `Char` if it satisfies predicate `p`. */
   def skip(s: String, p: Char => Boolean, what: => String = "skip(...)"): Parser[Unit] = 

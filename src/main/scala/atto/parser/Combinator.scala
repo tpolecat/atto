@@ -9,6 +9,7 @@ trait Combinator0 {
   
   import scalaz.Free.Trampoline
   import scalaz.Trampoline
+  import scalaz.{\/, -\/, \/-}
   import Trampoline._
   import Parser._
   import Parser.Internal._
@@ -137,18 +138,18 @@ trait Combinator0 {
   def orElse[A, B >: A](m: Parser[A], n: => Parser[B]): Parser[B] = 
     new Parser[B] {
       override def toString = m infix ("| ...")
-      def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): TResult[R] =         
+      def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): TResult[R] =
         suspend(m(st0.noAdds, (st1: State, stack: List[String], msg: String) => n(st0 + st1, kf, ks), ks))
     }
 
-  def either[A, B](m: Parser[A], n: => Parser[B]): Parser[Either[A,B]] = 
-    new Parser[Either[A,B]] { 
+  def either[A, B](m: Parser[A], n: => Parser[B]): Parser[\/[A,B]] = 
+    new Parser[\/[A,B]] { 
       override def toString = m infix ("|| " + n)
-      def apply[R](st0: State, kf: Failure[R], ks: Success[Either[A,B],R]): TResult[R] = 
+      def apply[R](st0: State, kf: Failure[R], ks: Success[\/[A,B],R]): TResult[R] = 
         suspend(m(
           st0.noAdds, 
-          (st1: State, stack: List[String], msg: String) => n (st0 + st1, kf, (st1: State, b: B) => ks(st1, Right(b))), 
-          (st1: State, a: A) => ks(st1, Left(a))
+          (st1: State, stack: List[String], msg: String) => n (st0 + st1, kf, (st1: State, b: B) => ks(st1, \/-(b))), 
+          (st1: State, a: A) => ks(st1, -\/(a))
         ))
     }
 

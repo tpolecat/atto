@@ -33,13 +33,16 @@ trait ParserOps[A] extends Ops[Parser[A]] {
   def ||[B](n: Parser[B]): Parser[\/[A, B]] =
     combinator.either(self, n)
 
-  // Naming
+  // Other
 
   def as(s: => String): Parser[A] = 
     combinator.named(self, s)
 
   def asOpaque(s: => String): Parser[A] = 
     combinator.namedOpaque(self, s)
+
+  def collect[B](pf: PartialFunction[A,B]): Parser[B] =
+    combinator.collect(self, pf)
 
 }
 

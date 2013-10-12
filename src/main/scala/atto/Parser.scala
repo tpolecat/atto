@@ -8,12 +8,14 @@ import Scalaz._
 import Free.Trampoline
 import Trampoline._
 
-abstract class Parser[+A] { m => 
+// Operators not needed for use in `for` comprehensions are provided via added syntax.
+trait Parser[+A] { m => 
   import Parser._
   import Parser.Internal._
 
   def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R]
   
+  // TODO: get rid of this
   def infix(s: String): String = 
     "(" + m.toString + ") " + s
 
@@ -33,9 +35,6 @@ abstract class Parser[+A] { m =>
 
   def filter(p: A => Boolean): Parser[A] = 
     parser.combinator.filter(this, p)
-
-  def withFilter(p: A => Boolean): Parser[A] = 
-    filter(p)
 
 }
 

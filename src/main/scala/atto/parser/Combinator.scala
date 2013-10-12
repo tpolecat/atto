@@ -172,7 +172,7 @@ trait Combinator0 {
 // These don't need access to the implementation
 trait Combinator extends Combinator0 {
 
-  def matching[A, B](m: Parser[A], f: PartialFunction[A,B]): Parser[B] = 
+  def collect[A, B](m: Parser[A], f: PartialFunction[A,B]): Parser[B] = 
     m.filter(f isDefinedAt _).map(f)
 
   def cons[A, B >: A](m: Parser[A], n: => Parser[List[B]]): Parser[List[B]] = 
@@ -227,38 +227,12 @@ trait Combinator extends Combinator0 {
     (attempt(m).map(some(_)) | ok(none)) as ("opt(" + m + ")")
 
   def filter[A](m: Parser[A], p: A => Boolean): Parser[A] =
-    new WithFilter(m, p)
+    m.flatMap { a => 
+      if (p(a)) ok(a) else err(s"$m filter ...")
+    } as s"$m filter ..."
 
   def count[A](n: Int, p: Parser[A]): Parser[List[A]] =
     ((1 to n) :\ ok(List[A]()))((_, a) => cons(p, a))
-
-    
-
-}
-
-
-final class WithFilter[+A](m: Parser[A], p: A => Boolean) extends Parser[A] { 
-  import Parser._
-  import Parser.Internal._
-  import scalaz.Trampoline._
-
-  override def toString = 
-    m infix "withFilter ..."
-  
-  def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R] =
-    suspend(m(st0,kf,(s:State, a:A) => if (p(a)) ks(s,a) else kf(s, Nil, "withFilter")))
-  
-  override def map[B](f: A => B) = 
-    m filter p map f
-  
-  override def flatMap[B](f: A => Parser[B]) = 
-    m filter p flatMap f
-  
-  override def withFilter(q: A => Boolean): Parser[A] =
-    new WithFilter[A](m, x => p(x) && q(x))
-  
-  override def filter(q: A => Boolean): Parser[A] = 
-    new WithFilter[A](m, x => p(x) && q(x))
 
 }
 

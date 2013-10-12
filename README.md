@@ -11,7 +11,5 @@ Scala port of `attoparsec`, forked from kmett. Progress thus far:
 
 Known issues:
 
-   * `WithFilter` can still cause stack overflows, so I am considering removing it; it's trivial to implement `filter` in terms of `flatMap`.
    * It is possible to construct a parser that does not behave properly when given incremental input. This is under investigation.
 
-   

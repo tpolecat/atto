@@ -5,7 +5,7 @@ import Scalaz._
 import spire.math.UByte
 
 // This is adapted from https://www.fpcomplete.com/school/text-manipulation/attoparsec
-object Example extends App {
+object Example {
   import Atto._
 
   // IP Address
@@ -45,7 +45,7 @@ object Example extends App {
   // Try it!
   println(ip1.parseOnly("128.42.42.1").option) // Some(IP(128,42,42,1)
 
-  // We can name our parser, which provides slightly more enlightening failure messages
+  // We can name our parser, which provides slighExatly more enlightening failure messages
   val ip2 = ip1 as "ip-address"
   val ip3 = ip1 asOpaque "ip-address" // difference is illustrated below
 
@@ -65,9 +65,7 @@ object Example extends App {
   println(ip4.parseOnly("abc.42.42.1").either) // -\/(Failure reading:digit)
   println(ip4.parseOnly("128.42.42.1").either) // \/-(IP(128,42,42,1))
 
-  // Parsing logs
-
-  // Here's an example log
+  // Here's an example log. Let's write a parser for it.
   val logData = 
     """|2013-06-29 11:16:23 124.67.34.60 keyboard
        |2013-06-29 11:32:12 212.141.23.67 mouse
@@ -77,44 +75,36 @@ object Example extends App {
        |2013-06-29 13:10:45 103.29.60.13 mouse
        |""".stripMargin
 
-  // Step 1: Define types
-
-  // My date/time lib isn't done yet so let's just pretend
+  // My date/time lib isn't done yet so let's just pretend this is adequate (it isn't)
   case class Date(year: Int, month: Int, day: Int)
   case class Time(hour: Int, minutes: Int, seconds: Int)
   case class DateTime(date: Date, time: Time)
 
+  // Products are an enumerated type
   sealed trait Product
   case object Mouse extends Product
   case object Keyboard extends Product
   case object Monitor extends Product
   case object Speakers extends Product
 
+  // An entry has a date, time, IP, and product
   case class LogEntry(entryTime: DateTime, entryIP: IP, entryProduct: Product)
 
+  // The log is a list of them
   type Log = List[LogEntry]
 
-  // Step 2: Follow the syntax
-
-  // Parser for a fixed-width int. TODO: this should be better
+  // There's no built-in parser for fixed-width ints, so we can just make one. Probably shouldn't
+  // be doing this in a tutorial though. How should we handle this?
   def fixed(n:Int): Parser[Int] =
-    count(n, digit).flatMap { s => 
-      try ok(s.mkString.toInt) catch { case nfe: NumberFormatException => err(nfe.toString) }
+    count(n, digit).map(_.mkString).flatMap { s => 
+      try ok(s.toInt) catch { case e: NumberFormatException => err(e.toString) }
     }
 
   val date: Parser[Date] =
-    for {
-      y <- fixed(4) <~ char('-')
-      m <- fixed(2) <~ char('-')
-      d <- fixed(2)
-    } yield Date(y, m, d)
+    (fixed(4) <~ char('-') |@| fixed(2) <~ char('-') |@| fixed(2))(Date.apply)
 
   val time: Parser[Time] =
-    for {
-      h <- fixed(2) <~ char(':')
-      m <- fixed(2) <~ char(':')
-      s <- fixed(2)
-    } yield Time(h, m, s)
+    (fixed(2) <~ char(':') |@| fixed(2) <~ char(':') |@| fixed(2))(Time.apply)
 
   val dateTime: Parser[DateTime] =
     (date <~ char(' ') |@| time)(DateTime.apply)

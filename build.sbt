@@ -1,8 +1,19 @@
 name := "atto"
 
+organization := "org.tpolecat"
+
+description := "functional parser combinators for scala"
+
 version := "0.1"
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.10.3"
+
+// crossScalaVersions := Seq("2.10.1", "2.10.2", "2.10.3")
+
+// Bintray
+seq(bintrayPublishSettings:_*)
+
+licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 
 resolvers ++= Seq(
   "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
@@ -24,13 +35,13 @@ libraryDependencies ++= Seq(
 // Let's add a linter
 resolvers += "linter" at "http://hairyfotr.github.io/linteRepo/releases"
 
-addCompilerPlugin("com.foursquare.lint" %% "linter" % "0.1-SNAPSHOT")
+// addCompilerPlugin("com.foursquare.lint" %% "linter" % "0.1-SNAPSHOT")
 
 // And WartRemover (!)
 
 resolvers += Resolver.sonatypeRepo("releases")
 
-addCompilerPlugin("org.brianmckenna" % "wartremover" % "0.4" cross CrossVersion.full)
+// addCompilerPlugin("org.brianmckenna" % "wartremover" % "0.4" cross CrossVersion.full)
 
 // scalacOptions in (Compile, compile) += "-P:wartremover:traverser:org.brianmckenna.wartremover.warts.Unsafe"
 
@@ -52,5 +63,4 @@ initialCommands :=
      import Scalaz._
      import atto._
      import Atto._"""
-
 

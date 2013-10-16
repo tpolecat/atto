@@ -22,11 +22,9 @@ trait Spire {
   val uint: Parser[UInt] = 
     narrow[Long, UInt](long, UInt.MinValue.toLong, UInt.MaxValue.toLong, UInt(_))
 
-  // TODO: how do I construct a ULong larger than Long.MaxValue?
-  // /** Parser for an unsigned long (range-checked). */
-  // val ulong: Parser[ULong] = 
-  //   narrow[BigInt, ULong](bigInt, ULong.MinValue.toBigInt, ULong.MaxValue.toBigInt, ULong(_))
-
+  /** Parser for an unsigned long (range-checked). */
+  val ulong: Parser[ULong] = 
+    narrow[BigInt, ULong](bigInt, ULong.MinValue.toBigInt, ULong.MaxValue.toBigInt, n => ULong(n.toLong))
 
   ////// Helpers
 

@@ -14,7 +14,7 @@ Known issues:
    * It is possible to construct a parser that does not behave properly when given incremental input. This is under investigation.
 
 Getting Started
-===============
+---------------
 
 You need `scalaz` and `atto` and you probably want `spire`. Here's how to get all three.
 

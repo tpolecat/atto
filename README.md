@@ -1,7 +1,10 @@
-atto
-====
+atto - friendly parsing
+====================
 
-Scala port of `attoparsec`, forked from kmett. Progress thus far:
+This is a Scala port of `attoparsec`, forked from Ed Kmett's original, updated, sliced up in the style of `scalaz` and
+expanded with more combinators and parsers for base types.
+
+Progress thus far:
 
    * Updated to Scala 2.10 and scalaz 7.0
    * Implementation is now trampolined (slower, but no more stack overflows)
@@ -11,7 +14,8 @@ Scala port of `attoparsec`, forked from kmett. Progress thus far:
 
 Known issues:
 
-   * It is possible to construct a parser that does not behave properly when given incremental input. This is under investigation.
+   * It is possible to construct a parser that does not behave properly when given incremental input. This is under
+     investigation.
 
 Getting Started
 ---------------
@@ -52,7 +56,10 @@ res0: atto.ParseResult[Int] = Done(abc,123)
 Very Simple Examples
 --------------------
 
-A `Parser[A]` consumes characters and produces a value of type `A`. Let's look at a predefined one.
+These examples assume you have done the imports shown above.
+
+A `Parser[A]` consumes characters and produces a value of type `A`. Let's look at a predefined parser that matches only
+characters where `isLetter` is true.
 
 ```scala
 scala> letter

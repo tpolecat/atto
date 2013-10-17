@@ -33,13 +33,13 @@ libraryDependencies ++= Seq(
 )
 
 // Let's add a linter
-resolvers += "linter" at "http://hairyfotr.github.io/linteRepo/releases"
+// resolvers += "linter" at "http://hairyfotr.github.io/linteRepo/releases"
 
 // addCompilerPlugin("com.foursquare.lint" %% "linter" % "0.1-SNAPSHOT")
 
 // And WartRemover (!)
 
-resolvers += Resolver.sonatypeRepo("releases")
+// resolvers += Resolver.sonatypeRepo("releases")
 
 // addCompilerPlugin("org.brianmckenna" % "wartremover" % "0.4" cross CrossVersion.full)
 
@@ -55,7 +55,8 @@ scalacOptions ++= Seq(
 	"-Ywarn-numeric-widen",
 	"-Ywarn-dead-code", // confused by ???, sadly
 	"-Xlint",
-	"-Xfatal-warnings"
+	"-Xfatal-warnings",
+  "-unchecked"
 )
 
 initialCommands :=

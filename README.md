@@ -9,13 +9,14 @@ Progress thus far:
    * Updated to Scala 2.10 and scalaz 7.0
    * Implementation is now trampolined (slower, but no more stack overflows)
    * Additional combinators and parsing options
-   * Beginnings of a tutorial below, and [here](src/test/scala/atto/Example.scala)
+   * New tut-based **tutorial** over [here](https://github.com/tpolecat/tut/blob/master/out/Atto.md). Enjoy!
    * [NTriples](http://www.w3.org/TR/rdf-testcases/#ntriples) parser example in progress [here](src/test/scala/atto/NTriples.scala)
 
 Known issues:
 
    * It is possible to construct a parser that does not behave properly when given incremental input. This is under
      investigation.
+   * No idea how fast or slow it is. Doesn't seem terrible but hard to say for sure.
 
 Getting Started
 ---------------
@@ -36,5 +37,5 @@ libraryDependencies ++= Seq(
 )
 ```
 
-There is a short **tutorial** over [here](https://github.com/tpolecat/tut/blob/master/out/Atto.md). Enjoy!
+See the **tutorial** over [here](https://github.com/tpolecat/tut/blob/master/out/Atto.md). Enjoy!
 

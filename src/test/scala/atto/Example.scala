@@ -5,7 +5,7 @@ import Scalaz._
 import spire.math.UByte
 
 // This is adapted from https://www.fpcomplete.com/school/text-manipulation/attoparsec
-object Example {
+object Example extends App {
   import Atto._
 
   // IP Address
@@ -93,18 +93,16 @@ object Example {
   // The log is a list of them
   type Log = List[LogEntry]
 
-  // There's no built-in parser for fixed-width ints, so we can just make one. Probably shouldn't
-  // be doing this in a tutorial though. How should we handle this?
-  def fixed(n:Int): Parser[Int] =
-    count(n, digit).map(_.mkString).flatMap { s => 
-      try ok(s.toInt) catch { case e: NumberFormatException => err(e.toString) }
-    }
+  // Fixed-width ints, which we need below.
+  val int1: Parser[Int] = digit.map(_ - '0')
+  val int2: Parser[Int] = (int1 |@| int1)(_ * 10 + _)
+  val int4: Parser[Int] = (int2 |@| int2)(_ * 100 + _)
 
   val date: Parser[Date] =
-    (fixed(4) <~ char('-') |@| fixed(2) <~ char('-') |@| fixed(2))(Date.apply)
+    (int4 <~ char('-') |@| int2 <~ char('-') |@| int2)(Date.apply)
 
   val time: Parser[Time] =
-    (fixed(2) <~ char(':') |@| fixed(2) <~ char(':') |@| fixed(2))(Time.apply)
+    (int2 <~ char(':') |@| int2 <~ char(':') |@| int2)(Time.apply)
 
   val dateTime: Parser[DateTime] =
     (date <~ char(' ') |@| time)(DateTime.apply)

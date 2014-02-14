@@ -1,7 +1,13 @@
 package atto
 package parser
 
+import language.higherKinds
+import scalaz.Monad
+import scalaz.std.string._
+import scalaz.syntax.std.boolean._
+import scalaz.std.list._
 import scalaz.syntax.std.option._
+import scalaz.syntax.foldable._
 import atto.syntax.parser._
 
 /** Text parsers. */
@@ -46,5 +52,83 @@ trait Text {
     ensure(1) ~> get flatMap { s => 
       p(s.head).cata(a => put(s.tail) ~> ok(a), err(what))
     } asOpaque what
+
+  ////// FROM RUNAR
  
+  def takeWhile(p: Char => Boolean): Parser[String] = {
+    def go(acc: List[String]): Parser[List[String]] = for {
+      x <- get
+      (h, t) = x span p
+      _ <- put(t)
+      r <- if (t.isEmpty) for {
+        input <- wantInput
+        r <- if (input) go(h :: acc)
+             else ok(h :: acc)
+      } yield r else ok(h :: acc)
+    } yield r
+    go(Nil).map(_.reverse.concatenate)
+  }
+
+  lazy val takeRest: Parser[List[String]] = {
+    def go(acc: List[String]): Parser[List[String]] = for {
+      input <- wantInput
+      r <- if (input) for {
+        s <- get
+        _ <- put("")
+        r <- go(s :: acc)
+      } yield r else ok(acc.reverse)
+    } yield r
+    go(Nil)
+  }
+
+  lazy val takeText: Parser[String] =
+    takeRest map (_.concatenate)
+
+  def takeWhile1(p: Char => Boolean): Parser[String] = for {
+    _ <- get map (_.isEmpty) flatMap (_.whenM(demandInput))
+    s <- get
+    (h, t) = s span p
+    _ <- h.isEmpty.whenM(err("takeWhile1"):Parser[Unit])
+    _ <- put(t)
+    r <- if (t.isEmpty) takeWhile(p).map(h + _) else ok(h)
+  } yield r
+
+
+  sealed trait Scan[+S]
+  case class Continue[S](s: S) extends Scan[S]
+  case class Finished(n: Int, s: String) extends Scan[Nothing]
+
+  def scan[S](s: S)(p: (S, Char) => Option[S]): Parser[String] = {
+    def scanner(s: S, n: Int, t: String): Scan[S] = {
+      if (t.isEmpty) Continue(s)
+      else p(s, t.head) match {
+        case Some(s) => scanner(s, n + 1, t.tail)
+        case None => Finished(n, t)
+      }
+    }
+    def go(acc: List[String], s: S): Parser[List[String]] = for {
+      input <- get
+      r <- scanner(s, 0, input) match {
+        case Continue(sp) => for {
+          _ <- put("")
+          more <- wantInput
+          r <- if (more) go(input :: acc, sp) else ok(input :: acc)
+        } yield r
+        case Finished(n, t) => put(t).flatMap(_ => ok(input.take(n) :: acc))
+      }
+    } yield r
+    for {
+      chunks <- go(Nil, s)
+      r <- chunks match {
+        case List(x) => ok(x)
+        case xs => ok(xs.reverse.concatenate)
+      }
+    } yield r
+  }
+
 }
+
+
+
+
+

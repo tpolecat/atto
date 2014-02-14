@@ -14,8 +14,7 @@ Progress thus far:
 
 Known issues:
 
-   * It is possible to construct a parser that does not behave properly when given incremental input. This is under
-     investigation.
+   * It is possible to construct a parser that does not behave properly when given incremental input. This is under investigation.
 
 Getting Started
 ---------------

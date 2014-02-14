@@ -20,9 +20,21 @@ trait Character {
       else err(what)
     }) asOpaque what
 
+  /** Equivalent to `elem(p)` but without optional label arg. */
+  def satisfy(p: Char => Boolean): Parser[Char] = 
+    elem(p, "satisfy(...)")
+
   /** Parser that matches and returns only `c`. */
   def char(c: Char): Parser[Char] = 
     elem(_ == c, s"'$c'")
+
+  /** Parser that matches any character. */
+  lazy val anyChar: Parser[Char] = 
+    satisfy(_ => true)
+
+  /** Parser that matches any character other than `c`. */
+  def notChar(c: Char): Parser[Char] = 
+    satisfy(_ != c) as ("not '" + c + "'")
 
   def digit: Parser[Char] =
     elem(_.isDigit, "digit")

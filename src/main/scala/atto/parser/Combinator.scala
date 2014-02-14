@@ -235,4 +235,3 @@ trait Combinator extends Combinator0 {
     ((1 to n) :\ ok(List[A]()))((_, a) => cons(p, a))
 
 }
-

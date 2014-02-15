@@ -1,5 +1,6 @@
 package atto
 package parser
+package spire
 
 import _root_.spire.math._
 import atto.syntax.parser._

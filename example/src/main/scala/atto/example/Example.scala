@@ -1,7 +1,10 @@
-package atto
+package atto.example
 
+import atto._
+import Atto._
 import scalaz._
 import Scalaz._
+import parser.spire._
 import spire.math.UByte
 
 // This is adapted from https://www.fpcomplete.com/school/text-manipulation/attoparsec

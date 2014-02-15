@@ -1,67 +1,33 @@
 name := "atto"
 
-organization := "org.tpolecat"
-
 description := "functional parser combinators for scala"
 
-version := "0.2"
+organization in ThisBuild := "org.tpolecat"
 
-scalaVersion := "2.10.3"
+version in ThisBuild := "0.2"
 
-// crossScalaVersions := Seq("2.10.1", "2.10.2", "2.10.3")
+scalaVersion in ThisBuild := "2.10.3"
 
-// Bintray
-seq(bintrayPublishSettings:_*)
+licenses in ThisBuild += ("MIT", url("http://opensource.org/licenses/MIT"))
 
-licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
-
-resolvers ++= Seq(
-  "snapshots" at "http://oss.sonatype.org/content/repositories/snapshots",
-  "releases"  at "http://oss.sonatype.org/content/repositories/releases"
-)
-
-// Main
-libraryDependencies ++= Seq(
-  "org.scalaz"     %% "scalaz-core" % "7.0.2",
-  "org.spire-math" %% "spire"       % "0.6.0"
-)
-
-// Test
-libraryDependencies ++= Seq(     
-  "org.scalacheck" %% "scalacheck" % "1.10.1" % "test",
-  "org.specs2"     %% "specs2"     % "1.12.3" % "test"
-)
-
-// Let's add a linter
-// resolvers += "linter" at "http://hairyfotr.github.io/linteRepo/releases"
-
-// addCompilerPlugin("com.foursquare.lint" %% "linter" % "0.1-SNAPSHOT")
-
-// And WartRemover (!)
-
-// resolvers += Resolver.sonatypeRepo("releases")
-
-// addCompilerPlugin("org.brianmckenna" % "wartremover" % "0.4" cross CrossVersion.full)
-
-// scalacOptions in (Compile, compile) += "-P:wartremover:traverser:org.brianmckenna.wartremover.warts.Unsafe"
-
-// And turn warnings all the way up
-scalacOptions ++= Seq(
+scalacOptions in ThisBuild ++= Seq(
 	"-feature", 
 	"-deprecation", 
-	"-Ywarn-all", // doesn't actually turn them all on :-\
+	"-Ywarn-all", 
 	"-Yno-adapted-args",
 	"-Ywarn-value-discard", 
 	"-Ywarn-numeric-widen",
-	"-Ywarn-dead-code", // confused by ???, sadly
+	"-Ywarn-dead-code", 
 	"-Xlint",
 	"-Xfatal-warnings",
   "-unchecked"
 )
 
-initialCommands :=
-  """import scalaz._
-     import Scalaz._
-     import atto._
-     import Atto._"""
+lazy val core = project.in(file("core"))
 
+lazy val spire = project.in(file("spire")).dependsOn(core)
+
+lazy val example = project.in(file("example")).dependsOn(core, spire)
+
+// Bintray
+seq(bintrayPublishSettings:_*)

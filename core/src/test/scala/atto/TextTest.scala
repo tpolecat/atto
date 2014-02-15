@@ -4,27 +4,9 @@ import Atto._
 import org.scalacheck._
 import scalaz.\/._
 
-object QC extends Properties("Parser") {
+object TextTest extends Properties("Text") {
   import Prop._
   import Parser._
-
-  property("satisfy") = forAll { (w: Char, s: String) =>
-    satisfy(_ <= w).parse(w +: s).option == Some(w)
-  }
-
-  property("char") = forAll { (w: Char, s: String) =>
-    char(w).parse(w +: s).option == Some(w)
-  }
-
-  property("anyChar") = forAll { (s: String) =>
-    val p = anyChar.parse(s).option
-    if (s.isEmpty) p == None else p == Some(s.head)
-  }
-
-  property("notChar") = forAll { (w: Char, s: String) => (!s.isEmpty) ==> {
-    val v = s.head
-    notChar(w).parse(s).option == (if (v == w) None else Some(v))
-  }}
 
   property("string") = forAll { (s: String, t: String) =>
     string(s).parse(s ++ t).option == Some(s)
@@ -54,7 +36,7 @@ object QC extends Properties("Parser") {
     } yield (hp, tp)).parseOnly(sp).either == right((h, t))
   }
 
-  property("takeWhile1_empty") =
+  property("takeWhile1/empty") =
     takeWhile1(_ => true).parse("").option == None
 
   property("endOfInput") = forAll { (s: String) =>

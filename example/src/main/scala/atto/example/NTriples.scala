@@ -1,4 +1,7 @@
-package atto
+package atto.example
+
+import atto._
+import Atto._
 
 import java.net.URI
 import scalaz._

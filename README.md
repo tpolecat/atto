@@ -59,9 +59,14 @@ Continue with the **tutorial** over [here](https://github.com/tpolecat/tut/blob/
 - Track down the [rare] problem with incremental parsing.
 - Do some benchmarking with simple grammars to see how we stack up.
 - Scala 2.11 w/ scalaz 7.1
-- Plug into **scalaz-stream** with possible transformations
-  - `Parser[A] => Process1[String, ParseResult[A]]` continuous
-  - `Parser[A] => Process1[String, A]` terminating with an exception on failed parse
-  - `Parser[A] => Process1[String, String \/ A]` resetting on failure
-  - `Parser[A] => Process1[String, Option[A]]` resetting on failure
+- Plug into **scalaz-stream** with a simple primitive, from which we can derive `haltOnFailure`  and so on.
+
+```scala
+/**
+ * Construct a stream transducer emitting a stream of `ParseResult[A]` using the given parser. 
+ * - On success parsing resumes with the remaining input. 
+ * - On failure parsing resumes with the tail of the remaining input.
+ */
+process[A](p: Parser[A]): Process1[String, ParseResult[A]]
+```
 

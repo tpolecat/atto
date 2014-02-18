@@ -26,10 +26,20 @@ object CharacterTest extends Properties("Character") {
     notChar(w).parse(s).option == (if (v == w) None else Some(v))
   }}
 
-  property("charRange") = 
-    charRange('a' to 'z', '0' to '9').parseOnly("3").option == Some('3') &&
-    charRange('a' to 'z', '0' to '9').parseOnly("x").option == Some('x') &&
-    charRange('a' to 'z', '0' to '9').parseOnly("!").option == None
+  property("charRange") = forAll { (ps: List[(Char, Char)], c: Char) => 
+    val rs = ps.map(p => p._1 to p._2)
+    val in = rs.exists(_.contains(c))
+    charRange(rs: _*).parseOnly(c.toString).option match {
+      case Some(`c`) if in => true
+      case None if !in => true
+      case _ => false
+    }
+  }
+
+  property("optElem") = forAll { (c: Char, d: Char) =>
+    optElem(c => Some(c).filter(_ < d)).parseOnly(c.toString).option ==
+      Some(c).filter(_ < d)
+  }
 
 }
 

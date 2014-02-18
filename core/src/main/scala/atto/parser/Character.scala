@@ -2,9 +2,7 @@ package atto
 package parser
 
 import language._
-import scalaz.Digit
-import scalaz.Digit._
-import scalaz.std.list._
+import scalaz.syntax.std.option._
 import atto.syntax.parser._
 
 /** Parsers for various kinds of characters. */
@@ -58,5 +56,11 @@ trait Character {
 
   def charRange(rs: CharRange*) =
     elem(c => rs.exists(_.contains(c)))
+
+  /** Parser that matches a char optionally, otherwise fails. */
+  def optElem[A](p: Char => Option[A], what: => String = "optElem(...)"): Parser[A] = 
+    ensure(1) ~> get flatMap { s => 
+      p(s.head).cata(a => put(s.tail) ~> ok(a), err(what))
+    } asOpaque what
 
 }

@@ -37,9 +37,11 @@ trait Numeric {
 
   /** Parser for an arbitrary-precision decimal. */
   val bigDecimal: Parser[BigDecimal] = 
-    (signum |@| stringOf1(digit) |@| opt(char('.') ~> stringOf(digit))) {
-      case (s, a, Some(b)) => s * BigDecimal(s"$a.$b")
-      case (s, a, None)    => s * BigDecimal(a)
+    (signum |@| stringOf1(digit) |@| opt(char('.') ~> stringOf(digit)) |@| opt(char('E') ~> long)) {
+      case (s, a, Some(b), Some(e)) => s * BigDecimal(s"$a.${b}E$e")
+      case (s, a, None, Some(e))    => s * BigDecimal(s"${a}E$e")
+      case (s, a, Some(b), None) => s * BigDecimal(s"$a.$b")
+      case (s, a, None, None)    => s * BigDecimal(a)
     } as "bigDecimal"
 
   /** Parser for a Double (unchecked narrowing). */

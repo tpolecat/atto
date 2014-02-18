@@ -123,9 +123,20 @@ object CombinatorTest extends Properties("Combinator") {
     }
   }
 
-  // collect
+  property("collect") = forAll { (n: Int, m: Int) =>
+    (int.collect {
+      case x if x < m => x
+    }).parseOnly(n.toString).option match {
+      case Some(`n`) if n < m => true
+      case None if n >= m     => true
+      case _ => false
+    }
+  }
 
-  // cons
+  property("cons") = forAll { (c: Char, s: String) => 
+    lazy val p: Parser[List[Char]] = cons(anyChar, orElse(p, ok(Nil)))
+    p.parseOnly(c + s).option == Some(c :: s.toList)
+  }  
 
   // phrase
 

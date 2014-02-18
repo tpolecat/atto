@@ -47,12 +47,6 @@ trait Text {
   def stringTransform(f: String => String, s: String, what: => String = "stringTransform(...)"): Parser[String] = 
     takeWith(s.length, f(_) == f(s), what)
 
-  /** Parser that matches a char optionally, otherwise fails. */
-  def optElem[A](p: Char => Option[A], what: => String = "optElem(...)"): Parser[A] = 
-    ensure(1) ~> get flatMap { s => 
-      p(s.head).cata(a => put(s.tail) ~> ok(a), err(what))
-    } asOpaque what
-
   ////// FROM RUNAR
  
   def takeWhile(p: Char => Boolean): Parser[String] = {

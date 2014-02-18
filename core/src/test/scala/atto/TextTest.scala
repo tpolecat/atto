@@ -39,8 +39,4 @@ object TextTest extends Properties("Text") {
   property("takeWhile1/empty") =
     takeWhile1(_ => true).parse("").option == None
 
-  property("endOfInput") = forAll { (s: String) =>
-    endOfInput.parseOnly(s).either == (if (s.isEmpty) right(()) else left("endOfInput"))
-  }
-
 }

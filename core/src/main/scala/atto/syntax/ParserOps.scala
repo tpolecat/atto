@@ -48,7 +48,7 @@ trait ParserOps[A] extends Ops[Parser[A]] {
 
 trait ToParserOps {
 
-  implicit def ToParserOps[A](p: Parser[A]): ParserOps[A] =
+  implicit def toParserOps[A](p: Parser[A]): ParserOps[A] =
     new ParserOps[A] {
       val self = p
     }

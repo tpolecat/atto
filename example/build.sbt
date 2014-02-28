@@ -6,5 +6,6 @@ initialCommands :=
      import atto._
      import Atto._
      import atto.parser.spire._
+     import atto.syntax.stream._
      import example._"""
 

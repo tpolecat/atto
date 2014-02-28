@@ -50,23 +50,16 @@ Continue with the **tutorial** over [here](https://github.com/tpolecat/tut/blob/
 
 #### Changes thus far in 0.2
 
-- New tests and combinators contributed by Rúnar Bjarnason.
+- Contributions/fixes from @runarorama and @marcsaegesser thankyouvermuch.
+- Many tests (still many to go).
 - Split core, spire, and examples into their own projects.
+- Added stream sub-project for scalaz-stream integration, with conversions from `Parser` to `Process1` and a bit of syntax. See the examples project for an embarrassingly minimal example. In progress.
 
 #### TODO
 
-- Many more tests.
+- More tests.
 - Track down the [rare] problem with incremental parsing.
+- See if we can straighten out float parsing; `BigDecimal.toString` is not [totally] invertible.
 - Do some benchmarking with simple grammars to see how we stack up.
 - Scala 2.11 w/ scalaz 7.1
-- Plug into **scalaz-stream** with a simple primitive, from which we can derive `haltOnFailure`  and so on.
-
-```scala
-/**
- * Construct a stream transducer emitting a stream of `ParseResult[A]` using the given parser. 
- * - On success parsing resumes with the remaining input. 
- * - On failure parsing resumes with the tail of the remaining input.
- */
-process[A](p: Parser[A]): Process1[String, ParseResult[A]]
-```
 

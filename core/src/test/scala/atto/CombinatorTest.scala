@@ -140,11 +140,20 @@ object CombinatorTest extends Properties("Combinator") {
 
   // phrase
 
-  // many
+  property("many") = forAll { (s: String) =>
+    many(anyChar).parseOnly(s).option == Some(s.toList)
+  }
 
-  // many1
+  property("many1") = forAll { (s: String) =>
+    many1(anyChar).parseOnly(s).option == 
+      Some(s.toList).filterNot(_.isEmpty)
+  }
 
-  // manyN
+  property("manyN") = forAll { (s: String, n0: Int) =>
+    val n = if (s.isEmpty) 0 else (n0.abs % s.length)
+    manyN(n, anyChar).parseOnly(s).option == 
+      Some(s.take(n).toList)
+  }
 
   // manyTill
 

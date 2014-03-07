@@ -5,7 +5,7 @@
 **atto** is a compact, pure-functional incremental text parsing library for Scala (if you're looking for **binary** parsing, please turn your attention to [scodec](https://github.com/scodec/scodec)). The **atto** API is non-invasive (nothing to extend!) and uses sensible and familiar abstractions rather than an elaborate DSL. The intent is to make proper parsers trivial to construct and use anywhere your program receives text input.
 
 ```scala
-scala> many(int <~ opt(spaceChar)).parseOnly("1 20 300").option
+scala> sepBy(int, spaceChar).parseOnly("1 20 300").option
 res0: Option[List[Int]] = Some(List(1, 20, 300))
 ```
 

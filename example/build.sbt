@@ -9,3 +9,4 @@ initialCommands :=
      import atto.syntax.stream._
      import example._"""
 
+publishArtifact := false

@@ -37,6 +37,10 @@ trait Character {
   def digit: Parser[Char] =
     elem(_.isDigit, "digit")
 
+  /** Hex digit, 0-9, A-F, a-f */
+  def hexDigit: Parser[Char] =
+    charRange('0' to '9', 'a' to 'f', 'A' to 'F')
+
   def letter: Parser[Char] =
     elem(_.isLetter, "letter")
 

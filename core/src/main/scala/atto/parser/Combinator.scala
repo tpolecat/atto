@@ -1,7 +1,8 @@
 package atto
 package parser
 
-import scalaz.Scalaz.{some, none}
+import scalaz.Scalaz.{ some, none }
+import scalaz.syntax.monad._
 import atto.syntax.all._
 
 // These guys need access to the implementation
@@ -30,6 +31,16 @@ trait Combinator0 {
       def apply[R](st0: State, kf: Failure[R], ks: Success[Nothing,R]): TResult[R] = 
         suspend(kf(st0,Nil, "Failed reading: " + what))
     }
+
+  /** Construct the given parser lazily; useful when defining recursive parsers. */
+  def delay[A](p: => Parser[A]): Parser[A] = {
+    lazy val a = p
+    new Parser[A] { 
+      override def toString = a.toString
+      def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R] = 
+        a.apply(st0, kf, ks)
+    }
+  }
 
   //////
 
@@ -196,26 +207,28 @@ trait Combinator extends Combinator0 {
   def manyN[A](n: Int, a: Parser[A]): Parser[List[A]] =
     ((1 to n) :\ ok(List[A]()))((_, p) => cons(a, p)) as s"ManyN($n, $a)"
 
-  def manyTill[A](p: Parser[A], q: Parser[Any]): Parser[List[A]] = { 
-    lazy val scan : Parser[List[A]] = (q ~> ok(Nil)) | cons(p, scan) 
-    scan as ("manyTill(" + p + "," + q + ")")
+  def manyUntil[A](p: Parser[A], q: Parser[_]): Parser[List[A]] = { 
+    lazy val scan: Parser[List[A]] = (q ~> ok(Nil)) | cons(p, scan) 
+    scan as ("manyUntil(" + p + "," + q + ")")
   }
 
-  def skipMany1(p: Parser[Any]): Parser[Unit] = 
-    (p ~> skipMany(p)) as ("skipMany1(" + p + ")")
+  def skipMany1(p: Parser[_]): Parser[Unit] = 
+    many1(p).void as ("skipMany1(" + p + ")")
 
-  def skipMany(p: Parser[Any]): Parser[Unit] = { 
-    lazy val scan : Parser[Unit] = (p ~> scan) | ok(()) 
-    scan as ("skipMany(" + p + ")")
-  }
+  def skipMany(p: Parser[_]): Parser[Unit] = 
+    many(p).void as ("skipMany(" + p + ")")
       
-  def sepBy[A](p: Parser[A], s: Parser[Any]): Parser[List[A]] =
+  def sepBy[A](p: Parser[A], s: Parser[_]): Parser[List[A]] =
     cons(p, ((s ~> sepBy1(p,s)) | ok(Nil))) | ok(Nil) as ("sepBy(" + p + "," + s + ")")
 
-  def sepBy1[A](p: Parser[A], s: Parser[Any]): Parser[List[A]] = {
+  def sepBy1[A](p: Parser[A], s: Parser[_]): Parser[List[A]] = {
     lazy val scan : Parser[List[A]] = cons(p, s ~> scan | ok(Nil))
     scan as ("sepBy1(" + p + "," + s + ")")
   }
+
+  // Delimited pair
+  def pairBy[A,B](a: Parser[A], delim: Parser[_], b: Parser[B]): Parser[(A,B)] =
+    (a <~ delim) ~ b
 
   def choice[A](xs : Parser[A]*) : Parser[A] = 
     ((err("choice") : Parser[A]) /: xs)(_ | _) as ("choice(" + xs.toString + " :_*)")

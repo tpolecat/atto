@@ -33,6 +33,16 @@ trait ParserOps[A] extends Ops[Parser[A]] {
   def ||[B](n: Parser[B]): Parser[\/[A, B]] =
     combinator.either(self, n)
 
+  def ^^[B](f: A => B): Parser[B] =
+    self map f
+
+  def ^^^[B](b: => B): Parser[B] =
+    self map (_ => b)
+
+  /** Treat this parser as a token, followed by any amount of whitespace. */
+  def t: Parser[A] = 
+    this <~ combinator.many(character.spaceChar)
+
   // Other
 
   def as(s: => String): Parser[A] = 

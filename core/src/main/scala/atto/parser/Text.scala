@@ -120,6 +120,36 @@ trait Text {
     } yield r
   }
 
+  ////// MISC
+
+  /** Quoted strings with control and unicode escapes, Java/JSON style. **/
+  val stringLiteral: Parser[String] = {
+
+    // Unescaped characters
+    val nesc: Parser[Char] = 
+      elem(c => c != '\\' && c != '"' && !c.isControl)
+
+    // Escaped characters
+    val esc: Parser[Char] =
+      string("\\\"") ^^^ '"'  |
+      string("\\\\") ^^^ '\\' |
+      string("\\/")  ^^^ '/'  |
+      string("\\b")  ^^^ '\b' |
+      string("\\f")  ^^^ '\f' |
+      string("\\n")  ^^^ '\n' |
+      string("\\r")  ^^^ '\r' |
+      string("\\t")  ^^^ '\t'
+
+    // Unicode escaped characters
+    val unicode: Parser[Char] =
+      string("\\u") ~> count(4, hexDigit).map(ds => Integer.parseInt(ds.mkString, 16).toChar)
+
+    // Quoted strings
+    char('"') ~> many(esc | unicode | nesc).map(_.mkString) <~ char('"')
+
+  } as "stringLiteral"
+
+
 }
 
 

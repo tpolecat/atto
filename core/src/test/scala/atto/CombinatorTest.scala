@@ -3,10 +3,14 @@ import Atto._
 
 import org.scalacheck._
 import scalaz._
+import scalaz.syntax.functor._
+import scalaz.std.option._
 
 object CombinatorTest extends Properties("Combinator") {
   import Prop._
   import Parser._
+
+  implicit val eqChar: Equal[Char] = Order[Char] // :-\
 
   property("ok") = forAll { (s: String, n: Int) =>
     ok(n).parseOnly(s) match {
@@ -155,13 +159,29 @@ object CombinatorTest extends Properties("Combinator") {
       Some(s.take(n).toList)
   }
 
-  // manyTill
+  property("manyUntil") = forAll { (s: String) =>
+    (s.nonEmpty && s.indexOf("x") == -1) ==> {
+      val r = manyUntil(string(s), char('x')).parseOnly(s * 3 + "xyz").done 
+      r == ParseResult.Done("yz", List(s, s, s))
+    }
+  }
 
-  // skipMany1
+  property("skipMany") = forAll { (s: String) =>
+    skipMany(anyChar).parseOnly(s).option == Option(s.toList).void
+  }
 
-  // skipMany
+  property("skipMany1") = forAll { (s: String) =>
+    skipMany1(anyChar).parseOnly(s).option == 
+      Option(s.toList).filterNot(_.isEmpty).void
+  }
 
- property("sepBy") = forAll { (ns: List[Int], c: Char, s: String) =>
+  property("skipManyN") = forAll { (s: String, n0: Int) =>
+    val n = if (s.isEmpty) 0 else (n0.abs % s.length)
+    skipManyN(n, anyChar).parseOnly(s).option == 
+      Option(s.take(n).toList).void
+  }
+
+  property("sepBy") = forAll { (ns: List[Int], c: Char, s: String) =>
     val sep = s + c
     !(sep.exists(_.isDigit)) ==> { 
       val p = sepBy(int, string(sep))
@@ -184,15 +204,38 @@ object CombinatorTest extends Properties("Combinator") {
     }
   }
 
-  // choice (1)
+  property("choice/1") = forAll { (a: String, b: String, c: String) => 
+    (a.nonEmpty && b.nonEmpty && c.nonEmpty) ==> {
+      val p = choice(string(a), string(b), string(c))
+      p.parseOnly(a + b + c).done == ParseResult.Done(b + c, a)
+      p.parseOnly(b + c + a).done == ParseResult.Done(c + a, b)
+      p.parseOnly(c + a + b).done == ParseResult.Done(a + b, c)
+    }
+  }
 
-  // choice (2)
+  property("choice/2") = forAll { (a: String, b: String, c: String) => 
+   (a.nonEmpty && b.nonEmpty && c.nonEmpty) ==> {
+      val p = choice(string(a), string(b), string(c))
+      p.parseOnly(a + b + c).done == ParseResult.Done(b + c, a)
+      p.parseOnly(b + c + a).done == ParseResult.Done(c + a, b)
+      p.parseOnly(c + a + b).done == ParseResult.Done(a + b, c)
+    }
+  }
 
-  // opt
+  property("opt") = forAll { (c: Char) => 
+    opt(letterOrDigit).parseOnly(c.toString).option == Some(Some(c).filter(_.isLetterOrDigit))
+  }
 
-  // filter
+  property("filter") = forAll { (c: Char) => 
+    filter(anyChar)(_.isLetterOrDigit).parseOnly(c.toString).option == 
+      Some(c).filter(_.isLetterOrDigit)
+  }
 
-  // count
+  property("count") = forAll { (c: Char, n0: Int) =>
+    val n = (n0.abs % 10) + 1
+    val s = c.toString * 20
+    count(n, char(c)).parseOnly(s) == ParseResult.Done(s drop n, List.fill(n)(c))
+  }
 
 }
 

@@ -1,6 +1,7 @@
 package atto
 package parser
 
+import language.higherKinds
 import scalaz.Scalaz.{ some, none }
 import scalaz.syntax.monad._
 import atto.syntax.all._
@@ -24,12 +25,12 @@ trait Combinator0 {
         suspend(ks(st0,a))
     }
 
-  /** Parser that consumes no data and fails with the specified error. */
+  /** Parser that consumes no data and fails with the specified error message. */
   def err(what: String): Parser[Nothing] = 
     new Parser[Nothing] {
       override def toString = "err(" + what + ")"
       def apply[R](st0: State, kf: Failure[R], ks: Success[Nothing,R]): TResult[R] = 
-        suspend(kf(st0,Nil, "Failed reading: " + what))
+        suspend(kf(st0,Nil, what))
     }
 
   /** Construct the given parser lazily; useful when defining recursive parsers. */
@@ -183,6 +184,9 @@ trait Combinator0 {
 // These don't need access to the implementation
 trait Combinator extends Combinator0 {
 
+  import scalaz.Foldable
+  import scalaz.syntax.foldable._
+
   def collect[A, B](m: Parser[A], f: PartialFunction[A,B]): Parser[B] = 
     m.filter(f isDefinedAt _).map(f)
 
@@ -212,12 +216,15 @@ trait Combinator extends Combinator0 {
     scan as ("manyUntil(" + p + "," + q + ")")
   }
 
-  def skipMany1(p: Parser[_]): Parser[Unit] = 
-    many1(p).void as ("skipMany1(" + p + ")")
-
   def skipMany(p: Parser[_]): Parser[Unit] = 
-    many(p).void as ("skipMany(" + p + ")")
+    many(p).void as s"skipMany($p)"
       
+  def skipMany1(p: Parser[_]): Parser[Unit] = 
+    many1(p).void as s"skipMany1($p)"
+
+  def skipManyN(n: Int, p: Parser[_]): Parser[Unit] = 
+    manyN(n, p).void as s"skipManyN($n, $p)"
+
   def sepBy[A](p: Parser[A], s: Parser[_]): Parser[List[A]] =
     cons(p, ((s ~> sepBy1(p,s)) | ok(Nil))) | ok(Nil) as ("sepBy(" + p + "," + s + ")")
 
@@ -230,19 +237,19 @@ trait Combinator extends Combinator0 {
   def pairBy[A,B](a: Parser[A], delim: Parser[_], b: Parser[B]): Parser[(A,B)] =
     (a <~ delim) ~ b
 
-  def choice[A](xs : Parser[A]*) : Parser[A] = 
-    ((err("choice") : Parser[A]) /: xs)(_ | _) as ("choice(" + xs.toString + " :_*)")
+  def choice[A](xs: Parser[A]*) : Parser[A] = 
+    xs.foldRight[Parser[A]](err("choice: no match"))(_ | _) as s"choice(${xs.mkString(", ")})"
 
-  def choice[A](xs : TraversableOnce[Parser[A]]) : Parser[A] = 
-    ((err("choice") : Parser[A]) /: xs)(_ | _) as ("choice(...)")
+  def choice[F[_]: Foldable, A](fpa: F[Parser[A]]) : Parser[A] = 
+    choice(fpa.toList: _*)
 
   def opt[A](m: Parser[A]): Parser[Option[A]] = 
-    (attempt(m).map(some(_)) | ok(none)) as ("opt(" + m + ")")
+    (attempt(m).map(some(_)) | ok(none)) as s"opt($m)"
 
-  def filter[A](m: Parser[A], p: A => Boolean): Parser[A] =
+  def filter[A](m: Parser[A])(p: A => Boolean): Parser[A] =
     m.flatMap { a => 
-      if (p(a)) ok(a) else err(s"$m filter ...")
-    } as s"$m filter ..."
+      if (p(a)) ok(a) else err(s"filter($m, ...)")
+    } as s"filter($m, ...)"
 
   def count[A](n: Int, p: Parser[A]): Parser[List[A]] =
     ((1 to n) :\ ok(List[A]()))((_, a) => cons(p, a))

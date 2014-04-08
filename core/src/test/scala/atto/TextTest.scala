@@ -17,8 +17,6 @@ object TextTest extends Properties("Text") {
       Some(s).filterNot(_.isEmpty)
   }
 
-  // takeWith
-
   property("take") = forAll { (s: String, n: Int) =>
     n > 1 ==> {
       take(n).parseOnly(s) match {
@@ -32,8 +30,6 @@ object TextTest extends Properties("Text") {
   property("string") = forAll { (s: String, t: String) =>
     string(s).parse(s ++ t).option == Some(s)
   }
-
-  // stringTransform
 
   property("takeCount") = forAll { (k: Int, s: String) => (k >= 0) ==> {
     take(k).parse(s).option match {

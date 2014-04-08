@@ -21,24 +21,16 @@ trait Text {
   def stringOf1(p: Parser[Char]): Parser[String] =
     many1(p).map(_.mkString) as "stringOf1(" + p + ")"
 
-  /** Parser that returns a `String` of length `n` if it satisfies predicate `p`. */
-  def takeWith(n: Int, p: String => Boolean, what: => String = "takeWith(...)"): Parser[String] =
-    ensure(n) ~> get flatMap (s => {
-      val w = s.substring(0,n)
-      if (p(w)) put(s.substring(n)) ~> ok(w)
-      else err(what)
-    }) asOpaque what
-
   /** Parser that returns the next `n` characters as a `String`. */
   def take(n: Int): Parser[String] = 
-    takeWith(n, _ => true, "take(" + n + ")")
+    ensure(n) ~> get flatMap { s => 
+      val (a, b) = s.splitAt(n)
+      put(b) ~> ok(a)
+    } asOpaque s"take($n)"
 
   /** Parser that matches and returns only `s`. */
   def string(s: String): Parser[String] = 
-    takeWith(s.length, _ == s, "\"" + s + "\"")
-
-  def stringTransform(f: String => String, s: String, what: => String = "stringTransform(...)"): Parser[String] = 
-    takeWith(s.length, f(_) == f(s), what)
+    take(s.length).filter(_ == s) asOpaque "\"" + s + "\""
 
   ////// FROM RUNAR
  

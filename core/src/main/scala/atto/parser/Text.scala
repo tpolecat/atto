@@ -21,13 +21,6 @@ trait Text {
   def stringOf1(p: Parser[Char]): Parser[String] =
     many1(p).map(_.mkString) as "stringOf1(" + p + ")"
 
-  /** Parser that skips a `Char` if it satisfies predicate `p`. */
-  def skip(s: String, p: Char => Boolean, what: => String = "skip(...)"): Parser[Unit] = 
-    ensure(1) ~> get flatMap (s => {
-      if (p(s.charAt(0))) put(s.substring(1))
-      else err(what)
-    }) asOpaque what
-
   /** Parser that returns a `String` of length `n` if it satisfies predicate `p`. */
   def takeWith(n: Int, p: String => Boolean, what: => String = "takeWith(...)"): Parser[String] =
     ensure(n) ~> get flatMap (s => {
@@ -148,7 +141,6 @@ trait Text {
     char('"') ~> many(esc | unicode | nesc).map(_.mkString) <~ char('"')
 
   } as "stringLiteral"
-
 
 }
 

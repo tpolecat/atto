@@ -3,6 +3,7 @@ package parser
 
 import language._
 import scalaz.syntax.std.option._
+import scalaz.syntax.functor._
 import atto.syntax.parser._
 
 /** Parsers for various kinds of characters. */
@@ -61,10 +62,16 @@ trait Character {
   def charRange(rs: CharRange*) =
     elem(c => rs.exists(_.contains(c)))
 
-  /** Parser that matches a char optionally, otherwise fails. */
-  def optElem[A](p: Char => Option[A], what: => String = "optElem(...)"): Parser[A] = 
+  /** `elem` + `map` in a single operation. */
+  def optElem[A](p: Char => Option[A]): Parser[A] = 
     ensure(1) ~> get flatMap { s => 
-      p(s.head).cata(a => put(s.tail) ~> ok(a), err(what))
-    } asOpaque what
+      p(s.head).cata(a => put(s.tail) ~> ok(a), err("optElem(...)"))
+    } as "optElem(...)"
+
+  /** Parser that skips a `Char` if it satisfies predicate `p`. */
+  def skip(p: Char => Boolean): Parser[Unit] = 
+    elem(p).void as "skip(...)"
 
 }
+
+

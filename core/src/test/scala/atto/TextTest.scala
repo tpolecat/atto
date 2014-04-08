@@ -17,8 +17,6 @@ object TextTest extends Properties("Text") {
       Some(s).filterNot(_.isEmpty)
   }
 
-  // skip
-
   // takeWith
 
   property("take") = forAll { (s: String, n: Int) =>
@@ -65,5 +63,22 @@ object TextTest extends Properties("Text") {
     takeWhile1(_ => true).parse("").option == None
 
   // scan
+
+  property("stringLiteral") = forAll { (s: String, t: String) => 
+    stringLiteral.parseOnly(quote(s) + t) == ParseResult.Done(t, s)
+  }
+
+  def quote(s: String) = s.map {
+      case '"' => "\\\""
+      case '\\' => "\\\\"
+      case '/' => "\\/"
+      case '\b' => "\\b"
+      case '\f' => "\\f"
+      case '\n' => "\\n"
+      case '\r' => "\\r"
+      case '\t' => "\\t"
+      case c if ((c >= '\u0000' && c <= '\u001f') || (c >= '\u007f' && c <= '\u009f')) => "\\u%04x".format(c.toInt)
+      case c => c
+    }.mkString("\"", "", "\"")
 
 }

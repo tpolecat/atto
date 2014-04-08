@@ -35,12 +35,28 @@ trait Character {
   def notChar(c: Char): Parser[Char] = 
     satisfy(_ != c) as ("not '" + c + "'")
 
+  /** Decimal digit, 0-9. */
   def digit: Parser[Char] =
     elem(_.isDigit, "digit")
+
+  /** Decimal digit, 0-9. */
+  def decimalDigit: Parser[Char] =
+    digit
 
   /** Hex digit, 0-9, A-F, a-f */
   def hexDigit: Parser[Char] =
     charRange('0' to '9', 'a' to 'f', 'A' to 'F')
+
+  /** Binary digit, 0 or 1 */
+  def binaryDigit: Parser[Char] =
+    elem {
+      case '0' | '1' => true
+      case _ => false
+    }
+
+  /** Octal digit, 0-7 */
+  def octalDigit: Parser[Char] =
+    charRange('0' to '7')
 
   def letter: Parser[Char] =
     elem(_.isLetter, "letter")

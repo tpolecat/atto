@@ -30,7 +30,11 @@ trait Text {
 
   /** Parser that matches and returns only `s`. */
   def string(s: String): Parser[String] = 
-    take(s.length).filter(_ == s) asOpaque "\"" + s + "\""
+    take(s.length).filter(_ == s) asOpaque "string(\"" + s + "\")"
+
+  /** Like `string` but case-insensitive `s`. */
+  def stringCI(s: String): Parser[String] = 
+    take(s.length).filter(_ equalsIgnoreCase s) asOpaque "stringCI(\"" + s + "\")"
 
   ////// FROM RUNAR
  

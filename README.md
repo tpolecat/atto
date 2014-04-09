@@ -71,5 +71,5 @@ Continue with the **tutorial** over [here](https://github.com/tpolecat/tut/blob/
 
 ## License
 
-Check the license file [here](LICENSE).
+The original **Attoparsec**, a Haskell library, is licensed under BSD-3 as specified [here](https://github.com/bos/attoparsec); the derivative work **atto** is provided under the MIT licence [here](LICENSE). Both licensese appear in project metadata.
 

@@ -8,7 +8,10 @@ version in ThisBuild := "0.2-SNAPSHOT"
 
 scalaVersion in ThisBuild := "2.10.3"
 
-licenses in ThisBuild += ("MIT", url("http://opensource.org/licenses/MIT"))
+licenses in ThisBuild ++= Seq(
+	("MIT", url("http://opensource.org/licenses/MIT")),
+	("BSD3", url("http://opensource.org/licenses/BSD-3-Clause"))
+)
 
 scalacOptions in ThisBuild ++= Seq(
 	"-feature", 

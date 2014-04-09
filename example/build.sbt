@@ -10,3 +10,5 @@ initialCommands :=
      import example._"""
 
 publishArtifact := false
+
+tutSettings

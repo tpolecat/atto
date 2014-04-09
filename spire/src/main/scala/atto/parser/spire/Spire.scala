@@ -4,6 +4,7 @@ package spire
 
 import _root_.spire.math._
 import atto.syntax.parser._
+import scala.{ Int, Long, BigInt, StringContext }
 import scalaz.Order
 import scalaz.syntax.order._
 

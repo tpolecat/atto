@@ -2,6 +2,9 @@ package atto.example
 
 import atto._
 import Atto._
+import java.lang.String
+import scala.{ App, Char, Int, List }
+import scala.Predef.{ println, augmentString }
 import scalaz._
 import Scalaz._
 import parser.spire._

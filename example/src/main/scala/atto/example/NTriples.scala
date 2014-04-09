@@ -3,7 +3,11 @@ package atto.example
 import atto._
 import Atto._
 
+import java.lang.{ String, Exception }
 import java.net.URI
+import scala.{ List, Option, Char, Unit }
+import scala.Predef.{ charWrapper }
+
 import scalaz._
 import Scalaz._
 import spire.math.UByte

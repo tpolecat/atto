@@ -1,5 +1,7 @@
 package atto
 
+import java.lang.String
+import scala.{ Option, Some, None, Nothing, List }
 import scalaz._
 import Scalaz._
 

@@ -1,10 +1,12 @@
 package atto
 package parser
 
-import language._
+import java.lang.String
+import atto.syntax.parser._
+import scala.{ Char, Boolean, Unit, StringContext, Option }
+import scala.Predef.{ charWrapper, augmentString }
 import scalaz.syntax.std.option._
 import scalaz.syntax.functor._
-import atto.syntax.parser._
 
 /** Parsers for various kinds of characters. */
 trait Character {
@@ -73,7 +75,7 @@ trait Character {
   def upper: Parser[Char] =
     elem(_.isUpper, "upper")
 
-  type CharRange = collection.immutable.NumericRange[Char]
+  type CharRange = scala.collection.immutable.NumericRange[Char]
 
   def charRange(rs: CharRange*) =
     elem(c => rs.exists(_.contains(c)))

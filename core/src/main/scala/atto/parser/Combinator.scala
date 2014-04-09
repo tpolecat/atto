@@ -1,7 +1,9 @@
 package atto
 package parser
 
-import language.higherKinds
+import java.lang.String
+import scala.{ Boolean, Nothing, Unit, Int, Nil, List, PartialFunction, StringContext, Option }
+import scala.language.higherKinds
 import scalaz.Scalaz.{ some, none }
 import scalaz.syntax.monad._
 import atto.syntax.all._
@@ -184,6 +186,7 @@ trait Combinator0 {
 // These don't need access to the implementation
 trait Combinator extends Combinator0 {
 
+  import scala.Predef.intWrapper
   import scalaz.Foldable
   import scalaz.syntax.foldable._
 

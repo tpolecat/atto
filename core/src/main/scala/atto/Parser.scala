@@ -3,9 +3,12 @@ package atto
 import scala.language.implicitConversions
 import scala.language.higherKinds
 
+import java.lang.String
+import scala.{ Boolean, List, Nothing }
+
 import scalaz._
-import Scalaz._
-import Free.Trampoline
+import scalaz.Scalaz._
+import scalaz.Free.Trampoline
 import Trampoline._
 
 // Operators not needed for use in `for` comprehensions are provided via added syntax.

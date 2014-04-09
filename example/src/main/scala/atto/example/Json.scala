@@ -1,5 +1,8 @@
 package atto.example
 
+import java.lang.String
+import scala.{ Boolean, Char, Double, List }
+
 import scalaz.syntax.functor._
 import scalaz.std.list._
 

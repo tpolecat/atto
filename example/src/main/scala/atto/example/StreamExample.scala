@@ -4,6 +4,7 @@ import atto._
 import Atto._
 import atto.syntax.stream.all._
 
+import scala.App
 import scalaz.stream._
 
 object StreamExample extends App {

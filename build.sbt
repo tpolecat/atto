@@ -23,6 +23,9 @@ scalacOptions in ThisBuild ++= Seq(
   "-unchecked"
 )
 
+// Let's be even more picky in non-test code
+scalacOptions in compile += "-Yno-imports" 
+
 lazy val core = project.in(file("core"))
 
 lazy val spire = project.in(file("spire")).dependsOn(core)
@@ -35,3 +38,9 @@ publishArtifact := false
 
 // Bintray
 seq(bintrayPublishSettings:_*)
+
+// compile in (ThisBuild, Compile) := {
+// 	println("\u001B[2J\u001B[;H")
+// 	compile.value
+// }
+

@@ -1,9 +1,11 @@
 package atto
 package parser
 
+import atto.syntax.parser._
+import java.lang.String
+import scala.{ Boolean, Int, BigInt, Long, Short, Byte, BigDecimal, Double, Float, Some, None, StringContext }
 import scalaz.syntax.applicative._
 import scalaz.std.list._
-import atto.syntax.parser._
 
 /** Parsers for built-in numeric types. */
 trait Numeric {

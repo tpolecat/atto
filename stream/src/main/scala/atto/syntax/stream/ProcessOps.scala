@@ -1,5 +1,6 @@
 package atto.syntax.stream
 
+import java.lang.String
 import scala.language.implicitConversions
 import scala.language.higherKinds
 import scalaz.syntax.Ops

@@ -54,6 +54,8 @@ Continue with the **tutorial** over [here](https://github.com/tpolecat/tut/blob/
 - Many tests (still many to go).
 - Split core, spire, and examples into their own projects.
 - Added stream sub-project for scalaz-stream integration, with conversions from `Parser` to `Process1` and a bit of syntax. See the examples project for an embarrassingly minimal example. In progress.
+- Misc. new combinators and various simplicifications.
+- JSON parser example.
 
 #### TODO
 

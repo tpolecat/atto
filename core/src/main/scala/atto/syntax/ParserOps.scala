@@ -1,6 +1,8 @@
 package atto
 package syntax
 
+import java.lang.String
+import scala.{ StringContext, PartialFunction }
 import scala.language.implicitConversions
 import scalaz.syntax.Ops
 import scalaz.\/

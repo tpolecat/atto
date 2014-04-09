@@ -1,14 +1,17 @@
 package atto
 package parser
 
-import language.higherKinds
+import atto.syntax.parser._
+import java.lang.{ String, Integer }
+import scala.{ Char, List, Int, StringContext, Boolean, Nil, Nothing, Unit, Option, Some, None }
+import scala.Predef.{ augmentString, charWrapper }
+import scala.language.higherKinds
 import scalaz.Monad
 import scalaz.std.string._
 import scalaz.syntax.std.boolean._
 import scalaz.std.list._
 import scalaz.syntax.std.option._
 import scalaz.syntax.foldable._
-import atto.syntax.parser._
 
 /** Text parsers. */
 trait Text {

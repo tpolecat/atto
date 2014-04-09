@@ -1,7 +1,10 @@
 package atto
 package stream
 
+import java.lang.String
+import scala.{ List, Nil }
 import scala.language._
+import scala.Predef.{ augmentString }
 import scalaz.{ Monad, Catchable, \/ }
 import scalaz.syntax.monad._
 import scalaz.stream._

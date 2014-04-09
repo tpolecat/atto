@@ -41,8 +41,15 @@ object JsonExample extends Whitespace {
 
 }
 
-
+// Some extre combinators and syntax for coping with whitespace. Something like this might be 
+// useful in core but it needs some thought.
 trait Whitespace {
+
+  // Syntax for turning a parser into one that consumes trailing whitespace
+  implicit class TokenOps[A](self: Parser[A]) {
+    def t: Parser[A] = 
+      self <~ many(spaceChar)
+  }
 
   // Delimited list
   def sepByT[A](a: Parser[A], b: Parser[_]): Parser[List[A]] = 

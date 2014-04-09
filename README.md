@@ -69,4 +69,7 @@ Continue with the **tutorial** over [here](https://github.com/tpolecat/tut/blob/
 - Scala 2.11 w/ scalaz 7.1
 - Improve scaladoc, maybe.
 
+## License
+
+Check the license file [here](LICENSE).
 

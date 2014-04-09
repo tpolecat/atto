@@ -57,6 +57,7 @@ Continue with the **tutorial** over [here](https://github.com/tpolecat/tut/blob/
 - Misc. new combinators and various simplicifications.
 - Added `delay` combinator to help with strictness issues when constructing recursive parsers. This is an unsatisfying solution.
 - JSON parser example.
+- Internalized tut-based tutorial now that the plugin seems to work.
 
 #### TODO
 
@@ -66,7 +67,6 @@ Continue with the **tutorial** over [here](https://github.com/tpolecat/tut/blob/
 - See if we can straighten out float parsing; `BigDecimal.toString` is not [totally] invertible.
 - Do some benchmarking with simple grammars to see how we stack up.
 - Scala 2.11 w/ scalaz 7.1
-- Integrate tut doc.
 - Improve scaladoc, maybe.
 
 

@@ -133,14 +133,14 @@ trait Text {
 
     // Escaped characters
     val esc: Parser[Char] =
-      string("\\\"") ^^^ '"'  |
-      string("\\\\") ^^^ '\\' |
-      string("\\/")  ^^^ '/'  |
-      string("\\b")  ^^^ '\b' |
-      string("\\f")  ^^^ '\f' |
-      string("\\n")  ^^^ '\n' |
-      string("\\r")  ^^^ '\r' |
-      string("\\t")  ^^^ '\t'
+      string("\\\"") >| '"'  |
+      string("\\\\") >| '\\' |
+      string("\\/")  >| '/'  |
+      string("\\b")  >| '\b' |
+      string("\\f")  >| '\f' |
+      string("\\n")  >| '\n' |
+      string("\\r")  >| '\r' |
+      string("\\t")  >| '\t'
 
     // Unicode escaped characters
     val unicode: Parser[Char] =

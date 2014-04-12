@@ -50,7 +50,6 @@ Continue with the **tutorial** over [here](https://github.com/tpolecat/tut/blob/
 
 #### Changes thus far in 0.2
 
-- Contributions/fixes from @runarorama and @marcsaegesser thankyouvermuch.
 - Many tests (still many to go).
 - Split core, spire, and examples into their own projects.
 - Added stream sub-project for scalaz-stream integration, with conversions from `Parser` to `Process1` and a bit of syntax. See the examples project for an embarrassingly minimal example. In progress.
@@ -68,6 +67,10 @@ Continue with the **tutorial** over [here](https://github.com/tpolecat/tut/blob/
 - Do some benchmarking with simple grammars to see how we stack up.
 - Scala 2.11 w/ scalaz 7.1
 - Improve scaladoc, maybe.
+
+## Contributors
+
+Many thanks to @runarorama, @marcsaegesser, and @coltfred for their contributions. Feedback (complaints especially) and suggestions are always welcome.
 
 ## License
 

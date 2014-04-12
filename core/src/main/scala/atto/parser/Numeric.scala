@@ -17,7 +17,7 @@ trait Numeric {
 
   /** Parser for an arbitrary-precision integer. */
   val bigInt: Parser[BigInt] =
-    (signum |@| stringOf1(digit))(_ * BigInt.apply(_)) asOpaque "bigInt"
+    (signum |@| stringOf1(digit))(_ * BigInt.apply(_)) namedOpaque "bigInt"
 
   /** Parser for a Long (range-checked). */
   val long: Parser[Long] =
@@ -44,15 +44,15 @@ trait Numeric {
       case (s, a, None, Some(e))    => s * BigDecimal(s"${a}E$e")
       case (s, a, Some(b), None) => s * BigDecimal(s"$a.$b")
       case (s, a, None, None)    => s * BigDecimal(a)
-    } as "bigDecimal"
+    } named "bigDecimal"
 
   /** Parser for a Double (unchecked narrowing). */
   val double: Parser[Double] =
-    bigDecimal.map(_.toDouble) as "double"
+    bigDecimal.map(_.toDouble) named "double"
 
   /** Parser for a Float (unchecked narrowing). */
   val float: Parser[Float] = 
-    bigDecimal.map(_.toFloat) as "float"
+    bigDecimal.map(_.toFloat) named "float"
 
   ////// Helpers
 
@@ -63,6 +63,6 @@ trait Numeric {
   private def narrow[A,B](p: Parser[A])(f: A => Boolean, g: A => B, as: String): Parser[B] =
     p flatMap { a => 
       if (f(a)) ok(g(a)) else err("too large, too small, or too precise: " + a)
-    } as as
+    } named as
 
 }

@@ -198,13 +198,13 @@ trait Combinator extends Combinator0 {
 
   /** Parser that matches `p` only if there is no remaining input */
   def phrase[A](p: Parser[A]): Parser[A] = 
-    p <~ endOfInput as ("phrase" + p)
+    p <~ endOfInput named ("phrase" + p)
 
   // TODO: return a parser of a reducer of A
   /** Parser that matches zero or more `p`. */
   def many[A](p: => Parser[A]): Parser[List[A]] = {
     lazy val many_p : Parser[List[A]] = cons(p, many_p) | ok(Nil)
-    many_p as ("many(" + p + ")")
+    many_p named ("many(" + p + ")")
   }
 
   /** Parser that matches one or more `p`. */
@@ -212,28 +212,28 @@ trait Combinator extends Combinator0 {
     cons(p, many(p))
 
   def manyN[A](n: Int, a: Parser[A]): Parser[List[A]] =
-    ((1 to n) :\ ok(List[A]()))((_, p) => cons(a, p)) as s"ManyN($n, $a)"
+    ((1 to n) :\ ok(List[A]()))((_, p) => cons(a, p)) named s"ManyN($n, $a)"
 
   def manyUntil[A](p: Parser[A], q: Parser[_]): Parser[List[A]] = { 
     lazy val scan: Parser[List[A]] = (q ~> ok(Nil)) | cons(p, scan) 
-    scan as ("manyUntil(" + p + "," + q + ")")
+    scan named ("manyUntil(" + p + "," + q + ")")
   }
 
   def skipMany(p: Parser[_]): Parser[Unit] = 
-    many(p).void as s"skipMany($p)"
+    many(p).void named s"skipMany($p)"
       
   def skipMany1(p: Parser[_]): Parser[Unit] = 
-    many1(p).void as s"skipMany1($p)"
+    many1(p).void named s"skipMany1($p)"
 
   def skipManyN(n: Int, p: Parser[_]): Parser[Unit] = 
-    manyN(n, p).void as s"skipManyN($n, $p)"
+    manyN(n, p).void named s"skipManyN($n, $p)"
 
   def sepBy[A](p: Parser[A], s: Parser[_]): Parser[List[A]] =
-    cons(p, ((s ~> sepBy1(p,s)) | ok(Nil))) | ok(Nil) as ("sepBy(" + p + "," + s + ")")
+    cons(p, ((s ~> sepBy1(p,s)) | ok(Nil))) | ok(Nil) named ("sepBy(" + p + "," + s + ")")
 
   def sepBy1[A](p: Parser[A], s: Parser[_]): Parser[List[A]] = {
     lazy val scan : Parser[List[A]] = cons(p, s ~> scan | ok(Nil))
-    scan as ("sepBy1(" + p + "," + s + ")")
+    scan named ("sepBy1(" + p + "," + s + ")")
   }
 
   // Delimited pair
@@ -241,18 +241,18 @@ trait Combinator extends Combinator0 {
     (a <~ delim) ~ b
 
   def choice[A](xs: Parser[A]*) : Parser[A] = 
-    xs.foldRight[Parser[A]](err("choice: no match"))(_ | _) as s"choice(${xs.mkString(", ")})"
+    xs.foldRight[Parser[A]](err("choice: no match"))(_ | _) named s"choice(${xs.mkString(", ")})"
 
   def choice[F[_]: Foldable, A](fpa: F[Parser[A]]) : Parser[A] = 
     choice(fpa.toList: _*)
 
   def opt[A](m: Parser[A]): Parser[Option[A]] = 
-    (attempt(m).map(some(_)) | ok(none)) as s"opt($m)"
+    (attempt(m).map(some(_)) | ok(none)) named s"opt($m)"
 
   def filter[A](m: Parser[A])(p: A => Boolean): Parser[A] =
     m.flatMap { a => 
       if (p(a)) ok(a) else err(s"filter($m, ...)")
-    } as s"filter($m, ...)"
+    } named s"filter($m, ...)"
 
   def count[A](n: Int, p: Parser[A]): Parser[List[A]] =
     ((1 to n) :\ ok(List[A]()))((_, a) => cons(p, a))

@@ -20,26 +20,26 @@ trait Text {
 
   /** Parser that returns a string of characters matched by `p`. */
   def stringOf(p: Parser[Char]): Parser[String] =
-    many(p).map(_.mkString) as "stringOf(" + p + ")"
+    many(p).map(_.mkString) named "stringOf(" + p + ")"
 
   /** Parser that returns a non-empty string of characters matched by `p`. */
   def stringOf1(p: Parser[Char]): Parser[String] =
-    many1(p).map(_.mkString) as "stringOf1(" + p + ")"
+    many1(p).map(_.mkString) named "stringOf1(" + p + ")"
 
   /** Parser that returns the next `n` characters as a `String`. */
   def take(n: Int): Parser[String] = 
     ensure(n) ~> get flatMap { s => 
       val (a, b) = s.splitAt(n)
       put(b) ~> ok(a)
-    } asOpaque s"take($n)"
+    } namedOpaque s"take($n)"
 
   /** Parser that matches and returns only `s`. */
   def string(s: String): Parser[String] = 
-    take(s.length).filter(_ == s) asOpaque "string(\"" + s + "\")"
+    take(s.length).filter(_ == s) namedOpaque "string(\"" + s + "\")"
 
   /** Like `string` but case-insensitive `s`. */
   def stringCI(s: String): Parser[String] = 
-    take(s.length).filter(_ equalsIgnoreCase s) asOpaque "stringCI(\"" + s + "\")"
+    take(s.length).filter(_ equalsIgnoreCase s) namedOpaque "stringCI(\"" + s + "\")"
  
   /** 
    * Parser that returns a string of characters passing the supplied predicate. Equivalent to but
@@ -149,7 +149,7 @@ trait Text {
     // Quoted strings
     char('"') ~> many(esc | unicode | nesc).map(_.mkString) <~ char('"')
 
-  } as "stringLiteral"
+  } named "stringLiteral"
 
 }
 

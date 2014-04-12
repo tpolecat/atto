@@ -153,8 +153,8 @@ ip1.parseOnly("128.42.42.1").option
 We can name our parser, which provides slightly more enlightening failure messages
 
 ```scala
-val ip2 = ip1 as "ip-address"
-val ip3 = ip1 asOpaque "ip-address" // difference is illustrated below
+val ip2 = ip1 named "ip-address"
+val ip3 = ip1 namedOpaque "ip-address" // difference is illustrated below
 
 ip2 parseOnly "foo.bar"
 ip3 parseOnly "foo.bar"
@@ -165,7 +165,7 @@ don't actually need a monad; we can use applicative syntax here.
 
 ```scala
 val ubyteDot = ubyte <~ dot // why not?
-val ip4 = (ubyteDot |@| ubyteDot |@| ubyteDot |@| ubyte)(IP.apply) as "ip-address"
+val ip4 = (ubyteDot |@| ubyteDot |@| ubyteDot |@| ubyte)(IP.apply) named "ip-address"
 
 ip4.parseOnly("128.42.42.1").option
 ```

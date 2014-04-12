@@ -41,10 +41,10 @@ trait ParserOps[A] extends Ops[Parser[A]] {
   def ^^^[B](b: => B): Parser[B] =
     self map (_ => b)
 
-  def as(s: => String): Parser[A] = 
+  def named(s: => String): Parser[A] = 
     combinator.named(self, s)
 
-  def asOpaque(s: => String): Parser[A] = 
+  def namedOpaque(s: => String): Parser[A] = 
     combinator.namedOpaque(self, s)
 
   def collect[B](pf: PartialFunction[A,B]): Parser[B] =

@@ -19,7 +19,7 @@ trait Character {
       val c = s.charAt(0)
       if (p(c)) put(s.substring(1)) ~> ok(c)
       else err(what)
-    }) asOpaque what
+    }) namedOpaque what
 
   /** Equivalent to `elem(p)` but without optional label arg. */
   def satisfy(p: Char => Boolean): Parser[Char] = 
@@ -35,7 +35,7 @@ trait Character {
 
   /** Parser that matches any character other than `c`. */
   def notChar(c: Char): Parser[Char] = 
-    satisfy(_ != c) as ("not '" + c + "'")
+    satisfy(_ != c) named ("not '" + c + "'")
 
   /** Decimal digit, 0-9. */
   def digit: Parser[Char] =
@@ -84,11 +84,11 @@ trait Character {
   def optElem[A](p: Char => Option[A]): Parser[A] = 
     ensure(1) ~> get flatMap { s => 
       p(s.head).cata(a => put(s.tail) ~> ok(a), err("optElem(...)"))
-    } as "optElem(...)"
+    } named "optElem(...)"
 
   /** Parser that skips a `Char` if it satisfies predicate `p`. */
   def skip(p: Char => Boolean): Parser[Unit] = 
-    elem(p).void as "skip(...)"
+    elem(p).void named "skip(...)"
 
 }
 

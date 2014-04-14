@@ -1,78 +1,42 @@
-# atto - friendly parsing
+# atto: everyday parsers
 
-#### Overview
-
-**atto** is a compact, pure-functional incremental text parsing library for Scala (if you're looking for **binary** parsing, please turn your attention to [scodec](https://github.com/scodec/scodec)). The **atto** API is non-invasive (nothing to extend!) and uses sensible and familiar abstractions rather than an elaborate DSL. The intent is to make proper parsers trivial to construct and use anywhere your program receives text input.
+**atto** is a compact, pure-functional, incremental text parsing library for Scala (if you're looking for **binary** parsing, please turn your attention to [scodec](https://github.com/scodec/scodec)). The **atto** API is non-invasive (nothing to extend!) and uses sensible and familiar abstractions. **atto** parsers are a fun and principled tool for everyday parsing.
 
 ```scala
 scala> sepBy(int, spaceChar).parseOnly("1 20 300").option
 res0: Option[List[Int]] = Some(List(1, 20, 300))
 ```
 
-The current version (0.1) runs on Scala 2.10 with scalaz 7.0.
+The current version (0.2) runs on Scala 2.10 with scalaz 7.0.
 
-#### Provenance
+### Getting Started
 
-The core of **atto** originated in a port of Bryan O'Sullivan's **attoparsec** library into Scala, done by Edward Kmett.
-
-
-#### Changes for 0.1 from Kmett's original port
-
-   * Updated to Scala 2.10 and scalaz 7.0
-   * Implementation is now trampolined (slower, but no more stack overflows)
-   * Additional combinators and parsing options
-   * New tut-based **tutorial** over [here](https://github.com/tpolecat/tut/blob/master/out/Atto.md). Enjoy!
-   * A few examples in progress [here](example/src/main/scala/atto/example/)
-
-#### Known issues:
-
-   * It is possible to construct a parser that does not behave properly when given incremental input. This is under investigation.
-   * No idea how fast or slow it is. Doesn't seem terrible but hard to say for sure.
-
-## Getting Started
-
-You need `scalaz` and `atto`, and you want `spire` if you intend to use the unsigned integral parsers. Here's how to get all three.
+Add **atto** as a dependency in your `build.sbt` file. The `atto-core` library is probably all you need, but if you are using [Spire](https://github.com/non/spire) and want parsers for unsigned integral types you can also add `atto-spire`.
 
 ```scala
-
 resolvers ++= "tpolecat"  at "http://dl.bintray.com/tpolecat/maven"
 
 libraryDependencies ++= Seq(
-  "org.scalaz"     %% "scalaz-core" % "7.0.2",
-  "org.spire-math" %% "spire"       % "0.6.0",
-  "org.tpolecat"   %% "atto"        % "0.1"
+  "org.tpolecat" %% "atto-core"  % "0.2", // Core parsers and combinators
+  "org.tpolecat" %% "atto-spire" % "0.2"  // Optional, parsers for unsigned integral types
 )
 ```
 
-Continue with the **tutorial** over [here](https://github.com/tpolecat/tut/blob/master/out/Atto.md). Enjoy!
+**New!** Experimental integration with [scalaz-stream](https://github.com/scalaz/scalaz-stream) is provided by `atto-stream`, which can be added as above. This tiny library provides combinators to turn `Parser[A]` into `Process1[String, A]` with a few variations. There is a very basic example given [here](https://github.com/tpolecat/atto/blob/master/example/src/main/scala/atto/example/StreamExample.scala). 
 
-## Progress for 0.2
+### Documentation
 
-#### Changes thus far in 0.2
+Behold:
+- A wee REPL [tutorial](http://tpolecat.github.io/2014/04/13/atto-tutorial.html). (The only change from the 0.1 version is the new import for Spire combinators). 
+- A variety of tasty [examples](https://github.com/tpolecat/atto/tree/master/example/src/main/scala/atto/example).
+- Here's the [Scaladoc](http://tpolecat.github.io/doc/atto/0.2/api/#atto.Atto$) but it's kind of grim at the moment.
+- Read the source! Perhaps start with the [parser definitions](https://github.com/tpolecat/atto/tree/master/core/src/main/scala/atto/parser).
 
-- Many tests (still many to go).
-- Split core, spire, and examples into their own projects.
-- Added stream sub-project for scalaz-stream integration, with conversions from `Parser` to `Process1` and a bit of syntax. See the examples project for an embarrassingly minimal example. In progress.
-- Misc. new combinators and various simplicifications.
-- Added `delay` combinator to help with strictness issues when constructing recursive parsers. This is an unsatisfying solution.
-- JSON parser example.
-- Internalized tut-based tutorial now that the plugin seems to work.
+### Contributors
 
-#### TODO
+The core of **atto** originated in @ekmett's Scala port of [Attoparsec](https://github.com/bos/attoparsec). This library is an elaboration maintained by @tpolecat with contributions from @runarorama, @marcsaegesser, and @coltfred. Feedback (complaints especially) and suggestions are always welcome.
 
-- Come up with a best practice for grammars that want to be tokenized (like JSON). 
-- More tests.
-- Track down the [rare] problem with incremental parsing.
-- See if we can straighten out float parsing; `BigDecimal.toString` is not [totally] invertible.
-- Do some benchmarking with simple grammars to see how we stack up.
-- Scala 2.11 w/ scalaz 7.1
-- Improve scaladoc, maybe.
+### License
 
-## Contributors
-
-Many thanks to @runarorama, @marcsaegesser, and @coltfred for their contributions. Feedback (complaints especially) and suggestions are always welcome.
-
-## License
-
-The original **Attoparsec**, a Haskell library, is licensed under BSD-3 as specified [here](https://github.com/bos/attoparsec); the derivative work **atto** is provided under the MIT licence [here](LICENSE). Both licensese appear in project metadata.
+**Attoparsec**, a Haskell library, is licensed under BSD-3 as specified [here](https://github.com/bos/attoparsec); the derivative work **atto** is provided under the MIT licence [here](LICENSE). Both licenses appear in project metadata.
 

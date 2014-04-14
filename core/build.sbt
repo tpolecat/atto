@@ -11,3 +11,4 @@ initialCommands :=
      import atto._
      import Atto._"""
 
+bintrayPublishSettings

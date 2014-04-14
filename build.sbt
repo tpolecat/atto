@@ -10,7 +10,7 @@ scalaVersion in ThisBuild := "2.10.3"
 
 licenses in ThisBuild ++= Seq(
 	("MIT", url("http://opensource.org/licenses/MIT")),
-	("BSD3", url("http://opensource.org/licenses/BSD-3-Clause"))
+	("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
 )
 
 scalacOptions in ThisBuild ++= Seq(
@@ -38,9 +38,6 @@ lazy val stream = project.in(file("stream")).dependsOn(core)
 lazy val example = project.in(file("example")).dependsOn(core, spire, stream)
 
 publishArtifact := false
-
-// Bintray
-seq(bintrayPublishSettings:_*)
 
 // compile in (ThisBuild, Compile) := {
 // 	println("\u001B[2J\u001B[;H")

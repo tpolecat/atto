@@ -14,7 +14,7 @@ The current version (0.2) runs on Scala 2.10 with scalaz 7.0.
 Add **atto** as a dependency in your `build.sbt` file. The `atto-core` library is probably all you need, but if you are using [Spire](https://github.com/non/spire) and want parsers for unsigned integral types you can also add `atto-spire`.
 
 ```scala
-resolvers ++= "tpolecat"  at "http://dl.bintray.com/tpolecat/maven"
+resolvers += "tpolecat"  at "http://dl.bintray.com/tpolecat/maven"
 
 libraryDependencies ++= Seq(
   "org.tpolecat" %% "atto-core"  % "0.2", // Core parsers and combinators

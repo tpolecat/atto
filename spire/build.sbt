@@ -1,7 +1,7 @@
 name := "atto-spire"
 
 libraryDependencies ++= Seq(
-  "org.spire-math" %% "spire" % "0.7.1"
+  "org.spire-math" %% "spire" % "0.7.4"
 )
 
 initialCommands :=

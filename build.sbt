@@ -4,9 +4,11 @@ description := "functional parser combinators for scala"
 
 organization in ThisBuild := "org.tpolecat"
 
-version in ThisBuild := "0.2"
+version in ThisBuild := "0.2.1"
 
-scalaVersion in ThisBuild := "2.10.3"
+scalaVersion in ThisBuild := "2.10.0"
+
+crossScalaVersions in ThisBuild := Seq("2.10.4", "2.11.0")
 
 licenses in ThisBuild ++= Seq(
 	("MIT", url("http://opensource.org/licenses/MIT")),
@@ -20,7 +22,7 @@ scalacOptions in ThisBuild ++= Seq(
 	"-Yno-adapted-args",
 	"-Ywarn-value-discard", 
 	"-Ywarn-numeric-widen",
-	"-Ywarn-dead-code", 
+	// "-Ywarn-dead-code", // busted in 2.11 it seems
 	"-Xlint",
 	"-Xfatal-warnings",
   "-unchecked"
@@ -38,9 +40,4 @@ lazy val stream = project.in(file("stream")).dependsOn(core)
 lazy val example = project.in(file("example")).dependsOn(core, spire, stream)
 
 publishArtifact := false
-
-// compile in (ThisBuild, Compile) := {
-// 	println("\u001B[2J\u001B[;H")
-// 	compile.value
-// }
 

@@ -30,13 +30,13 @@ object JsonExample extends Whitespace {
 
   // Json Expression
   lazy val jexpr: Parser[JValue] = delay { 
-    string("null")       ^^^ JNull           |
-    string("true")       ^^^ JBoolean(true)  |
-    string("false")      ^^^ JBoolean(false) |
-    double               ^^  JNumber         |
-    stringLiteral        ^^  JString         |
-    seq('[', jexpr, ']') ^^  JArray          |
-    seq('{', pair,  '}') ^^  JObject
+    string("null")       >| JNull           |
+    string("true")       >| JBoolean(true)  |
+    string("false")      >| JBoolean(false) |
+    double               -| JNumber         |
+    stringLiteral        -| JString         |
+    seq('[', jexpr, ']') -| JArray          |
+    seq('{', pair,  '}') -| JObject
   }
 
 }

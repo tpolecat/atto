@@ -14,3 +14,4 @@ initialCommands :=
      import atto.syntax.stream.all._
      import scalaz.concurrent.Task"""
 
+bintrayPublishSettings

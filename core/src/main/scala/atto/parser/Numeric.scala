@@ -17,7 +17,7 @@ trait Numeric {
 
   /** Parser for an arbitrary-precision integer. */
   val bigInt: Parser[BigInt] =
-    (signum |@| stringOf1(digit))(_ * BigInt.apply(_)) namedOpaque "bigInt"
+    (signum |@| takeWhile1(_.isDigit))(_ * BigInt.apply(_)) namedOpaque "bigInt"
 
   /** Parser for a Long (range-checked). */
   val long: Parser[Long] =
@@ -39,7 +39,7 @@ trait Numeric {
 
   /** Parser for an arbitrary-precision decimal. */
   val bigDecimal: Parser[BigDecimal] = 
-    (signum |@| stringOf1(digit) |@| opt(char('.') ~> stringOf(digit)) |@| opt(char('E') ~> long)) {
+    (signum |@| takeWhile1(_.isDigit) |@| opt(char('.') ~> takeWhile(_.isDigit)) |@| opt(char('E') ~> long)) {
       case (s, a, Some(b), Some(e)) => s * BigDecimal(s"$a.${b}E$e")
       case (s, a, None, Some(e))    => s * BigDecimal(s"${a}E$e")
       case (s, a, Some(b), None) => s * BigDecimal(s"$a.$b")

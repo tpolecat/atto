@@ -251,8 +251,8 @@ trait Combinator extends Combinator0 {
 
   def filter[A](m: Parser[A])(p: A => Boolean): Parser[A] =
     m.flatMap { a => 
-      if (p(a)) ok(a) else err(s"filter($m, ...)")
-    } named s"filter($m, ...)"
+      if (p(a)) ok(a) else err("filter")
+    } named "filter(...)"
 
   def count[A](n: Int, p: Parser[A]): Parser[List[A]] =
     ((1 to n) :\ ok(List[A]()))((_, a) => cons(p, a))

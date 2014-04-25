@@ -43,11 +43,15 @@ trait Parser[+A] { m =>
 
 object Parser extends ParserInstances with ParserFunctions { 
 
-  case class State(input: String, added: String, complete: Boolean) {
-    def +(rhs: State) = State(input + rhs.added, added + rhs.added, complete | rhs.complete)
-    def +(rhs: String) = State(input + rhs, added + rhs, complete)
+  final case class State private (input: String, added: String, complete: Boolean) {
+    def +(rhs: State) = State(input concat rhs.added, added concat rhs.added, complete | rhs.complete)
+    def +(rhs: String) = State(input concat rhs, added concat rhs, complete)
     def completed: State = copy(complete = true)
     def noAdds: State = copy(added = "")
+  }
+
+  object State {
+    def apply(s: String, done: Boolean) = new State(s, "", done)
   }
 
   object Internal { 
@@ -79,10 +83,10 @@ trait ParserFunctions {
   import Parser.Internal._
 
   def parse[A](m: Parser[A], b: String): ParseResult[A] = 
-    m(State(b, "", false), (a,b,c) => done(Fail(a, b, c)), (a,b) => done(Done(a, b))).run.translate
+    m(State(b, false), (a,b,c) => done(Fail(a, b, c)), (a,b) => done(Done(a, b))).run.translate
 
   def parseOnly[A](m: Parser[A], b: String): ParseResult[A] = 
-    m(State(b, "", true),  (a,b,c) => done(Fail(a, b, c)), (a,b) => done(Done(a, b))).run.translate
+    m(State(b, true),  (a,b,c) => done(Fail(a, b, c)), (a,b) => done(Done(a, b))).run.translate
   
   // def parse[M[_]:Monad, A](m: Parser[A], refill: M[String], init: String): M[ParseResult[A]] = {
   //   def step[A] (r: Result[A]): M[ParseResult[A]] = r match {
@@ -108,6 +112,7 @@ trait ParserInstances {
     new Monad[Parser] { 
       def point[A](a: => A): Parser[A] = ok(a)
       def bind[A,B](ma: Parser[A])(f: A => Parser[B]) = ma flatMap f
+      override def map[A,B](ma: Parser[A])(f: A => B) = ma map f
     }
 
   implicit def plus: Plus[Parser] = 

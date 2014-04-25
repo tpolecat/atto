@@ -147,7 +147,7 @@ trait Text {
       string("\\u") ~> count(4, hexDigit).map(ds => Integer.parseInt(ds.mkString, 16).toChar)
 
     // Quoted strings
-    char('"') ~> many(esc | unicode | nesc).map(_.mkString) <~ char('"')
+    char('"') ~> many(nesc | esc | unicode ).map(_.mkString) <~ char('"')
 
   } named "stringLiteral"
 

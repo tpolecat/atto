@@ -212,7 +212,7 @@ trait Combinator extends Combinator0 {
     cons(p, many(p))
 
   def manyN[A](n: Int, a: Parser[A]): Parser[List[A]] =
-    ((1 to n) :\ ok(List[A]()))((_, p) => cons(a, p)) named s"ManyN($n, $a)"
+    ((1 to n) :\ ok(List[A]()))((_, p) => cons(a, p)) named "ManyN(" + n + ", " + a + ")"
 
   def manyUntil[A](p: Parser[A], q: Parser[_]): Parser[List[A]] = { 
     lazy val scan: Parser[List[A]] = (q ~> ok(Nil)) | cons(p, scan) 

@@ -48,7 +48,7 @@ trait Whitespace {
   // Syntax for turning a parser into one that consumes trailing whitespace
   implicit class TokenOps[A](self: Parser[A]) {
     def t: Parser[A] = 
-      self <~ many(spaceChar | char('\n'))
+      self <~ takeWhile(c => c.isSpaceChar || c == '\n')
   }
 
   // Delimited list
@@ -368,6 +368,6 @@ object JsonTest extends App {
     }
 ]
 
-  """
+  """.trim
 
 }

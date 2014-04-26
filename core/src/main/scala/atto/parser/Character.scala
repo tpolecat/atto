@@ -27,7 +27,7 @@ trait Character {
 
   /** Parser that matches and returns only `c`. */
   def char(c: Char): Parser[Char] = 
-    elem(_ == c, s"'$c'")
+    elem(_ == c, "'" + c + "'")
 
   /** Parser that matches any character. */
   lazy val anyChar: Parser[Char] = 

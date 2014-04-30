@@ -17,7 +17,7 @@ trait Numeric {
 
   /** Parser for an arbitrary-precision integer. */
   val bigInt: Parser[BigInt] =
-    (signum |@| takeWhile1(_.isDigit))(_ * BigInt.apply(_)) namedOpaque "bigInt"
+    (signum |@| takeWhile1(_.isDigit))(BigInt(_) * BigInt.apply(_)) namedOpaque "bigInt"
 
   /** Parser for a Long (range-checked). */
   val long: Parser[Long] =
@@ -40,10 +40,10 @@ trait Numeric {
   /** Parser for an arbitrary-precision decimal. */
   val bigDecimal: Parser[BigDecimal] = 
     (signum |@| takeWhile1(_.isDigit) |@| opt(char('.') ~> takeWhile(_.isDigit)) |@| opt(char('E') ~> long)) {
-      case (s, a, Some(b), Some(e)) => s * BigDecimal(s"$a.${b}E$e")
-      case (s, a, None, Some(e))    => s * BigDecimal(s"${a}E$e")
-      case (s, a, Some(b), None) => s * BigDecimal(s"$a.$b")
-      case (s, a, None, None)    => s * BigDecimal(a)
+      case (s, a, Some(b), Some(e)) => BigDecimal(s) * BigDecimal(s"$a.${b}E$e")
+      case (s, a, None, Some(e))    => BigDecimal(s) * BigDecimal(s"${a}E$e")
+      case (s, a, Some(b), None)    => BigDecimal(s) * BigDecimal(s"$a.$b")
+      case (s, a, None, None)       => BigDecimal(s) * BigDecimal(a)
     } named "bigDecimal"
 
   /** Parser for a Double (unchecked narrowing). */

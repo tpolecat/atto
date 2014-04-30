@@ -7,7 +7,7 @@ scala> sepBy(int, spaceChar).parseOnly("1 20 300").option
 res0: Option[List[Int]] = Some(List(1, 20, 300))
 ```
 
-The current version (0.2) runs on Scala 2.10 with scalaz 7.0.
+The current version (0.2.1) runs on Scala 2.10 and 2.11 with scalaz 7.0.
 
 ### Getting Started
 
@@ -17,8 +17,8 @@ Add **atto** as a dependency in your `build.sbt` file. The `atto-core` library i
 resolvers += "tpolecat"  at "http://dl.bintray.com/tpolecat/maven"
 
 libraryDependencies ++= Seq(
-  "org.tpolecat" %% "atto-core"  % "0.2", // Core parsers and combinators
-  "org.tpolecat" %% "atto-spire" % "0.2"  // Optional, parsers for unsigned integral types
+  "org.tpolecat" %% "atto-core"  % "0.2.1", // Core parsers and combinators
+  "org.tpolecat" %% "atto-spire" % "0.2.1"  // Optional, parsers for unsigned integral types
 )
 ```
 

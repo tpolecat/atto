@@ -6,7 +6,7 @@ organization in ThisBuild := "org.tpolecat"
 
 version in ThisBuild := "0.2.1"
 
-scalaVersion in ThisBuild := "2.10.0"
+scalaVersion in ThisBuild := "2.11.0"
 
 crossScalaVersions in ThisBuild := Seq("2.10.4", "2.11.0")
 
@@ -18,10 +18,8 @@ licenses in ThisBuild ++= Seq(
 scalacOptions in ThisBuild ++= Seq(
 	"-feature", 
 	"-deprecation", 
-	"-Ywarn-all", 
 	"-Yno-adapted-args",
 	"-Ywarn-value-discard", 
-	"-Ywarn-numeric-widen",
 	// "-Ywarn-dead-code", // busted in 2.11 it seems
 	"-Xlint",
 	"-Xfatal-warnings",
@@ -29,7 +27,11 @@ scalacOptions in ThisBuild ++= Seq(
 )
 
 // Let's be even more picky in non-test code
-scalacOptions in compile += "-Yno-imports" 
+scalacOptions in compile ++= Seq(
+	"-Yno-imports",
+	"-Ywarn-numeric-widen"
+)
+
 
 lazy val core = project.in(file("core"))
 

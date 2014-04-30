@@ -164,7 +164,7 @@ object NTriples extends NTriples {
 #
 # Dave Beckett - http://purl.org/net/dajobe/
 # 
-# $Id: test.nt,v 1.7 2003/10/06 15:52:19 dbeckett2 Exp $
+# Id: test.nt,v 1.7 2003/10/06 15:52:19 dbeckett2 Exp 
 # 
 #####################################################################
 

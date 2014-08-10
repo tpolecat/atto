@@ -7,7 +7,10 @@ scala> sepBy(int, spaceChar).parseOnly("1 20 300").option
 res0: Option[List[Int]] = Some(List(1, 20, 300))
 ```
 
-The current version (0.2.1) runs on Scala 2.10 and 2.11 with scalaz 7.0.
+Current versions are available for Scala 2.10 and 2.11 with scalaz 7.0 and 7.1
+
+- For scalaz **7.0** use **atto 0.3**.
+- For scalaz **7.1** use **atto 0.4.0**.
 
 ### Getting Started
 
@@ -17,12 +20,12 @@ Add **atto** as a dependency in your `build.sbt` file. The `atto-core` library i
 resolvers += "tpolecat"  at "http://dl.bintray.com/tpolecat/maven"
 
 libraryDependencies ++= Seq(
-  "org.tpolecat" %% "atto-core"  % "0.2.1", // Core parsers and combinators
-  "org.tpolecat" %% "atto-spire" % "0.2.1"  // Optional, parsers for unsigned integral types
+  "org.tpolecat" %% "atto-core"  % "0.4.0", // Core parsers and combinators
+  "org.tpolecat" %% "atto-spire" % "0.4.0"  // Optional, parsers for unsigned integral types
 )
 ```
 
-**New!** Experimental integration with [scalaz-stream](https://github.com/scalaz/scalaz-stream) is provided by `atto-stream`, which can be added as above. This tiny library provides combinators to turn `Parser[A]` into `Process1[String, A]` with a few variations. There is a very basic example given [here](https://github.com/tpolecat/atto/blob/master/example/src/main/scala/atto/example/StreamExample.scala). 
+Experimental integration with [scalaz-stream](https://github.com/scalaz/scalaz-stream) is provided by `atto-stream` (version **0.3** only for now) which can be added as above. This tiny library provides combinators to turn `Parser[A]` into `Process1[String, A]` with a few variations. There is a very basic example given [here](https://github.com/tpolecat/atto/blob/master/example/src/main/scala/atto/example/StreamExample.scala). 
 
 ### Documentation
 

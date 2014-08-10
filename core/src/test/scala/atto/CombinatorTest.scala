@@ -5,6 +5,7 @@ import org.scalacheck._
 import scalaz._
 import scalaz.syntax.functor._
 import scalaz.std.option._
+import scalaz.std.anyVal.{ char => charInstance }
 
 object CombinatorTest extends Properties("Combinator") {
   import Prop._

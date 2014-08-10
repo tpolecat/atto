@@ -55,26 +55,26 @@ object Parser extends ParserInstances with ParserFunctions {
   }
 
   object Internal { 
-    sealed abstract class Result[+T] { 
+    sealed abstract class Result[T] { 
       def translate: ParseResult[T]
     }
-    case class Fail(input: State, stack: List[String], message: String) extends Result[Nothing] { 
+    case class Fail[T](input: State, stack: List[String], message: String) extends Result[T] { 
       def translate = ParseResult.Fail(input.input, stack, message)
       def push(s: String) = Fail(input, stack = s :: stack, message)
     }
-    case class Partial[+T](k: String => Trampoline[Result[T]]) extends Result[T] { 
+    case class Partial[T](k: String => Trampoline[Result[T]]) extends Result[T] { 
       def translate = ParseResult.Partial(a => k(a).run.translate)
     }
-    case class Done[+T](input: State, result: T) extends Result[T] { 
+    case class Done[T](input: State, result: T) extends Result[T] { 
       def translate = ParseResult.Done(input.input, result)
     }
   }
 
   import Internal._
 
-  type TResult[+R] = Trampoline[Result[R]]
-  type Failure[+R] = (State,List[String],String) => TResult[R]
-  type Success[-A,+R] = (State, A) => TResult[R]
+  type TResult[R] = Trampoline[Result[R]]
+  type Failure[R] = (State,List[String],String) => TResult[R]
+  type Success[-A, R] = (State, A) => TResult[R]
 
 }
 
@@ -83,10 +83,10 @@ trait ParserFunctions {
   import Parser.Internal._
 
   def parse[A](m: Parser[A], b: String): ParseResult[A] = 
-    m(State(b, false), (a,b,c) => done(Fail(a, b, c)), (a,b) => done(Done(a, b))).run.translate
+    m(State(b, false), (a,b,c) => done[Result[A]](Fail(a, b, c)), (a,b) => done[Result[A]](Done(a, b))).run.translate
 
   def parseOnly[A](m: Parser[A], b: String): ParseResult[A] = 
-    m(State(b, true),  (a,b,c) => done(Fail(a, b, c)), (a,b) => done(Done(a, b))).run.translate
+    m(State(b, true),  (a,b,c) => done[Result[A]](Fail(a, b, c)), (a,b) => done[Result[A]](Done(a, b))).run.translate
   
   // def parse[M[_]:Monad, A](m: Parser[A], refill: M[String], init: String): M[ParseResult[A]] = {
   //   def step[A] (r: Result[A]): M[ParseResult[A]] = r match {

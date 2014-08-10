@@ -4,7 +4,7 @@ description := "functional parser combinators for scala"
 
 organization in ThisBuild := "org.tpolecat"
 
-version in ThisBuild := "0.4.0"
+version in ThisBuild := "0.4.1-SNAPSHOT"
 
 scalaVersion in ThisBuild := "2.11.0"
 

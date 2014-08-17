@@ -155,14 +155,56 @@ object CombinatorTest extends Properties("Combinator") {
   }
 
   property("manyN") = forAll { (s: String, n0: Int) =>
-    val n = if (s.isEmpty) 0 else (n0.abs % s.length)
-    manyN(n, anyChar).parseOnly(s).option == 
-      Some(s.take(n).toList)
+    val n = n0.abs
+    (n >= 0) ==> {
+      manyN(n, anyChar).parseOnly(s).option match {
+        case None => s.length < n
+        case Some(chars) => chars == s.take(n).toList
+      }
+    }
+  }
+
+
+  property("upToN") = forAll { (s: String, n0: Int) =>
+    val n = n0.abs
+    (n >= 0) ==> {
+      val parseLen = n min s.length
+      val left = s.takeRight(s.length - parseLen)
+      upToN(n, anyChar).parseOnly(s) match {
+        case res@ParseResult.Done(x, y) =>
+          (y.length == parseLen) :| s"parsed ${y.length} characters instead of $parseLen" &&
+            (x == left) :| s"remainder expected '$left', got '$x' in $res"
+        case _ => false :| "parse failed"
+      }
+    }
+  }
+
+  property("manyNM") = forAll { (s: String, n0: Int, m0: Int) =>
+    val n = n0.abs
+    val m = n + m0.abs
+    (n >= 0 && m >= n) ==> {
+      val result = manyNM(n, m, anyChar).parseOnly(s)
+      if (s.length >= n) {
+        val parseLen = m min s.length
+        val left = s.takeRight(if (s.length > m) s.length - m else 0)
+         result match {
+          case ParseResult.Done(x, y) =>
+            (parseLen == y.length) :| s"expected $parseLen characters but got ${y.length}" &&
+              (x == left) :| s"remainder expected '$left', got '$x' in $result"
+          case _ => (s.length < n) :| "parse failed"
+        }
+      } else // s.length < n
+        result match {
+        case ParseResult.Fail(x, y, _) =>
+          (x == s) :| "shouldn't consume any input"
+        case _ => false
+      }
+    }
   }
 
   property("manyUntil") = forAll { (s: String) =>
     (s.nonEmpty && s.indexOf("x") == -1) ==> {
-      val r = manyUntil(string(s), char('x')).parseOnly(s * 3 + "xyz").done 
+      val r = manyUntil(string(s), char('x')).parseOnly(s * 3 + "xyz").done
       r == ParseResult.Done("yz", List(s, s, s))
     }
   }
@@ -176,10 +218,12 @@ object CombinatorTest extends Properties("Combinator") {
       Option(s.toList).filterNot(_.isEmpty).void
   }
 
-  property("skipManyN") = forAll { (s: String, n0: Int) =>
-    val n = if (s.isEmpty) 0 else (n0.abs % s.length)
-    skipManyN(n, anyChar).parseOnly(s).option == 
-      Option(s.take(n).toList).void
+  property("skipManyN") = forAll { (s: String, n: Int) =>
+    (n >= 0) ==> {
+      (skipManyN(n, anyChar).parseOnly(s).option
+        == (if (s.length < n) None else Some(())))
+    }
+
   }
 
   property("sepBy") = forAll { (ns: List[Int], c: Char, s: String) =>

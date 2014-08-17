@@ -185,18 +185,18 @@ object CombinatorTest extends Properties("Combinator") {
     (n >= 0 && m >= n) ==> {
       val result = manyNM(n, m, anyChar).parseOnly(s)
       if (s.length >= n) {
-        val parseLen = m min s.length
+        val expectedLen = m min s.length
         val left = s.takeRight(if (s.length > m) s.length - m else 0)
          result match {
-          case ParseResult.Done(x, y) =>
-            (parseLen == y.length) :| s"expected $parseLen characters but got ${y.length}" &&
-              (x == left) :| s"remainder expected '$left', got '$x' in $result"
-          case _ => (s.length < n) :| "parse failed"
+          case ParseResult.Done(in, r) =>
+            (expectedLen == r.length) :| s"expected $expectedLen characters but got ${r.length}" &&
+              (in == left) :| s"remainder expected '$left', got '$in' in $result"
+          case _ => false
         }
       } else // s.length < n
         result match {
-        case ParseResult.Fail(x, y, _) =>
-          (x == s) :| "shouldn't consume any input"
+        case ParseResult.Fail(in, _, _) =>
+          (in == s) :| "shouldn't consume any input"
         case _ => false
       }
     }

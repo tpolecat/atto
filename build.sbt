@@ -37,10 +37,9 @@ lazy val core = project.in(file("core"))
 
 lazy val spire = project.in(file("spire")).dependsOn(core)
 
-// On hold waiting on streams for 2.11 + 7.1
-// lazy val stream = project.in(file("stream")).dependsOn(core)
+lazy val stream = project.in(file("stream")).dependsOn(core)
 
-lazy val example = project.in(file("example")).dependsOn(core, spire) //, stream)
+lazy val example = project.in(file("example")).dependsOn(core, spire, stream)
 
 publishArtifact := false
 

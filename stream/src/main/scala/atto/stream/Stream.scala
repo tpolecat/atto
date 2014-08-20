@@ -11,7 +11,7 @@ import scalaz.stream._
 
 import Atto._
 import ParseResult._
-import Process.{ await1, emit, emitAll, halt, suspend, await, eval }
+import Process.{ await1, emit, emitAll, halt, suspend, await, eval, receive1Or }
 import process1.{ id, scan }
 
 object Stream extends StreamFunctions
@@ -22,7 +22,7 @@ trait StreamFunctions {
   def parse1[A](p: Parser[A]): Process1[String, ParseResult[A]] = {
     def go(r: ParseResult[A]): Process1[String, ParseResult[A]] = 
       r match {
-        case Partial(_) => await1[String].flatMap(s => go(r feed s)) orElse emit(r.done)
+        case Partial(_) => receive1Or[String, ParseResult[A]](emit(r.done))(s => go(r feed s))
         case _          => emit(r)
       }      
     go(p.parse(""))
@@ -36,7 +36,7 @@ trait StreamFunctions {
         case _           => (r, acc)
       }
     def go(r: ParseResult[A]): Process1[String, A] =
-      await1[String].flatMap { s =>
+      receive1Or[String, A](emitAll(exhaust(r.done, Nil)._2)) { s =>
         val (r0, acc) = r match {
           case Done(in, a)    => (p.parse(in + s), List(a)) 
           case Fail(in, _, _) => (r, Nil)
@@ -44,7 +44,7 @@ trait StreamFunctions {
         }
         val (r1, as) = exhaust(r0, acc)
         emitAll(as.reverse) ++ go(r1)
-      } orElse emitAll(exhaust(r.done, Nil)._2)
+      } 
     go(p.parse(""))  
   }
 
@@ -57,7 +57,7 @@ trait StreamFunctions {
         case Partial(_)     => (r, acc)
       }
     def go(r: ParseResult[A]): Process1[String, A] =
-      await1[String].flatMap { s =>
+      receive1Or[String, A](emitAll(exhaust(r.done, Nil)._2)) { s =>
         val (r0, acc) = r match {
           case Done(in, a)    => (p.parse(in + s), List(a)) 
           case Fail(in, _, _) => (p.parse(in.drop(1) + s), Nil)
@@ -65,7 +65,7 @@ trait StreamFunctions {
         }
         val (r1, as) = exhaust(r0, acc)
         emitAll(as.reverse) ++ go(r1)
-      } orElse emitAll(exhaust(r.done, Nil)._2)
+      }
     go(p.parse(""))  
   }
 

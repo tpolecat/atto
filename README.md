@@ -25,7 +25,7 @@ libraryDependencies ++= Seq(
 )
 ```
 
-Experimental integration with [scalaz-stream](https://github.com/scalaz/scalaz-stream) is provided by `atto-stream` (version **0.3** only for now) which can be added as above. This tiny library provides combinators to turn `Parser[A]` into `Process1[String, A]` with a few variations. There is a very basic example given [here](https://github.com/tpolecat/atto/blob/master/example/src/main/scala/atto/example/StreamExample.scala). 
+Experimental integration with [scalaz-stream](https://github.com/scalaz/scalaz-stream) is provided by `atto-stream` which can be added as above. This tiny library provides combinators to turn `Parser[A]` into `Process1[String, A]` with a few variations. There is a very basic example given [here](https://github.com/tpolecat/atto/blob/master/example/src/main/scala/atto/example/StreamExample.scala). 
 
 ### Documentation
 

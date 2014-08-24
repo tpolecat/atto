@@ -211,12 +211,30 @@ trait Combinator extends Combinator0 {
   def many1[A](p: => Parser[A]): Parser[List[A]] = 
     cons(p, many(p))
 
-  def manyN[A](n: Int, a: Parser[A]): Parser[List[A]] =
-    ((1 to n) :\ ok(List[A]()))((_, p) => cons(a, p)) named "ManyN(" + n + ", " + a + ")"
+  def manyN[A](n: Int, p: Parser[A]): Parser[List[A]] = {
+    require(n >= 0, "n must be >= 0")
+    ((if (n == 0) ok(Nil) else cons(p, manyN(n - 1, p)))
+      named "ManyN(" + n + ", " + p + ")")
+  }
 
   def manyUntil[A](p: Parser[A], q: Parser[_]): Parser[List[A]] = { 
     lazy val scan: Parser[List[A]] = (q ~> ok(Nil)) | cons(p, scan) 
     scan named ("manyUntil(" + p + "," + q + ")")
+  }
+
+  def upToN[A](n: Int, a: Parser[A]): Parser[List[A]] = {
+    require(n >= 0, "n must be >= 0")
+    if (n <= 0) ok(Nil)
+    else opt(a).flatMap({
+      case None => ok(Nil)
+      case Some(r) => ok(r) ~ upToN(n-1, a) map { case (a,rest) => a :: rest }
+    })
+  } named s"upToN($n, $a)"
+
+  def manyNM[A](n: Int, m: Int, a: Parser[A]): Parser[List[A]] = {
+    require(n >= 0, "n must be >= 0")
+    require(m >= n, "m must be >= n")
+    attempt(manyN(n, a) ~ upToN(m-n, a) map { case (l,r) => l ++ r }) named s"manyNM($n, $m, $a)"
   }
 
   def skipMany(p: Parser[_]): Parser[Unit] = 

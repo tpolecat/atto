@@ -26,50 +26,59 @@ trait Text {
   def stringOf1(p: Parser[Char]): Parser[String] =
     many1(p).map(cs => new String(cs.toArray)) named "stringOf1(" + p + ")"
 
+  def takeWith(n: Int, p: String => Boolean, what: => String = "takeWith(...)"): Parser[String] =
+    ensure(n) flatMap { s =>
+      if (p(s)) advance(n) ~> ok(s)
+      else err(what)
+    } namedOpaque what
+
   /** Parser that returns the next `n` characters as a `String`. */
-  def take(n: Int): Parser[String] = 
-    ensure(n) ~> get flatMap { s => 
-      val (a, b) = s.splitAt(n)
-      put(b) ~> ok(a)
-    } namedOpaque "take(" + n + ")"
+  def take(n: Int): Parser[String] =
+    takeWith(n, _ => true, "take(" + n + ")")
 
   /** Parser that matches and returns only `s`. */
-  def string(s: String): Parser[String] = 
-    take(s.length).filter(_ == s) namedOpaque "string(\"" + s + "\")"
+  def string(s: String): Parser[String] =
+    takeWith(s.length, _ == s, "string(\"" + s + "\")")
 
   /** Like `string` but case-insensitive `s`. */
-  def stringCI(s: String): Parser[String] = 
-    take(s.length).filter(_ equalsIgnoreCase s) namedOpaque "stringCI(\"" + s + "\")"
- 
-  /** 
+  def stringCI(s: String): Parser[String] =
+    takeWith(s.length, _ equalsIgnoreCase s, "stringCI(\"" + s + "\")")
+
+  /**
    * Parser that returns a string of characters passing the supplied predicate. Equivalent to but
    * more efficient than `stringOf(elem(p))`.
    */
   def takeWhile(p: Char => Boolean): Parser[String] = {
     def go(acc: List[String]): Parser[List[String]] = for {
-      x <- get
-      (h, t) = x span p
-      _ <- put(t)
-      r <- if (t.isEmpty) for {
+      x <- get map (_.takeWhile(p))
+      _ <- advance(x.length)
+      eoc <- endOfChunk
+      r <- if (eoc) for {
         input <- wantInput
-        r <- if (input) go(h :: acc)
-             else ok(h :: acc)
-      } yield r else ok(h :: acc)
+        r <- if (input) go(x :: acc)
+             else ok(x :: acc)
+      } yield r else ok(x :: acc)
     } yield r
     go(Nil).map(_.reverse.concatenate)
   }
 
- /** 
-   * Parser that returns a non-empty string of characters passing the supplied predicate. Equivalent 
+  private def when(m: Parser[Unit], b: Boolean) = if (b) m else ok(())
+
+ /**
+   * Parser that returns a non-empty string of characters passing the supplied predicate. Equivalent
    * to but more efficient than `stringOf1(elem(p))`.
    */
   def takeWhile1(p: Char => Boolean): Parser[String] = for {
-    _ <- get map (_.isEmpty) flatMap (_.whenM(demandInput))
-    s <- get
-    (h, t) = s span p
-    _ <- h.isEmpty.whenM(err("takeWhile1"):Parser[Unit])
-    _ <- put(t)
-    r <- if (t.isEmpty) takeWhile(p).map(h + _) else ok(h)
+    _ <- endOfChunk.flatMap(when(demandInput, _))
+    x <- get map (_.takeWhile(p))
+    len = x.length
+    r <- if (len == 0) err("takeWhile1")
+      else for {
+        _ <- advance(len)
+        eoc <- endOfChunk
+        r <- if (eoc) takeWhile(p) map (x + _)
+          else ok(x)
+      } yield r
   } yield r
 
   /** Parser that consumes and returns all remaining chunks of input. */
@@ -78,7 +87,7 @@ trait Text {
       input <- wantInput
       r <- if (input) for {
         s <- get
-        _ <- put("")
+        _ <- advance(s.length)
         r <- go(s :: acc)
       } yield r else ok(acc.reverse)
     } yield r
@@ -89,9 +98,9 @@ trait Text {
   lazy val takeText: Parser[String] =
     takeRest map (_.concatenate)
 
-  /** 
-   * Stateful scanning parser returning a string of all visited chars. Many combinators can be 
-   * written in terms of `scan`; for instance, `take(n)` could be written  as 
+  /**
+   * Stateful scanning parser returning a string of all visited chars. Many combinators can be
+   * written in terms of `scan`; for instance, `take(n)` could be written  as
    * `scan(n)((m, _) => m > 0 option m - 1)`.
    */
   def scan[S](s: S)(p: (S, Char) => Option[S]): Parser[String] = {
@@ -112,11 +121,15 @@ trait Text {
       input <- get
       r <- scanner(s, 0, input) match {
         case Continue(sp) => for {
-          _    <- put("")
-          more <- wantInput
-          r    <- if (more) go(input :: acc, sp) else ok(input :: acc)
+          _    <- advance(input.length)
+          eoc <- endOfChunk
+          r <- if (eoc) for {
+            more <- wantInput
+            r <- if (more) go(input :: acc, sp) else ok(input :: acc)
+          } yield r
+            else Parser.monoid.zero
         } yield r
-        case Finished(n, t) => put(t).flatMap(_ => ok(input.take(n) :: acc))
+        case Finished(n, t) => advance(input.length - t.length).flatMap(_ => ok(input.take(n) :: acc))
       }
     } yield r
 
@@ -128,7 +141,7 @@ trait Text {
   val stringLiteral: Parser[String] = {
 
     // Unescaped characters
-    val nesc: Parser[Char] = 
+    val nesc: Parser[Char] =
       elem(c => c != '\\' && c != '"' && !c.isControl)
 
     // Escaped characters

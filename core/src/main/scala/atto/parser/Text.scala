@@ -62,14 +62,12 @@ trait Text {
     go(Nil).map(_.reverse.concatenate)
   }
 
-  private def when(m: Parser[Unit], b: Boolean) = if (b) m else ok(())
-
  /**
    * Parser that returns a non-empty string of characters passing the supplied predicate. Equivalent
    * to but more efficient than `stringOf1(elem(p))`.
    */
   def takeWhile1(p: Char => Boolean): Parser[String] = for {
-    _ <- endOfChunk.flatMap(when(demandInput, _))
+    _ <- endOfChunk.flatMap(_.whenM(demandInput))
     x <- get map (_.takeWhile(p))
     len = x.length
     r <- if (len == 0) err("takeWhile1")

@@ -27,28 +27,32 @@ object CombinatorTest extends Properties("Combinator") {
     }
   }
 
-  property("get") = forAll { (s: String) => 
+  property("get") = forAll { (s: String) =>
     get.parseOnly(s) match {
       case ParseResult.Done(`s`, `s`) => true
       case _ => false
     }
   }
 
-  property("put") = forAll { (s: String, x: String) => 
-    put(x).parseOnly(s) match {
-      case ParseResult.Done(`x`, ()) => true
-      case _ => false
+  property("advance") = forAll { (s: String, x: Int) =>
+    (x >= 0) ==> {
+      advance(x).parseOnly(s) match {
+        case ParseResult.Done(s, ()) => true
+        case _ => false
+      }
     }
   }
 
   // TODO: demandInput
 
   property("ensure") = forAll { (s: String, n: Int) =>
-    ensure(n).parseOnly(s) match {
-      case ParseResult.Done(s, ()) if n <= s.length => true
-      case ParseResult.Fail(_, _, _) => true
-      case _ => false
-    }    
+    (n >= 0) ==> {
+      ensure(n).parseOnly(s) match {
+        case ParseResult.Done(s, _) if n <= s.length => true
+        case ParseResult.Fail(_, _, _) => true
+        case _ => false
+      }
+    }
   }
 
   property("wantInput") = forAll { (s: String) =>
@@ -62,34 +66,34 @@ object CombinatorTest extends Properties("Combinator") {
   // TODO: attempt
 
    property("discardLeft") = forAll { (n: Int, s: String) =>
-    !(s.exists(_.isDigit)) ==> { 
+    !(s.exists(_.isDigit)) ==> {
       discardLeft(int, string(s)).parseOnly(n + s) match {
         case ParseResult.Done("", `s`) => true
         case _ => false
       }
-    }    
+    }
   }
 
   property("discardRight") = forAll { (n: Int, s: String) =>
-    !(s.exists(_.isDigit)) ==> { 
+    !(s.exists(_.isDigit)) ==> {
       discardRight(string(s), int).parseOnly(s + n) match {
         case ParseResult.Done("", `s`) => true
         case _ => false
       }
-    }    
+    }
   }
 
-  property("andThen") = forAll { (n: Int, c: Char, s: String) =>
-    !(s.exists(_.isDigit)) ==> { 
+  property("andThen") = forAll { (n: Int, s: String) =>
+    !(s.exists(_.isDigit)) ==> {
       andThen(string(s), int).parseOnly(s + n) match {
         case ParseResult.Done("", (`s`, `n`)) => true
         case _ => false
       }
-    }    
+    }
   }
 
-  property("orElse/left") = forAll { (n: Int, s: String) => 
-    !(s.isEmpty || s.exists(_.isDigit)) ==> { 
+  property("orElse/left") = forAll { (n: Int, s: String) =>
+    !(s.isEmpty || s.exists(_.isDigit)) ==> {
       val p1: Parser[Int \/ String] = string(s).map(\/-(_))
       val p2: Parser[Int \/ String] = int.map(-\/(_))
       orElse(p1, p2).parseOnly(n + s) match {
@@ -99,8 +103,8 @@ object CombinatorTest extends Properties("Combinator") {
     }
   }
 
-  property("orElse/right") = forAll { (n: Int, s: String) => 
-    !(s.exists(_.isDigit)) ==> { 
+  property("orElse/right") = forAll { (n: Int, s: String) =>
+    !(s.exists(_.isDigit)) ==> {
       val p1: Parser[Int \/ String] = string(s).map(\/-(_))
       val p2: Parser[Int \/ String] = int.map(-\/(_))
       orElse(p1, p2).parseOnly(s + n) match {
@@ -110,8 +114,8 @@ object CombinatorTest extends Properties("Combinator") {
     }
   }
 
-  property("either/left") = forAll { (n: Int, s: String) => 
-    !(s.isEmpty || s.exists(_.isDigit)) ==> { 
+  property("either/left") = forAll { (n: Int, s: String) =>
+    !(s.isEmpty || s.exists(_.isDigit)) ==> {
       either(int, string(s)).parseOnly(n + s) match {
         case ParseResult.Done(`s`, -\/(`n`)) => true
         case _ => false
@@ -119,8 +123,8 @@ object CombinatorTest extends Properties("Combinator") {
     }
   }
 
-  property("either/right") = forAll { (n: Int, s: String) => 
-    !(s.isEmpty || s.exists(_.isDigit)) ==> { 
+  property("either/right") = forAll { (n: Int, s: String) =>
+    !(s.isEmpty || s.exists(_.isDigit)) ==> {
       either(int, string(s)).parseOnly(s + n) match {
         case ParseResult.Done(_, \/-(`s`)) => true
         case _ => false
@@ -138,10 +142,10 @@ object CombinatorTest extends Properties("Combinator") {
     }
   }
 
-  property("cons") = forAll { (c: Char, s: String) => 
+  property("cons") = forAll { (c: Char, s: String) =>
     lazy val p: Parser[List[Char]] = cons(anyChar, orElse(p, ok(Nil)))
     p.parseOnly(c + s).option == Some(c :: s.toList)
-  }  
+  }
 
   // phrase
 
@@ -150,19 +154,19 @@ object CombinatorTest extends Properties("Combinator") {
   }
 
   property("many1") = forAll { (s: String) =>
-    many1(anyChar).parseOnly(s).option == 
+    many1(anyChar).parseOnly(s).option ==
       Some(s.toList).filterNot(_.isEmpty)
   }
 
   property("manyN") = forAll { (s: String, n0: Int) =>
     val n = if (s.isEmpty) 0 else (n0.abs % s.length)
-    manyN(n, anyChar).parseOnly(s).option == 
+    manyN(n, anyChar).parseOnly(s).option ==
       Some(s.take(n).toList)
   }
 
   property("manyUntil") = forAll { (s: String) =>
     (s.nonEmpty && s.indexOf("x") == -1) ==> {
-      val r = manyUntil(string(s), char('x')).parseOnly(s * 3 + "xyz").done 
+      val r = manyUntil(string(s), char('x')).parseOnly(s * 3 + "xyz").done
       r == ParseResult.Done("yz", List(s, s, s))
     }
   }
@@ -172,19 +176,19 @@ object CombinatorTest extends Properties("Combinator") {
   }
 
   property("skipMany1") = forAll { (s: String) =>
-    skipMany1(anyChar).parseOnly(s).option == 
+    skipMany1(anyChar).parseOnly(s).option ==
       Option(s.toList).filterNot(_.isEmpty).void
   }
 
   property("skipManyN") = forAll { (s: String, n0: Int) =>
     val n = if (s.isEmpty) 0 else (n0.abs % s.length)
-    skipManyN(n, anyChar).parseOnly(s).option == 
+    skipManyN(n, anyChar).parseOnly(s).option ==
       Option(s.take(n).toList).void
   }
 
   property("sepBy") = forAll { (ns: List[Int], c: Char, s: String) =>
     val sep = s + c
-    !(sep.exists(_.isDigit)) ==> { 
+    !(sep.exists(_.isDigit)) ==> {
       val p = sepBy(int, string(sep))
       p.parseOnly(ns.mkString(sep)) match {
         case ParseResult.Done("", `ns`) => true
@@ -195,7 +199,7 @@ object CombinatorTest extends Properties("Combinator") {
 
   property("sepBy1") = forAll { (ns: List[Int], c: Char, s: String) =>
     val sep = s + c
-    !(sep.exists(_.isDigit)) ==> { 
+    !(sep.exists(_.isDigit)) ==> {
       val p = sepBy1(int, string(sep))
       p.parseOnly(ns.mkString(sep)) match {
         case ParseResult.Fail(s, _, _) if ns.isEmpty => true
@@ -205,7 +209,7 @@ object CombinatorTest extends Properties("Combinator") {
     }
   }
 
-  property("choice/1") = forAll { (a: String, b: String, c: String) => 
+  property("choice/1") = forAll { (a: String, b: String, c: String) =>
     (a.nonEmpty && b.nonEmpty && c.nonEmpty) ==> {
       val p = choice(string(a), string(b), string(c))
       p.parseOnly(a + b + c).done == ParseResult.Done(b + c, a)
@@ -214,7 +218,7 @@ object CombinatorTest extends Properties("Combinator") {
     }
   }
 
-  property("choice/2") = forAll { (a: String, b: String, c: String) => 
+  property("choice/2") = forAll { (a: String, b: String, c: String) =>
    (a.nonEmpty && b.nonEmpty && c.nonEmpty) ==> {
       val p = choice(string(a), string(b), string(c))
       p.parseOnly(a + b + c).done == ParseResult.Done(b + c, a)
@@ -223,12 +227,12 @@ object CombinatorTest extends Properties("Combinator") {
     }
   }
 
-  property("opt") = forAll { (c: Char) => 
+  property("opt") = forAll { (c: Char) =>
     opt(letterOrDigit).parseOnly(c.toString).option == Some(Some(c).filter(_.isLetterOrDigit))
   }
 
-  property("filter") = forAll { (c: Char) => 
-    filter(anyChar)(_.isLetterOrDigit).parseOnly(c.toString).option == 
+  property("filter") = forAll { (c: Char) =>
+    filter(anyChar)(_.isLetterOrDigit).parseOnly(c.toString).option ==
       Some(c).filter(_.isLetterOrDigit)
   }
 

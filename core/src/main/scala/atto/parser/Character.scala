@@ -14,27 +14,27 @@ trait Character {
   import text._
 
   /** Parser that returns a `Char` if it satisfies predicate `p`. */
-  def elem(p: Char => Boolean, what: => String = "elem(...)"): Parser[Char] = 
-    ensure(1) ~> get flatMap (s => {
+  def elem(p: Char => Boolean, what: => String = "elem(...)"): Parser[Char] =
+    ensure(1) flatMap (s => {
       val c = s.charAt(0)
-      if (p(c)) put(s.substring(1)) ~> ok(c)
+      if (p(c)) advance(1) ~> ok(c)
       else err(what)
     }) namedOpaque what
 
   /** Equivalent to `elem(p)` but without optional label arg. */
-  def satisfy(p: Char => Boolean): Parser[Char] = 
+  def satisfy(p: Char => Boolean): Parser[Char] =
     elem(p, "satisfy(...)")
 
   /** Parser that matches and returns only `c`. */
-  def char(c: Char): Parser[Char] = 
+  def char(c: Char): Parser[Char] =
     elem(_ == c, "'" + c + "'")
 
   /** Parser that matches any character. */
-  lazy val anyChar: Parser[Char] = 
+  lazy val anyChar: Parser[Char] =
     satisfy(_ => true)
 
   /** Parser that matches any character other than `c`. */
-  def notChar(c: Char): Parser[Char] = 
+  def notChar(c: Char): Parser[Char] =
     satisfy(_ != c) named ("not '" + c + "'")
 
   /** Decimal digit, 0-9. */
@@ -81,13 +81,13 @@ trait Character {
     elem(c => rs.exists(_.contains(c)))
 
   /** `elem` + `map` in a single operation. */
-  def optElem[A](p: Char => Option[A]): Parser[A] = 
-    ensure(1) ~> get flatMap { s => 
-      p(s.head).cata(a => put(s.tail) ~> ok(a), err("optElem(...)"))
+  def optElem[A](p: Char => Option[A]): Parser[A] =
+    ensure(1) flatMap { s =>
+      p(s.head).cata(a => advance(s.tail.length) ~> ok(a), err("optElem(...)"))
     } named "optElem(...)"
 
   /** Parser that skips a `Char` if it satisfies predicate `p`. */
-  def skip(p: Char => Boolean): Parser[Unit] = 
+  def skip(p: Char => Boolean): Parser[Unit] =
     elem(p).void named "skip(...)"
 
 }

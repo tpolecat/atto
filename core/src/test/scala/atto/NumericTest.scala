@@ -47,8 +47,8 @@ object NumericTest extends Properties("Numeric") {
   //   float.parseOnly(b.toString).option == Some(b.toFloat)
   // }
 
-  property("signum") = forAll { (s: String) => 
-    !s.startsWith("-") ==> {
+  property("signum") = forAll { (s: String) =>
+    !(s.startsWith("-") || s.startsWith("+")) ==> {
       signum.parseOnly("+" + s) == ParseResult.Done(s,  1) &&
       signum.parseOnly("-" + s) == ParseResult.Done(s, -1) &&
       signum.parseOnly(s)       == ParseResult.Done(s,  1)

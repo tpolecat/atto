@@ -24,7 +24,7 @@ trait Text {
 
   /** Parser that returns a non-empty string of characters matched by `p`. */
   def stringOf1(p: Parser[Char]): Parser[String] =
-    many1(p).map(cs => new String(cs.toArray)) named "stringOf1(" + p + ")"
+    many1(p).map(cs => new String(cs.list.toArray)) named "stringOf1(" + p + ")"
 
   def takeWith(n: Int, p: String => Boolean, what: => String = "takeWith(...)"): Parser[String] =
     ensure(n) flatMap { s =>

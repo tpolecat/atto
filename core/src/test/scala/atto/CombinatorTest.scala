@@ -4,6 +4,7 @@ import Atto._
 import org.scalacheck._
 import scalaz._
 import scalaz.syntax.functor._
+import scalaz.syntax.std.list._
 import scalaz.std.option._
 import scalaz.std.anyVal.{ char => charInstance }
 
@@ -143,8 +144,8 @@ object CombinatorTest extends Properties("Combinator") {
   }
 
   property("cons") = forAll { (c: Char, s: String) =>
-    lazy val p: Parser[List[Char]] = cons(anyChar, orElse(p, ok(Nil)))
-    p.parseOnly(c + s).option == Some(c :: s.toList)
+    lazy val p: Parser[NonEmptyList[Char]] = cons(anyChar, orElse(p.map(_.list), ok(Nil)))
+    p.parseOnly(c + s).option == Some(NonEmptyList(c, s.toList: _*))
   }
 
   // phrase
@@ -154,8 +155,8 @@ object CombinatorTest extends Properties("Combinator") {
   }
 
   property("many1") = forAll { (s: String) =>
-    many1(anyChar).parseOnly(s).option ==
-      Some(s.toList).filterNot(_.isEmpty)
+    many1(anyChar).parseOnly(s).option == s.toList.toNel
+      // Some(s.toList).filterNot(_.isEmpty)
   }
 
   property("manyN") = forAll { (s: String, n0: Int) =>
@@ -197,12 +198,12 @@ object CombinatorTest extends Properties("Combinator") {
     }
   }
 
-  property("sepBy1") = forAll { (ns: List[Int], c: Char, s: String) =>
+  property("sepBy1") = forAll { (n0: Int, ns0: List[Int], c: Char, s: String) =>
+    val ns = NonEmptyList(n0, ns0: _*)
     val sep = s + c
     !(sep.exists(_.isDigit)) ==> {
       val p = sepBy1(int, string(sep))
-      p.parseOnly(ns.mkString(sep)) match {
-        case ParseResult.Fail(s, _, _) if ns.isEmpty => true
+      p.parseOnly(ns.list.mkString(sep)) match {
         case ParseResult.Done("", `ns`) => true
         case _ => false
       }

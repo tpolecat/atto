@@ -35,9 +35,10 @@ Behold:
 - Here's the [Scaladoc](http://tpolecat.github.io/doc/atto/0.2/api/#atto.Atto$) but it's kind of grim at the moment.
 - Read the source! Perhaps start with the [parser definitions](https://github.com/tpolecat/atto/tree/master/core/src/main/scala/atto/parser).
 
+
 ### Contributors
 
-The core of **atto** originated in @ekmett's Scala port of [Attoparsec](https://github.com/bos/attoparsec). This library is an elaboration maintained by @tpolecat with contributions from @runarorama, @marcsaegesser, and @coltfred. Feedback (complaints especially) and suggestions are always welcome.
+The core of **atto** originated in @ekmett's Scala port of [Attoparsec](https://github.com/bos/attoparsec). This library is an elaboration maintained by @tpolecat with contributions from some [very helpful folks](https://github.com/tpolecat/atto/graphs/contributors). Feedback (complaints especially) and suggestions are always welcome.
 
 ### License
 

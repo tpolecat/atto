@@ -16,6 +16,19 @@ Changes since 0.4.0 are minor but merit a release:
 
 The last release supporting scalaz 7.0 is atto 0.3 ... we can back-port changes from the 0.4 series to 0.3 to keep them in parity for a while, but only if someone asks.
 
+### Why atto?
+
+**atto** differs from stdlib parser combinators in a number of ways:
+
+- You don't have to extend a trait or implement any methods.
+- There is no tokenizer; the input type is always `Char`.
+- Abstractions are better defined, which leads to simpler, more general code. `Parser` is a scalaz `Monad` for example, which gives us a lot of helpful operations for free.
+- Parsers are *incremental* which means you can evaluate whether a prefix of your input is "ok so far." This can be helpful when working with streams or interactive UIs.
+
+It's not a big deal to construct and use **atto** parsers; use them in any situation where you might otherwise reach for regular expressions or raw string manipulation.
+
+Although **atto** is 50 times faster now than version 0.1, it's still not the fastest parsing lib on the block. If you're doing massive data processing you might look at a heavier library like Parboiled2, or even a hand-built parser like those used in the fastest JSON libs. But for "everyday" parsing where you have to turn user input into something useful, **atto** is a friendly little library to use.
+
 ### Getting Started
 
 Add **atto** as a dependency in your `build.sbt` file. The `atto-core` library is probably all you need, but if you are using [Spire](https://github.com/non/spire) and want parsers for unsigned integral types you can also add `atto-spire`.

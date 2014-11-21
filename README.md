@@ -7,10 +7,14 @@ scala> sepBy(int, spaceChar).parseOnly("1 20 300").option
 res0: Option[List[Int]] = Some(List(1, 20, 300))
 ```
 
-Current versions are available for Scala 2.10 and 2.11 with scalaz 7.0 and 7.1
+Current version is **0.4.1** and is available for Scala 2.10 and 2.11 with **scalaz 7.1**.
 
-- For scalaz **7.0** use **atto 0.3**.
-- For scalaz **7.1** use **atto 0.4.0**.
+Changes since 0.4.0 are minor but merit a release:
+
+- Internal representation was changed to match similar change in attoparsec, yielding a nice performance boost. Thanks to @pocketberserker for this contribution.
+- Text parser `stringOf1` and combinators `cons`, `many1`, and `sepBy1` now compute a `NonEmptyList`. This is a **breaking change** that may require updating your code, but you can simply `.map(_.list)` to get back to the old behavior.
+
+The last release supporting scalaz 7.0 is atto 0.3 ... we can back-port changes from the 0.4 series to 0.3 to keep them in parity for a while, but only if someone asks.
 
 ### Getting Started
 
@@ -20,8 +24,8 @@ Add **atto** as a dependency in your `build.sbt` file. The `atto-core` library i
 resolvers += "tpolecat"  at "http://dl.bintray.com/tpolecat/maven"
 
 libraryDependencies ++= Seq(
-  "org.tpolecat" %% "atto-core"  % "0.4.0", // Core parsers and combinators
-  "org.tpolecat" %% "atto-spire" % "0.4.0"  // Optional, parsers for unsigned integral types
+  "org.tpolecat" %% "atto-core"  % "0.4.1", // Core parsers and combinators
+  "org.tpolecat" %% "atto-spire" % "0.4.1"  // Optional, parsers for unsigned integral types
 )
 ```
 
@@ -30,11 +34,10 @@ Experimental integration with [scalaz-stream](https://github.com/scalaz/scalaz-s
 ### Documentation
 
 Behold:
+
 - A wee REPL [tutorial](http://tpolecat.github.io/2014/04/13/atto-tutorial.html). (The only change from the 0.1 version is the new import for Spire combinators). 
 - A variety of tasty [examples](https://github.com/tpolecat/atto/tree/master/example/src/main/scala/atto/example).
-- Here's the [Scaladoc](http://tpolecat.github.io/doc/atto/0.2/api/#atto.Atto$) but it's kind of grim at the moment.
 - Read the source! Perhaps start with the [parser definitions](https://github.com/tpolecat/atto/tree/master/core/src/main/scala/atto/parser).
-
 
 ### Contributors
 

@@ -5,18 +5,26 @@ import java.lang.String
 import scala.{ StringContext, PartialFunction }
 import scala.language.implicitConversions
 import scalaz.syntax.Ops
-import scalaz.\/
+import scalaz.{ \/, NonEmptyList }
 import atto.parser._
 
 trait ParserOps[A] extends Ops[Parser[A]] {
 
   // Parsing
 
-  def parse(b: String): ParseResult[A] = 
+  def parse(b: String): ParseResult[A] =
     Parser.parse(self, b)
 
-  def parseOnly(b: String): ParseResult[A] = 
+  def parseOnly(b: String): ParseResult[A] =
     Parser.parseOnly(self, b)
+
+  // Text
+
+  def token: Parser[A] =
+    text.token(self)
+
+  def parens: Parser[A] =
+    text.parens(self)
 
   // Combinator
 
@@ -48,15 +56,41 @@ trait ParserOps[A] extends Ops[Parser[A]] {
   def >|[B](b: => B): Parser[B] =
     self map (_ => b)
 
-  def named(s: => String): Parser[A] = 
+  def named(s: => String): Parser[A] =
     combinator.named(self, s)
 
-  def namedOpaque(s: => String): Parser[A] = 
+  def namedOpaque(s: => String): Parser[A] =
     combinator.namedOpaque(self, s)
 
   def collect[B](pf: PartialFunction[A,B]): Parser[B] =
     combinator.collect(self, pf)
 
+  def sepBy[B](s: Parser[B]): Parser[List[A]] =
+    combinator.sepBy(self, s)
+
+  def sepBy1[B](s: Parser[B]): Parser[NonEmptyList[A]] =
+    combinator.sepBy1(self, s)
+
+  def attempt: Parser[A] =
+    combinator.attempt(self)
+
+  def skipMany: Parser[Unit] =
+    combinator.skipMany(self)
+
+  def skipMany1: Parser[Unit] =
+    combinator.skipMany1(self)
+
+  def skipManyN(n: Int): Parser[Unit] =
+    combinator.skipManyN(n, self)
+
+  def many: Parser[List[A]] =
+    combinator.many(self)
+
+  def many1: Parser[NonEmptyList[A]] =
+    combinator.many1(self)
+
+  def manyN(n: Int): Parser[List[A]] =
+    combinator.manyN(n, self)
 }
 
 trait ToParserOps {

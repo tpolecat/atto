@@ -8,12 +8,12 @@ object TextTest extends Properties("Text") {
   import Prop._
   import Parser._
 
-  property("stringOf") = forAll { (s: String) => 
+  property("stringOf") = forAll { (s: String) =>
     stringOf(elem(c => s.exists(_ == c))).parseOnly(s).option == Some(s)
   }
 
-  property("stringOf1") = forAll { (s: String) => 
-    stringOf1(elem(c => s.exists(_ == c))).parseOnly(s).option == 
+  property("stringOf1") = forAll { (s: String) =>
+    stringOf1(elem(c => s.exists(_ == c))).parseOnly(s).option ==
       Some(s).filterNot(_.isEmpty)
   }
 
@@ -60,7 +60,7 @@ object TextTest extends Properties("Text") {
 
   // scan
 
-  property("stringLiteral") = forAll { (s: String, t: String) => 
+  property("stringLiteral") = forAll { (s: String, t: String) =>
     stringLiteral.parseOnly(quote(s) + t) == ParseResult.Done(t, s)
   }
 
@@ -76,5 +76,11 @@ object TextTest extends Properties("Text") {
       case c if ((c >= '\u0000' && c <= '\u001f') || (c >= '\u007f' && c <= '\u009f')) => "\\u%04x".format(c.toInt)
       case c => c
     }.mkString("\"", "", "\"")
+
+  val whitespaces = Gen.listOf(Generators.whitespace).map(_.mkString)
+
+  property("parens") = forAll(whitespaces, Gen.alphaStr, whitespaces) { (ws1, s, ws2) =>
+    parens(string(s)).parse(s"($ws1$s$ws2)").option == Some(s)
+  }
 
 }

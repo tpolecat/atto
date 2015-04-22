@@ -90,6 +90,12 @@ trait Character {
   def skip(p: Char => Boolean): Parser[Unit] =
     elem(p).void named "skip(...)"
 
+  /** Horizontal or vertical whitespace character */
+  def whitespace = elem(c => c.isWhitespace, "whitespace")
+
+  /** Whitespace that is not a line break */
+  def horizontalWhitespace =
+    elem(c => c.isWhitespace && c != '\r' && c != '\n', "horizontalWhitespace")
 }
 
 

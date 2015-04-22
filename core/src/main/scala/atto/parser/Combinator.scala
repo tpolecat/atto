@@ -119,7 +119,10 @@ trait Combinator0 {
 
   //////
 
-  // attoparsec try
+  /**
+   * Attoparsec `try`, for compatibility reasons. This is actually a no-op
+   * since atto parsers always rewind in case of failure.
+   */
   def attempt[T](p: Parser[T]): Parser[T] = p
 
   /** Parser that matches end of input. */
@@ -178,6 +181,9 @@ trait Combinator0 {
           (st1: State, a: A) => ks(st1, -\/(a))
         ))
     }
+
+  def modifyName[A](m: Parser[A], f: String => String): Parser[A] =
+    named(m, f(m.toString))
 
   def named[A](m: Parser[A], s: => String): Parser[A] =
     new Parser[A] {

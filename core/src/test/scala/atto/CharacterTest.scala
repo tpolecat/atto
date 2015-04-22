@@ -26,7 +26,7 @@ object CharacterTest extends Properties("Character") {
     notChar(w).parse(s).option == (if (v == w) None else Some(v))
   }}
 
-  property("charRange") = forAll { (ps: List[(Char, Char)], c: Char) => 
+  property("charRange") = forAll { (ps: List[(Char, Char)], c: Char) =>
     val rs = ps.map(p => p._1 to p._2)
     val in = rs.exists(_.contains(c))
     charRange(rs: _*).parseOnly(c.toString).option match {

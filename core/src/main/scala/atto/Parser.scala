@@ -81,12 +81,21 @@ trait ParserFunctions {
   import Parser._
   import Parser.Internal._
 
+  /**
+   * Run a parser
+   */
   def parse[A](m: Parser[A], b: String): ParseResult[A] = {
     def kf(a:State, b: List[String], c: String) = done[Result[A]](Fail(a.copy(input = a.input.drop(a.pos)), b, c))
     def ks(a:State, b: A) = done[Result[A]](Done(a.copy(input = a.input.drop(a.pos)), b))
     m(State(b, false), kf, ks).run.translate
   }
 
+  /**
+   * Run a parser that cannot be resupplied via a 'Partial' result.
+   *
+   * This function does not force a parser to consume all of its input.
+   * Instead, any residual input will be discarded.
+   */
   def parseOnly[A](m: Parser[A], b: String): ParseResult[A] = {
     def kf(a:State, b: List[String], c: String) = done[Result[A]](Fail(a.copy(input = a.input.drop(a.pos)), b, c))
     def ks(a:State, b: A) = done[Result[A]](Done(a.copy(input = a.input.drop(a.pos)), b))

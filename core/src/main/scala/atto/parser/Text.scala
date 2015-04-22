@@ -12,6 +12,7 @@ import scalaz.syntax.std.boolean._
 import scalaz.std.list._
 import scalaz.syntax.std.option._
 import scalaz.syntax.foldable._
+import scalaz.syntax.monad._
 
 /** Text parsers. */
 trait Text {
@@ -162,9 +163,39 @@ trait Text {
 
   } named "stringLiteral"
 
+  /** Turns a parser into one that skips trailing whitespace */
+  def token[A](p: Parser[A]) =
+    p <~ text.skipWhitespace
+
+  /**
+   * Consumes `left` and `right`, including the trailing and preceding whitespace,
+   * respectively, and returns the value of `p`.
+   */
+  def bracket[A,B,C](left: Parser[B], p: Parser[A], right: Parser[C]) =
+    token(left) ~> token(p) <~ right
+
+  /** Parser that consumes horizontal and vertical whitespace */
+  def skipWhitespace: Parser[Unit] =
+    takeWhile(c => c.isWhitespace).void named "whitespace"
+
+  /** Turns a parser into one that consumes surrounding parentheses `()` */
+  def parens[A](p: Parser[A]) = bracket(char('('), p, char(')')).named(s"parens(${p.toString})")
+
+  /** Turns a parser into one that consumes surrounding square brackets `[]` */
+  def squareBrackets[A](p: Parser[A]) =
+    bracket(char('['), p, char(']')).named(s"squareBrackets(${p.toString})")
+
+  /** Turns a parser into one that consumes surrounding curly braces `{}` */
+  def braces[A](p: Parser[A]) =
+    bracket(char('{'), p, char('}')).named(s"braces(${p.toString})")
+
+  /** Turns a parser into one that consumes surrounding envelope brackets `[||]` */
+  def envelopes[A](p: Parser[A]) =
+    bracket(string("[|"), p, string("|]")).named(s"envelope(${p.toString})")
+
+  /** Turns a parser into one that consumes surrounding banana brackets `(||)` */
+  def bananas[A](p: Parser[A]) =
+    bracket(string("(|"), p, string("|)")).named(s"banana(${p.toString})")
+
 }
-
-
-
-
 

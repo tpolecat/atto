@@ -21,3 +21,7 @@ bin/
 
 # OS X
 .DS_Store
+
+# vim
+*~
+tags

@@ -104,8 +104,8 @@ trait Text {
    */
   def scan[S](s: S)(p: (S, Char) => Option[S]): Parser[String] = {
 
-    sealed trait Scan[+S]
-    case class Continue[S](s: S) extends Scan[S]
+    sealed trait Scan[+T]
+    case class Continue[T](s: S) extends Scan[T]
     case class Finished(n: Int, s: String) extends Scan[Nothing]
 
     def scanner(s: S, n: Int, t: String): Scan[S] = {

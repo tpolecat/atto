@@ -6,9 +6,9 @@ organization in ThisBuild := "org.tpolecat"
 
 version in ThisBuild := "0.4.2-SNAPSHOT"
 
-scalaVersion in ThisBuild := "2.11.0"
+scalaVersion in ThisBuild := "2.11.6"
 
-crossScalaVersions in ThisBuild := Seq("2.10.4", "2.11.0")
+crossScalaVersions in ThisBuild := Seq("2.10.5", scalaVersion.value)
 
 licenses in ThisBuild ++= Seq(
 	("MIT", url("http://opensource.org/licenses/MIT")),

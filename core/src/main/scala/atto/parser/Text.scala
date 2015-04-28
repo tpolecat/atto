@@ -171,7 +171,7 @@ trait Text {
    * Consumes `left` and `right`, including the trailing and preceding whitespace,
    * respectively, and returns the value of `p`.
    */
-  def bracket[A,B,C](left: Parser[B], p: Parser[A], right: Parser[C]) =
+  def bracket[A,B,C](left: Parser[B], p: => Parser[A], right: => Parser[C]) =
     token(left) ~> token(p) <~ right
 
   /** Parser that consumes horizontal and vertical whitespace */
@@ -179,23 +179,30 @@ trait Text {
     takeWhile(c => c.isWhitespace).void named "whitespace"
 
   /** Turns a parser into one that consumes surrounding parentheses `()` */
-  def parens[A](p: Parser[A]) = bracket(char('('), p, char(')')).named(s"parens(${p.toString})")
+  def parens[A](p: => Parser[A]) = bracket(char('('), p, char(')')).named(s"parens(${p.toString})")
 
   /** Turns a parser into one that consumes surrounding square brackets `[]` */
-  def squareBrackets[A](p: Parser[A]) =
-    bracket(char('['), p, char(']')).named(s"squareBrackets(${p.toString})")
+  def squareBrackets[A](p: => Parser[A]) = {
+    lazy val q = p
+    bracket(char('['), q, char(']')).named(s"squareBrackets(${q.toString})")
+  }
 
   /** Turns a parser into one that consumes surrounding curly braces `{}` */
-  def braces[A](p: Parser[A]) =
-    bracket(char('{'), p, char('}')).named(s"braces(${p.toString})")
+  def braces[A](p: => Parser[A]) = {
+    lazy val q = p
+    bracket(char('{'), q, char('}')).named(s"braces(${q.toString})")
+  }
 
   /** Turns a parser into one that consumes surrounding envelope brackets `[||]` */
-  def envelopes[A](p: Parser[A]) =
-    bracket(string("[|"), p, string("|]")).named(s"envelope(${p.toString})")
+  def envelopes[A](p: => Parser[A]) = {
+    lazy val q = p
+    bracket(string("[|"), q, string("|]")).named(s"envelope(${q.toString})")
+  }
 
   /** Turns a parser into one that consumes surrounding banana brackets `(||)` */
-  def bananas[A](p: Parser[A]) =
-    bracket(string("(|"), p, string("|)")).named(s"banana(${p.toString})")
-
+  def bananas[A](p: => Parser[A]) = {
+    lazy val q = p
+    bracket(string("(|"), q, string("|)")).named(s"banana(${q.toString})")
+  }
 }
 

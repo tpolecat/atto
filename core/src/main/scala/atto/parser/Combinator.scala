@@ -110,6 +110,14 @@ trait Combinator0 {
         suspend(ks(st0,st0.input.drop(st0.pos)))
     }
 
+  /* Parser that produces the current offset in the input. */
+  val pos: Parser[Int] =
+    new Parser[Int] {
+      override def toString = "pos"
+      def apply[R](st0: State, kf: Failure[R], ks: Success[Int,R]): TResult[R] =
+        suspend(ks(st0,st0.pos))
+    }
+
   def endOfChunk: Parser[Boolean] =
     new Parser[Boolean] {
       override def toString = "endOfChunk"

@@ -143,35 +143,44 @@ trait Combinator0 {
     }
 
 
-  def discardLeft[A,B](m: Parser[A], n: Parser[B]): Parser[B] =
+  def discardLeft[A,B](m: Parser[A], b: => Parser[B]): Parser[B] = {
+    lazy val n = b
     new Parser[B] {
       override def toString = m infix ("~> " + n)
       def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): TResult[R] =
         suspend(m(st0,kf,(s:State, a: A) => n(s, kf, ks)))
     }
+  }
 
-  def discardRight[A, B](m: Parser[A], n: Parser[B]): Parser[A] =
+  def discardRight[A, B](m: Parser[A], b: => Parser[B]): Parser[A] = {
+    lazy val n = b
     new Parser[A] {
       override def toString = m infix ("<~ " + n)
       def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R] =
         suspend(m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, a))))
     }
+  }
 
-  def andThen[A, B](m: Parser[A], n: Parser[B]): Parser[(A,B)] =
+  def andThen[A, B](m: Parser[A], b: => Parser[B]): Parser[(A,B)] = {
+    lazy val n = b
     new Parser[(A,B)] {
       override def toString = m infix ("~ " + n)
       def apply[R](st0: State, kf: Failure[R], ks: Success[(A,B),R]): TResult[R] =
         suspend(m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, (a, b)))))
     }
+  }
 
-  def orElse[A, B >: A](m: Parser[A], n: => Parser[B]): Parser[B] =
+  def orElse[A, B >: A](m: Parser[A], b: => Parser[B]): Parser[B] = {
+    lazy val n = b
     new Parser[B] {
       override def toString = m infix ("| ...")
       def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): TResult[R] =
         suspend(m(st0, (st1: State, stack: List[String], msg: String) => n(st1.copy(pos = st0.pos), kf, ks), ks))
     }
+  }
 
-  def either[A, B](m: Parser[A], n: => Parser[B]): Parser[\/[A,B]] =
+  def either[A, B](m: Parser[A], b: => Parser[B]): Parser[\/[A,B]] = {
+    lazy val n = b
     new Parser[\/[A,B]] {
       override def toString = m infix ("|| " + n)
       def apply[R](st0: State, kf: Failure[R], ks: Success[\/[A,B],R]): TResult[R] =
@@ -181,6 +190,7 @@ trait Combinator0 {
           (st1: State, a: A) => ks(st1, -\/(a))
         ))
     }
+  }
 
   def modifyName[A](m: Parser[A], f: String => String): Parser[A] =
     named(m, f(m.toString))

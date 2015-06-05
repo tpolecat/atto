@@ -25,6 +25,12 @@ trait Character {
   def satisfy(p: Char => Boolean): Parser[Char] =
     elem(p, "satisfy(...)")
 
+  /** Character is in the given String */
+  def oneOf(s: String): Parser[Char] = satisfy(c => s.contains(c))
+
+  /** Character is not in the given String */
+  def noneOf(s: String): Parser[Char] = satisfy(c => !s.contains(c))
+
   /** Parser that matches and returns only `c`. */
   def char(c: Char): Parser[Char] =
     elem(_ == c, "'" + c + "'")

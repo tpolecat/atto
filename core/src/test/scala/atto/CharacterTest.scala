@@ -1,6 +1,8 @@
 package atto
 import Atto._
 
+import scala.util.Random
+
 import org.scalacheck._
 import scalaz.\/._
 
@@ -11,6 +13,16 @@ object CharacterTest extends Properties("Character") {
   property("satisfy") = forAll { (w: Char, s: String) =>
     satisfy(_ <= w).parse(w +: s).option == Some(w)
   }
+
+  property("oneOf") = forAll { (s: String) => s.nonEmpty ==> {
+    val randomChar = s(Random.nextInt(s.size))
+    oneOf(s).parse(randomChar.toString).option == Some(randomChar)
+  }}
+
+  property("noneOf") = forAll { (s: String, c: Char) => s.nonEmpty ==> {
+    val randomChar = s(Random.nextInt(s.size))
+    noneOf(s).parse(randomChar.toString).option == None
+  }}
 
   property("char") = forAll { (w: Char, s: String) =>
     char(w).parse(w +: s).option == Some(w)

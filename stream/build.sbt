@@ -2,7 +2,7 @@ name := "atto-stream"
 
 resolvers += "Scalaz Bintray Repo" at "http://dl.bintray.com/scalaz/releases"
 
-libraryDependencies += "org.scalaz.stream" %% "scalaz-stream" % "0.5a"
+libraryDependencies += "org.scalaz.stream" %% "scalaz-stream" % "0.7.2a"
 
 initialCommands :=
   """import scalaz._

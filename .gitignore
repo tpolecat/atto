@@ -25,3 +25,7 @@ bin/
 # vim
 *~
 tags
+
+# ensime
+.ensime
+.ensime_cache/

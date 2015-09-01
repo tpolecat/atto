@@ -89,7 +89,7 @@ trait Character {
   /** `elem` + `map` in a single operation. */
   def optElem[A](p: Char => Option[A]): Parser[A] =
     ensure(1) flatMap { s =>
-      p(s.head).cata(a => advance(s.tail.length) ~> ok(a), err("optElem(...)"))
+      p(s.head).cata(a => advance(1) ~> ok(a), err("optElem(...)"))
     } named "optElem(...)"
 
   /** Parser that skips a `Char` if it satisfies predicate `p`. */

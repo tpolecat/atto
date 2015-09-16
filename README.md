@@ -28,7 +28,7 @@ In addition to the above there were some logistical changes and a bug fix in `op
 
 Many thanks to the generous folks who contributed to this release:
 
-- Rúnar Bjarnason
+- Rúnar Óli Bjarnason
 - Adelbert Chang
 - Jonathan Ferguson
 - Alberto Jácome

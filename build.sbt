@@ -99,7 +99,7 @@ lazy val core = project.in(file("core"))
 lazy val spire = project.in(file("spire")).dependsOn(core)
   .settings(tutSettings ++ publishSettings)
 	.settings(name := "atto-spire")
-	.settings(libraryDependencies +=  "org.spire-math" %% "spire" % "0.7.4")
+	.settings(libraryDependencies +=  "org.spire-math" %% "spire" % "0.11.0")
 	.settings(initialCommands := "import scalaz._, Scalaz._, atto._, Atto._")
 
 lazy val stream = project.in(file("stream")).dependsOn(core)

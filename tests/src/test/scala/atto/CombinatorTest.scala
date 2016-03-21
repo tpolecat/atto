@@ -7,6 +7,7 @@ import scalaz.syntax.functor._
 import scalaz.syntax.std.list._
 import scalaz.std.option._
 import scalaz.std.anyVal.{ char => charInstance }
+import atto.compat.scalaz._
 
 object CombinatorTest extends Properties("Combinator") {
   import Prop._

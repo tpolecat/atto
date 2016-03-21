@@ -8,6 +8,7 @@ import scalaz.std.list._
 
 import atto._
 import Atto._
+import atto.compat.scalaz._
 
 object JsonExample extends Whitespace {
 

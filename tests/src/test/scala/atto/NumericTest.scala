@@ -3,6 +3,7 @@ import Atto._
 
 import org.scalacheck._
 import scalaz.\/._
+import atto.compat.scalaz._
 
 object NumericTest extends Properties("Numeric") {
   import Prop._

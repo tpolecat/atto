@@ -1,5 +1,6 @@
 package atto
 import Atto._
+import atto.compat.scalaz._
 
 import scala.util.Random
 

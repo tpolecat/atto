@@ -5,8 +5,6 @@ import java.lang.String
 import atto.syntax.parser._
 import scala.{ Char, Boolean, Unit, StringContext, Option }
 import scala.Predef.{ charWrapper, augmentString }
-import scalaz.syntax.std.option._
-import scalaz.syntax.functor._
 
 /** Parsers for various kinds of characters. */
 trait Character {
@@ -89,7 +87,7 @@ trait Character {
   /** `elem` + `map` in a single operation. */
   def optElem[A](p: Char => Option[A]): Parser[A] =
     ensure(1) flatMap { s =>
-      p(s.head).cata(a => advance(1) ~> ok(a), err("optElem(...)"))
+      p(s.head).fold[Parser[A]](err("optElem(...)"))(a => advance(1) ~> ok(a))
     } named "optElem(...)"
 
   /** Parser that skips a `Char` if it satisfies predicate `p`. */

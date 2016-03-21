@@ -2,6 +2,7 @@ package atto.example
 
 import atto._
 import Atto._
+import atto.compat.scalaz._
 import java.lang.String
 import scala.{ App, Char, Int, List }
 import scala.Predef.{ println, augmentString }

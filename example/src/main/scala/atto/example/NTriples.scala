@@ -11,6 +11,7 @@ import scala.Predef.{ charWrapper }
 import scalaz._
 import Scalaz._
 import spire.math.UByte
+import atto.compat.scalaz._
 
 // http://www.w3.org/TR/rdf-testcases/#ntriples
 trait NTriples {

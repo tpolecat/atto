@@ -4,8 +4,6 @@ package parser
 import atto.syntax.parser._
 import java.lang.String
 import scala.{ Boolean, Int, BigInt, Long, Short, Byte, BigDecimal, Double, Float, Some, None, StringContext }
-import scalaz.syntax.applicative._
-import scalaz.std.list._
 
 /** Parsers for built-in numeric types. */
 trait Numeric {
@@ -16,8 +14,12 @@ trait Numeric {
   ////// Integral
 
   /** Parser for an arbitrary-precision integer. */
-  val bigInt: Parser[BigInt] =
-    (signum |@| takeWhile1(_.isDigit))(BigInt(_) * BigInt.apply(_)) namedOpaque "bigInt"
+  val bigInt: Parser[BigInt] = {
+    for {
+      a <- signum
+      b <- takeWhile1(_.isDigit)
+    } yield BigInt(a) * BigInt(b)
+  } namedOpaque "bigInt"
 
   /** Parser for a Long (range-checked). */
   val long: Parser[Long] =
@@ -38,13 +40,21 @@ trait Numeric {
   ////// Real
 
   /** Parser for an arbitrary-precision decimal. */
-  val bigDecimal: Parser[BigDecimal] = 
-    (signum |@| takeWhile1(_.isDigit) |@| opt(char('.') ~> takeWhile(_.isDigit)) |@| opt(char('E') ~> long)) {
-      case (s, a, Some(b), Some(e)) => BigDecimal(s) * BigDecimal(s"$a.${b}E$e")
-      case (s, a, None, Some(e))    => BigDecimal(s) * BigDecimal(s"${a}E$e")
-      case (s, a, Some(b), None)    => BigDecimal(s) * BigDecimal(s"$a.$b")
-      case (s, a, None, None)       => BigDecimal(s) * BigDecimal(a)
-    } named "bigDecimal"
+  val bigDecimal: Parser[BigDecimal] = {
+    for {
+      a <- signum
+      b <- takeWhile1(_.isDigit)
+      c <- opt(char('.') ~> takeWhile(_.isDigit))
+      d <- opt(char('E') ~> long)
+    } yield { 
+      (a, b, c, d) match {
+        case (s, a, Some(b), Some(e)) => BigDecimal(s) * BigDecimal(s"$a.${b}E$e")
+        case (s, a, None, Some(e))    => BigDecimal(s) * BigDecimal(s"${a}E$e")
+        case (s, a, Some(b), None)    => BigDecimal(s) * BigDecimal(s"$a.$b")
+        case (s, a, None, None)       => BigDecimal(s) * BigDecimal(a)
+      }
+    }
+  } named "bigDecimal"
 
   /** Parser for a Double (unchecked narrowing). */
   val double: Parser[Double] =

@@ -1,18 +1,13 @@
 package atto
 package parser
 
+import atto.compat._
 import atto.syntax.parser._
+
 import java.lang.{ String, Integer }
 import scala.{ Char, List, Int, StringContext, Boolean, Nil, Nothing, Unit, Option, Some, None }
 import scala.Predef.{ augmentString, charWrapper }
 import scala.language.higherKinds
-import scalaz.Monad
-import scalaz.std.string._
-import scalaz.syntax.std.boolean._
-import scalaz.std.list._
-import scalaz.syntax.std.option._
-import scalaz.syntax.foldable._
-import scalaz.syntax.monad._
 
 /** Text parsers. */
 trait Text {
@@ -20,12 +15,12 @@ trait Text {
   import character._
 
   /** Parser that returns a string of characters matched by `p`. */
-  def stringOf(p: Parser[Char]): Parser[String] =
+  def stringOf(p: Parser[Char])(implicit N: NelMode): Parser[String] =
     many(p).map(cs => new String(cs.toArray)) named "stringOf(" + p + ")"
 
   /** Parser that returns a non-empty string of characters matched by `p`. */
-  def stringOf1(p: Parser[Char]): Parser[String] =
-    many1(p).map(cs => new String(cs.list.toArray)) named "stringOf1(" + p + ")"
+  def stringOf1(p: Parser[Char])(implicit N: NelMode): Parser[String] =
+    many1(p).map(cs => new String(N.toList(cs).toArray)) named "stringOf1(" + p + ")"
 
   def takeWith(n: Int, p: String => Boolean, what: => String = "takeWith(...)"): Parser[String] =
     ensure(n) flatMap { s =>
@@ -60,7 +55,7 @@ trait Text {
              else ok(x :: acc)
       } yield r else ok(x :: acc)
     } yield r
-    go(Nil).map(_.reverse.concatenate)
+    go(Nil).map(_.reverse.mkString)
   }
 
  /**
@@ -68,7 +63,7 @@ trait Text {
    * to but more efficient than `stringOf1(elem(p))`.
    */
   def takeWhile1(p: Char => Boolean): Parser[String] = for {
-    _ <- endOfChunk.flatMap(_.whenM(demandInput))
+    _ <- endOfChunk.flatMap(b => if (b) demandInput else ok(()))
     x <- get map (_.takeWhile(p))
     len = x.length
     r <- if (len == 0) err("takeWhile1")
@@ -95,7 +90,7 @@ trait Text {
 
   /** Parser that consumes and returns all remaining input. */
   lazy val takeText: Parser[String] =
-    takeRest map (_.concatenate)
+    takeRest map (_.mkString)
 
   /**
    * Stateful scanning parser returning a string of all visited chars. Many combinators can be
@@ -126,18 +121,18 @@ trait Text {
             more <- wantInput
             r <- if (more) go(input :: acc, sp) else ok(input :: acc)
           } yield r
-            else Parser.monoid.zero
+            else err("zero")
         } yield r
         case Finished(n, t) => advance(input.length - t.length).flatMap(_ => ok(input.take(n) :: acc))
       }
     } yield r
 
-    go(Nil, s).map(_.reverse.concatenate)
+    go(Nil, s).map(_.reverse.mkString)
 
   }
 
   /** Quoted strings with control and unicode escapes, Java/JSON style. **/
-  val stringLiteral: Parser[String] = {
+  def stringLiteral(implicit N: NelMode): Parser[String] = {
 
     // Unescaped characters
     val nesc: Parser[Char] =

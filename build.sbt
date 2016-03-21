@@ -27,8 +27,6 @@ lazy val commonSettings = Seq(
 	)
 )
 
-lazy val tutSettings = buildSettings ++ commonSettings
-
 lazy val publishSettings = Seq(
   publishMavenStyle := true,
   publishTo := {
@@ -78,46 +76,35 @@ lazy val noPublishSettings = Seq(
 )
 
 lazy val atto = project.in(file("."))
-  .settings(tutSettings)
+  .settings(buildSettings ++ commonSettings)
   .settings(noPublishSettings)
   .settings(unidocSettings)
-  .settings(unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(example))
-  .dependsOn(core, spire, stream, example)
-  .aggregate(core, spire, stream, example)
+  .settings(unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(tests))
+  .dependsOn(core, tests, scalaz71, scalaz72, cats04)
+  .aggregate(core, tests, scalaz71, scalaz72, cats04)
 
 lazy val core = project.in(file("core"))
-  .settings(tutSettings ++ publishSettings)
+  .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-core")
-  .settings(
-  	libraryDependencies ++= Seq(
-		  "org.scalaz"     %% "scalaz-core" % "7.1.0",
-		  "org.scalacheck" %% "scalacheck"  % "1.11.3" % "test"
-		)
-	)
-	.settings(initialCommands := "import scalaz._, Scalaz._, atto._, Atto._")
 
-lazy val spire = project.in(file("spire")).dependsOn(core)
-  .settings(tutSettings ++ publishSettings)
-	.settings(name := "atto-spire")
-	.settings(libraryDependencies +=  "org.spire-math" %% "spire" % "0.11.0")
-	.settings(initialCommands := "import scalaz._, Scalaz._, atto._, Atto._")
+lazy val tests = project.in(file("tests")).dependsOn(core, scalaz71)
+  .settings(buildSettings ++ commonSettings ++ noPublishSettings)
+  .settings(name := "atto-tests")
+  .settings(libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test")
 
-lazy val stream = project.in(file("stream")).dependsOn(core)
-  .settings(tutSettings ++ publishSettings)
-	.settings(name := "atto-stream")
-	.settings(libraryDependencies += "org.scalaz.stream" %% "scalaz-stream" % "0.7.2a")
-	.settings(initialCommands :=
-	  """import scalaz._
-	     import Scalaz._
-	     import scalaz.stream._
-	     import scalaz.stream.Process._
-	     import atto._
-	     import Atto._
-	     import atto.syntax.stream.all._
-	     import scalaz.concurrent.Task"""	  
-   )
+lazy val scalaz71 = project.in(file("compat/scalaz71")).dependsOn(core)
+  .settings(buildSettings ++ commonSettings ++ publishSettings)
+  .settings(name := "atto-compat-scalaz71")
+  .settings(libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.6")
 
-lazy val example = project.in(file("example")).dependsOn(core, spire, stream)
-  .settings(tutSettings ++ noPublishSettings)
-  .settings(name := "atto-example")
+lazy val scalaz72 = project.in(file("compat/scalaz72")).dependsOn(core)
+  .settings(buildSettings ++ commonSettings ++ publishSettings)
+  .settings(name := "atto-compat-scalaz72")
+  .settings(libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.1")
+
+lazy val cats04 = project.in(file("compat/cats04")).dependsOn(core)
+  .settings(buildSettings ++ commonSettings ++ publishSettings)
+  .settings(name := "atto-compat-cats04")
+  .settings(libraryDependencies += "org.typelevel" %% "cats" % "0.4.1")
+
 

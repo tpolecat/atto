@@ -1,6 +1,8 @@
 import UnidocKeys._
 import ReleaseTransformations._
 
+enablePlugins(CrossPerProjectPlugin) 
+
 lazy val buildSettings = Seq(
 	organization := "org.tpolecat",
 	licenses ++= Seq(
@@ -8,7 +10,7 @@ lazy val buildSettings = Seq(
 		("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
 	),
 	scalaVersion := "2.11.7",
-	crossScalaVersions := Seq("2.10.5", scalaVersion.value)
+	crossScalaVersions := Seq("2.10.5", scalaVersion.value, "2.12.0-M3")
 )
 
 lazy val commonSettings = Seq(
@@ -90,7 +92,7 @@ lazy val core = project.in(file("core"))
 lazy val tests = project.in(file("tests")).dependsOn(core, scalaz71)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
   .settings(name := "atto-tests")
-  .settings(libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test")
+  .settings(libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.0" % "test")
 
 lazy val scalaz71 = project.in(file("compat/scalaz71")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
@@ -106,5 +108,6 @@ lazy val cats04 = project.in(file("compat/cats04")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-compat-cats04")
   .settings(libraryDependencies += "org.typelevel" %% "cats" % "0.4.1")
+  .settings(crossScalaVersions := crossScalaVersions.value.filterNot(_.startsWith("2.12")))
 
 

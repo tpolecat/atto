@@ -17,17 +17,17 @@ trait CatsModes {
 
   implicit val CatsEitherMode =
     new EitherMode {
-      type E[+A, +B] = A Xor B
+      type E[A, B] = A Xor B
       def  left[A, B](a: A): E[A, B] = Xor.left(a)
       def right[A, B](b: B): E[A, B] = Xor.right(b)
     }
 
-  // implicit val CatsNelMode =
-  //   new NelMode {
-  //     type NEL[+A] = NonEmptyList[A]
-  //     def cons[A](a: A, as: List[A]): NEL[A] = NonEmptyList(a, as: _*)
-  //     def toList[A](as: NEL[A]): List[A] = as.head :: as.tail
-  //   }
+  implicit val CatsNelMode =
+    new NelMode {
+      type NEL[A] = NonEmptyList[A]
+      def cons[A](a: A, as: List[A]): NEL[A] = NonEmptyList(a, as: _*)
+      def toList[A](as: NEL[A]): List[A] = as.head :: as.tail
+    }
 
 }
 

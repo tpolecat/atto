@@ -16,7 +16,7 @@ trait Character {
     ensure(1) flatMap (s => {
       val c = s.charAt(0)
       if (p(c)) advance(1) ~> ok(c)
-      else err(what)
+      else err[Char](what)
     }) namedOpaque what
 
   /** Equivalent to `elem(p)` but without optional label arg. */

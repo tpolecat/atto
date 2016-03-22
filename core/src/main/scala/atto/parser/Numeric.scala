@@ -72,7 +72,7 @@ trait Numeric {
 
   private def narrow[A,B](p: Parser[A])(f: A => Boolean, g: A => B, as: String): Parser[B] =
     p flatMap { a => 
-      if (f(a)) ok(g(a)) else err("too large, too small, or too precise: " + a)
+      if (f(a)) ok(g(a)) else err[B]("too large, too small, or too precise: " + a)
     } named as
 
 }

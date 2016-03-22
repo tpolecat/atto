@@ -9,7 +9,7 @@ import scala.{ Boolean, List, Nothing }
 import Trambopoline._
 
 // Operators not needed for use in `for` comprehensions are provided via added syntax.
-trait Parser[+A] { m =>
+trait Parser[A] { m =>
   import Parser._
   import Parser.Internal._
 

@@ -25,10 +25,10 @@ trait Combinator0 {
     }
 
   /** Parser that consumes no data and fails with the specified error message. */
-  def err(what: String): Parser[Nothing] =
-    new Parser[Nothing] {
+  def err[A](what: String): Parser[A] =
+    new Parser[A] {
       override def toString = "err(" + what + ")"
-      def apply[R](st0: State, kf: Failure[R], ks: Success[Nothing,R]): TResult[R] =
+      def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R] =
         suspend(kf(st0,Nil, what))
     }
 
@@ -251,7 +251,7 @@ trait Combinator extends Combinator0 {
     manyN(n, p).void named s"skipManyN($n, $p)"
 
   def sepBy[A](p: Parser[A], s: Parser[_])(implicit N: NelMode): Parser[List[A]] =
-    cons(p, ((s ~> sepBy1(p,s)).map(N.toList) | ok(Nil))).map(N.toList) | ok(Nil) named ("sepBy(" + p + "," + s + ")")
+    cons(p, ((s ~> sepBy1(p,s)).map(N.toList) | ok(List.empty[A]))).map(N.toList) | ok(List.empty[A]) named ("sepBy(" + p + "," + s + ")")
 
   def sepBy1[A](p: Parser[A], s: Parser[_])(implicit N: NelMode): Parser[N.NEL[A]] = {
     lazy val scan : Parser[N.NEL[A]] = cons(p, s ~> scan.map(N.toList) | ok(Nil))
@@ -269,11 +269,11 @@ trait Combinator extends Combinator0 {
     choice(F.toList(fpa): _*)
 
   def opt[A](m: Parser[A]): Parser[Option[A]] =
-    (attempt(m).map(Some(_)) | ok(None)) named s"opt($m)"
+    (attempt(m).map[Option[A]](Some(_)) | ok(Option.empty[A])) named s"opt($m)"
 
   def filter[A](m: Parser[A])(p: A => Boolean): Parser[A] =
     m.flatMap { a =>
-      if (p(a)) ok(a) else err("filter")
+      if (p(a)) ok(a) else err[A]("filter")
     } named "filter(...)"
 
   def count[A](n: Int, p: Parser[A])(implicit N: NelMode): Parser[List[A]] =

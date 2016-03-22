@@ -25,7 +25,7 @@ trait Text {
   def takeWith(n: Int, p: String => Boolean, what: => String = "takeWith(...)"): Parser[String] =
     ensure(n) flatMap { s =>
       if (p(s)) advance(n) ~> ok(s)
-      else err(what)
+      else err[String](what)
     } namedOpaque what
 
   /** Parser that returns the next `n` characters as a `String`. */
@@ -115,13 +115,13 @@ trait Text {
       input <- get
       r <- scanner(s, 0, input) match {
         case Continue(sp) => for {
-          _    <- advance(input.length)
+          _   <- advance(input.length)
           eoc <- endOfChunk
-          r <- if (eoc) for {
+          r   <- if (eoc) for {
             more <- wantInput
-            r <- if (more) go(input :: acc, sp) else ok(input :: acc)
+            r    <- if (more) go(input :: acc, sp) else ok(input :: acc)
           } yield r
-            else err("zero")
+            else err[List[String]]("zero")
         } yield r
         case Finished(n, t) => advance(input.length - t.length).flatMap(_ => ok(input.take(n) :: acc))
       }

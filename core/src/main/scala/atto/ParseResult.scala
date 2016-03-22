@@ -4,7 +4,7 @@ import atto.compat.EitherMode
 import java.lang.String
 import scala.{ Option, Some, None, Nothing, List }
 
-sealed abstract class ParseResult[+A] {
+sealed abstract class ParseResult[A] {
   def map[B](f: A => B): ParseResult[B]
   def feed(s: String): ParseResult[A]
   def option: Option[A]
@@ -14,27 +14,27 @@ sealed abstract class ParseResult[+A] {
 
 object ParseResult {
 
-  case class Fail(input: String, stack: List[String], message: String) extends ParseResult[Nothing] {
-    def map[B](f: Nothing => B) = Fail(input, stack, message)
+  case class Fail[A](input: String, stack: List[String], message: String) extends ParseResult[A] {
+    def map[B](f: A => B) = Fail(input, stack, message)
     def feed(s: String) = this
     override def done = this
     def option = None
-    def either(implicit E: EitherMode) = E.left(message)
+    def either(implicit E: EitherMode): E.E[String, A] = E.left(message)
   }
 
-  case class Partial[+T](k: String => ParseResult[T]) extends ParseResult[T] {
-    def map[B](f: T => B) = Partial(s => k(s).map(f))
+  case class Partial[A](k: String => ParseResult[A]) extends ParseResult[A] {
+    def map[B](f: A => B) = Partial(s => k(s).map(f))
     def feed(s: String) = k(s)
     def option = None
-    def either(implicit E: EitherMode) = E.left("incomplete input")
+    def either(implicit E: EitherMode): E.E[String, A] = E.left("incomplete input")
   }
 
-  case class Done[+T](input: String, result: T) extends ParseResult[T] {
-    def map[B](f: T => B) = Done(input, f(result))
+  case class Done[A](input: String, result: A) extends ParseResult[A] {
+    def map[B](f: A => B) = Done(input, f(result))
     def feed(s: String) = Done(input + s, result)
     override def done = this
     def option = Some(result)
-    def either(implicit E: EitherMode) = E.right(result)
+    def either(implicit E: EitherMode): E.E[String, A] = E.right(result)
   }
 
 }

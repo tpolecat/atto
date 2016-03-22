@@ -145,7 +145,7 @@ object CombinatorTest extends Properties("Combinator") {
   }
 
   property("cons") = forAll { (c: Char, s: String) =>
-    lazy val p: Parser[NonEmptyList[Char]] = cons(anyChar, orElse(p.map(_.list), ok(Nil)))
+    lazy val p: Parser[NonEmptyList[Char]] = cons(anyChar, orElse(p.map(_.list), ok(List.empty[Char])))
     p.parseOnly(c + s).option == Some(NonEmptyList(c, s.toList: _*))
   }
 

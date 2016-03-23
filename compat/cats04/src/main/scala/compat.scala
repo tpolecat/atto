@@ -15,26 +15,24 @@ object cats extends CatsModes
 
 trait CatsModes {
 
-  implicit val CatsEitherMode =
-    new EitherMode {
-      type E[A, B] = A Xor B
-      def  left[A, B](a: A): E[A, B] = Xor.left(a)
-      def right[A, B](b: B): E[A, B] = Xor.right(b)
+  implicit val CatsEithery: Eithery[Xor] =
+    new Eithery[Xor] {
+      def  left[A, B](a: A): A Xor B = Xor.left(a)
+      def right[A, B](b: B): A Xor B = Xor.right(b)
     }
 
-  implicit val CatsNelMode =
-    new NelMode {
-      type NEL[A] = NonEmptyList[A]
-      def cons[A](a: A, as: List[A]): NEL[A] = NonEmptyList(a, as: _*)
-      def toList[A](as: NEL[A]): List[A] = as.head :: as.tail
+  implicit val CatsNonEmptyListy: NonEmptyListy[NonEmptyList] =
+    new NonEmptyListy[NonEmptyList] {
+      def cons[A](a: A, as: List[A]): NonEmptyList[A] = NonEmptyList(a, as: _*)
+      def toList[A](as: NonEmptyList[A]): List[A] = as.head :: as.tail
     }
 
 }
 
 trait CatsShims {
 
-  implicit def CatsFoldableShim[F[_]](implicit F: Foldable[F]) =
-    new FoldableShim[F] {
+  implicit def CatsFoldy[F[_]](implicit F: Foldable[F]) =
+    new Foldy[F] {
       def toList[A](fa: F[A]) = F.toList(fa)
     }
 

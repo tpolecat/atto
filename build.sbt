@@ -10,7 +10,8 @@ lazy val buildSettings = Seq(
 		("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
 	),
 	scalaVersion := "2.11.7",
-	crossScalaVersions := Seq("2.10.5", scalaVersion.value, "2.12.0-M3")
+	crossScalaVersions := Seq("2.10.5", scalaVersion.value, "2.12.0-M3"),
+  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.7.1" cross CrossVersion.binary)
 )
 
 lazy val commonSettings = Seq(

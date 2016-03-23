@@ -4,6 +4,7 @@ package syntax
 import java.lang.String
 import scala.{ StringContext, PartialFunction }
 import scala.language.implicitConversions
+import scala.language.higherKinds
 import atto.compat._
 import atto.parser._
 
@@ -45,7 +46,7 @@ trait ParserOps[A] {
     combinator.orElse(self, n)
 
   /** `a || b` is shorthand for `either(a, b)` */
-  def ||[B](n: => Parser[B])(implicit E: EitherMode): Parser[E.E[A, B]] =
+  def ||[E[_, _]: Eithery, B](n: => Parser[B]): Parser[E[A, B]] =
     combinator.either(self, n)
 
   /** `a -| f` is shorthand for `a map f` */
@@ -65,31 +66,31 @@ trait ParserOps[A] {
   def collect[B](pf: PartialFunction[A,B]): Parser[B] =
     combinator.collect(self, pf)
 
-  def sepBy[B](s: Parser[B])(implicit N: NelMode): Parser[List[A]] =
+  def sepBy[F[_]: NonEmptyListy, B](s: Parser[B]): Parser[List[A]] =
     combinator.sepBy(self, s)
 
-  def sepBy1[B](s: Parser[B])(implicit N: NelMode): Parser[N.NEL[A]] =
+  def sepBy1[F[_]: NonEmptyListy, B](s: Parser[B]): Parser[F[A]] =
     combinator.sepBy1(self, s)
 
   def attempt: Parser[A] =
     combinator.attempt(self)
 
-  def skipMany(implicit N: NelMode): Parser[Unit] =
+  def skipMany[F[_]: NonEmptyListy]: Parser[Unit] =
     combinator.skipMany(self)
 
-  def skipMany1(implicit N: NelMode): Parser[Unit] =
+  def skipMany1[F[_]: NonEmptyListy]: Parser[Unit] =
     combinator.skipMany1(self)
 
-  def skipManyN(n: Int)(implicit N: NelMode): Parser[Unit] =
+  def skipManyN[F[_]: NonEmptyListy](n: Int): Parser[Unit] =
     combinator.skipManyN(n, self)
 
-  def many(implicit N: NelMode): Parser[List[A]] =
+  def many[F[_]: NonEmptyListy]: Parser[List[A]] =
     combinator.many(self)
 
-  def many1(implicit N: NelMode): Parser[N.NEL[A]] =
+  def many1[F[_]: NonEmptyListy]: Parser[F[A]] =
     combinator.many1(self)
 
-  def manyN(n: Int)(implicit N: NelMode): Parser[List[A]] =
+  def manyN[F[_]: NonEmptyListy](n: Int): Parser[List[A]] =
     combinator.manyN(n, self)
 }
 

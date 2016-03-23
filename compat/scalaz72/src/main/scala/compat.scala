@@ -14,26 +14,24 @@ object scalaz extends ScalazModes
 
 trait ScalazModes {
 
-  implicit val ScalazEitherMode =
-    new EitherMode {
-      type E[A, B] = A \/ B
-      def  left[A, B](a: A): E[A, B] = \/.left(a)
-      def right[A, B](b: B): E[A, B] = \/.right(b)
+  implicit val ScalazEithery: Eithery[\/] =
+    new Eithery[\/] {
+      def  left[A, B](a: A): A \/ B = \/.left(a)
+      def right[A, B](b: B): A \/ B = \/.right(b)
     }
 
-  implicit val ScalazNelMode =
-    new NelMode {
-      type NEL[A] = NonEmptyList[A]
-      def cons[A](a: A, as: List[A]): NEL[A] = NonEmptyList(a, as: _*)
-      def toList[A](as: NEL[A]): List[A] = as.stream.toList
+  implicit val ScalazNelMode: NonEmptyListy[NonEmptyList] =
+    new NonEmptyListy[NonEmptyList] {
+      def cons[A](a: A, as: List[A]): NonEmptyList[A] = NonEmptyList(a, as: _*)
+      def toList[A](as: NonEmptyList[A]): List[A] = as.stream.toList
     }
 
 }
 
 trait ScalazShims {
 
-  implicit def ScalazFoldableShim[F[_]: Foldable] =
-    new FoldableShim[F] {
+  implicit def ScalazFoldy[F[_]: Foldable] =
+    new Foldy[F] {
       def toList[A](fa: F[A]) = fa.toList
     }
 

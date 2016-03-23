@@ -90,7 +90,7 @@ lazy val core = project.in(file("core"))
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-core")
 
-lazy val tests = project.in(file("tests")).dependsOn(core, scalaz71)
+lazy val tests = project.in(file("tests")).dependsOn(core, scalaz71, cats04)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
   .settings(name := "atto-tests")
   .settings(libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.0" % "test")

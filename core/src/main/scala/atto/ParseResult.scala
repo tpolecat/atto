@@ -1,14 +1,15 @@
 package atto
 
-import atto.compat.EitherMode
+import atto.compat.Eithery
 import java.lang.String
 import scala.{ Option, Some, None, Nothing, List }
+import scala.language.higherKinds
 
 sealed abstract class ParseResult[A] {
   def map[B](f: A => B): ParseResult[B]
   def feed(s: String): ParseResult[A]
   def option: Option[A]
-  def either(implicit E: EitherMode): E.E[String, A]
+  def either[E[_, _]: Eithery]: E[String, A]
   def done: ParseResult[A] = feed("")
 }
 
@@ -19,14 +20,14 @@ object ParseResult {
     def feed(s: String) = this
     override def done = this
     def option = None
-    def either(implicit E: EitherMode): E.E[String, A] = E.left(message)
+    def either[E[_, _]](implicit E: Eithery[E]): E[String, A] = E.left(message)
   }
 
   case class Partial[A](k: String => ParseResult[A]) extends ParseResult[A] {
     def map[B](f: A => B) = Partial(s => k(s).map(f))
     def feed(s: String) = k(s)
     def option = None
-    def either(implicit E: EitherMode): E.E[String, A] = E.left("incomplete input")
+    def either[E[_, _]](implicit E: Eithery[E]): E[String, A] = E.left("incomplete input")
   }
 
   case class Done[A](input: String, result: A) extends ParseResult[A] {
@@ -34,7 +35,7 @@ object ParseResult {
     def feed(s: String) = Done(input + s, result)
     override def done = this
     def option = Some(result)
-    def either(implicit E: EitherMode): E.E[String, A] = E.right(result)
+    def either[E[_, _]](implicit E: Eithery[E]): E[String, A] = E.right(result)
   }
 
 }

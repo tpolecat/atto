@@ -10,7 +10,8 @@ lazy val buildSettings = Seq(
 		("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
 	),
 	scalaVersion := "2.11.7",
-	crossScalaVersions := Seq("2.10.5", scalaVersion.value, "2.12.0-M3")
+	crossScalaVersions := Seq("2.10.5", scalaVersion.value, "2.12.0-M3"),
+  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.7.1" cross CrossVersion.binary)
 )
 
 lazy val commonSettings = Seq(
@@ -89,7 +90,7 @@ lazy val core = project.in(file("core"))
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-core")
 
-lazy val tests = project.in(file("tests")).dependsOn(core, scalaz71)
+lazy val tests = project.in(file("tests")).dependsOn(core, scalaz71, cats04)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
   .settings(name := "atto-tests")
   .settings(libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.0" % "test")

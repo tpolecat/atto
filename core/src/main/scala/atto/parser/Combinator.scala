@@ -175,11 +175,11 @@ trait Combinator0 {
     }
   }
 
-  def either[A, B](m: Parser[A], b: => Parser[B])(implicit E: EitherMode): Parser[E.E[A,B]] = {
+  def either[E[_, _], A, B](m: Parser[A], b: => Parser[B])(implicit E: Eithery[E]): Parser[E[A,B]] = {
     lazy val n = b
-    new Parser[E.E[A,B]] {
+    new Parser[E[A,B]] {
       override def toString = m infix ("|| " + n)
-      def apply[R](st0: State, kf: Failure[R], ks: Success[E.E[A,B],R]): TResult[R] =
+      def apply[R](st0: State, kf: Failure[R], ks: Success[E[A,B],R]): TResult[R] =
         suspend(m(
           st0,
           (st1: State, stack: List[String], msg: String) => n (st1.copy(pos = st0.pos), kf, (st1: State, b: B) => ks(st1, E.right(b))),
@@ -215,7 +215,7 @@ trait Combinator extends Combinator0 {
   def collect[A, B](m: Parser[A], f: PartialFunction[A,B]): Parser[B] =
     m.filter(f isDefinedAt _).map(f)
 
-  def cons[A, B >: A](m: Parser[A], n: => Parser[List[B]])(implicit N: NelMode): Parser[N.NEL[B]] =
+  def cons[F[_], A, B >: A](m: Parser[A], n: => Parser[List[B]])(implicit N: NonEmptyListy[F]): Parser[F[B]] =
     m flatMap (x => n map (xs => N.cons(x, xs)))
 
   /** Parser that matches `p` only if there is no remaining input */
@@ -224,37 +224,37 @@ trait Combinator extends Combinator0 {
 
   // TODO: return a parser of a reducer of A
   /** Parser that matches zero or more `p`. */
-  def many[A](p: => Parser[A])(implicit N: NelMode): Parser[List[A]] = {
+  def many[F[_], A](p: => Parser[A])(implicit N: NonEmptyListy[F]): Parser[List[A]] = {
     lazy val many_p : Parser[List[A]] = cons(p, many_p).map(N.toList) | ok(Nil)
     many_p named ("many(" + p + ")")
   }
 
   /** Parser that matches one or more `p`. */
-  def many1[A](p: => Parser[A])(implicit N: NelMode): Parser[N.NEL[A]] =
+  def many1[F[_]: NonEmptyListy, A](p: => Parser[A]): Parser[F[A]] =
     cons(p, many(p))
 
-  def manyN[A](n: Int, a: Parser[A])(implicit N: NelMode): Parser[List[A]] =
+  def manyN[F[_], A](n: Int, a: Parser[A])(implicit N: NonEmptyListy[F]): Parser[List[A]] =
     ((1 to n) :\ ok(List[A]()))((_, p) => cons(a, p).map(N.toList)) named "ManyN(" + n + ", " + a + ")"
 
-  def manyUntil[A](p: Parser[A], q: Parser[_])(implicit N: NelMode): Parser[List[A]] = {
+  def manyUntil[F[_], A](p: Parser[A], q: Parser[_])(implicit N: NonEmptyListy[F]): Parser[List[A]] = {
     lazy val scan: Parser[List[A]] = (q ~> ok(Nil)) | cons(p, scan).map(N.toList)
     scan named ("manyUntil(" + p + "," + q + ")")
   }
 
-  def skipMany(p: Parser[_])(implicit N: NelMode): Parser[Unit] =
+  def skipMany[F[_]: NonEmptyListy](p: Parser[_]): Parser[Unit] =
     many(p).void named s"skipMany($p)"
 
-  def skipMany1(p: Parser[_])(implicit N: NelMode): Parser[Unit] =
+  def skipMany1[F[_]: NonEmptyListy](p: Parser[_]): Parser[Unit] =
     many1(p).void named s"skipMany1($p)"
 
-  def skipManyN(n: Int, p: Parser[_])(implicit N: NelMode): Parser[Unit] =
+  def skipManyN[F[_]: NonEmptyListy](n: Int, p: Parser[_]): Parser[Unit] =
     manyN(n, p).void named s"skipManyN($n, $p)"
 
-  def sepBy[A](p: Parser[A], s: Parser[_])(implicit N: NelMode): Parser[List[A]] =
+  def sepBy[F[_], A](p: Parser[A], s: Parser[_])(implicit N: NonEmptyListy[F]): Parser[List[A]] =
     cons(p, ((s ~> sepBy1(p,s)).map(N.toList) | ok(List.empty[A]))).map(N.toList) | ok(List.empty[A]) named ("sepBy(" + p + "," + s + ")")
 
-  def sepBy1[A](p: Parser[A], s: Parser[_])(implicit N: NelMode): Parser[N.NEL[A]] = {
-    lazy val scan : Parser[N.NEL[A]] = cons(p, s ~> scan.map(N.toList) | ok(Nil))
+  def sepBy1[F[_], A](p: Parser[A], s: Parser[_])(implicit N: NonEmptyListy[F]): Parser[F[A]] = {
+    lazy val scan : Parser[F[A]] = cons(p, s ~> scan.map(N.toList) | ok(Nil))
     scan named ("sepBy1(" + p + "," + s + ")")
   }
 
@@ -265,7 +265,7 @@ trait Combinator extends Combinator0 {
   def choice[A](xs: Parser[A]*) : Parser[A] =
     xs.foldRight[Parser[A]](err("choice: no match"))(_ | _) named s"choice(${xs.mkString(", ")})"
 
-  def choice[F[_], A](fpa: F[Parser[A]])(implicit F: FoldableShim[F]) : Parser[A] =
+  def choice[F[_], A](fpa: F[Parser[A]])(implicit F: Foldy[F]) : Parser[A] =
     choice(F.toList(fpa): _*)
 
   def opt[A](m: Parser[A]): Parser[Option[A]] =
@@ -276,7 +276,7 @@ trait Combinator extends Combinator0 {
       if (p(a)) ok(a) else err[A]("filter")
     } named "filter(...)"
 
-  def count[A](n: Int, p: Parser[A])(implicit N: NelMode): Parser[List[A]] =
+  def count[F[_], A](n: Int, p: Parser[A])(implicit N: NonEmptyListy[F]): Parser[List[A]] =
     ((1 to n) :\ ok(List[A]()))((_, a) => cons(p, a).map(N.toList))
 
 }

@@ -15,11 +15,11 @@ trait Text {
   import character._
 
   /** Parser that returns a string of characters matched by `p`. */
-  def stringOf(p: Parser[Char])(implicit N: NelMode): Parser[String] =
+  def stringOf[F[_]: NonEmptyListy](p: Parser[Char]): Parser[String] =
     many(p).map(cs => new String(cs.toArray)) named "stringOf(" + p + ")"
 
   /** Parser that returns a non-empty string of characters matched by `p`. */
-  def stringOf1(p: Parser[Char])(implicit N: NelMode): Parser[String] =
+  def stringOf1[F[_]](p: Parser[Char])(implicit N: NonEmptyListy[F]): Parser[String] =
     many1(p).map(cs => new String(N.toList(cs).toArray)) named "stringOf1(" + p + ")"
 
   def takeWith(n: Int, p: String => Boolean, what: => String = "takeWith(...)"): Parser[String] =
@@ -132,7 +132,7 @@ trait Text {
   }
 
   /** Quoted strings with control and unicode escapes, Java/JSON style. **/
-  def stringLiteral(implicit N: NelMode): Parser[String] = {
+  def stringLiteral[F[_]: NonEmptyListy]: Parser[String] = {
 
     // Unescaped characters
     val nesc: Parser[Char] =

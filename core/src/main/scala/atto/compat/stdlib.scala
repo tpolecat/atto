@@ -13,8 +13,10 @@ trait StdlibModes {
       def right[A, B](b: B): Either[A, B] = Right(b)
     }
 
-  implicit val StdlibNonEmptyListy: NonEmptyListy[λ[α => (α, List[α])]] =
-    new NonEmptyListy[λ[α => (α, List[α])]] {
+  type NonEmptyList[A] = (A, List[A])
+
+  implicit val StdlibNonEmptyListy: NonEmptyListy[NonEmptyList] =
+    new NonEmptyListy[NonEmptyList] {
       def cons[A](a: A, as: List[A]): (A, List[A]) = (a, as)
       def toList[A](as: (A, List[A])): List[A] = as._1 :: as._2
     }

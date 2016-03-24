@@ -35,9 +35,7 @@ object CompatTest {
     }
 
     { 
-      // rats, need an unapply
-      // val a = many1(int)
-      val a = many1[Lambda[x => (x, List[x])], Int](int)
+      val a = many1(int)
       val b: Parser[(Int, List[Int])] = a
     }
 

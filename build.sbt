@@ -1,7 +1,7 @@
 import UnidocKeys._
 import ReleaseTransformations._
 
-enablePlugins(CrossPerProjectPlugin) 
+enablePlugins(CrossPerProjectPlugin)
 
 lazy val buildSettings = Seq(
 	organization := "org.tpolecat",
@@ -9,17 +9,17 @@ lazy val buildSettings = Seq(
 		("MIT", url("http://opensource.org/licenses/MIT")),
 		("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
 	),
-	scalaVersion := "2.11.7",
-	crossScalaVersions := Seq("2.10.5", scalaVersion.value, "2.12.0-M3"),
+	scalaVersion := "2.11.8",
+	crossScalaVersions := Seq("2.10.6", scalaVersion.value, "2.12.0-M3"),
   addCompilerPlugin("org.spire-math" % "kind-projector" % "0.7.1" cross CrossVersion.binary)
 )
 
 lazy val commonSettings = Seq(
 	scalacOptions ++= Seq(
-		"-feature", 
-		"-deprecation", 
+		"-feature",
+		"-deprecation",
 		"-Yno-adapted-args",
-		"-Ywarn-value-discard", 
+		"-Ywarn-value-discard",
 		"-Xlint",
 		"-Xfatal-warnings",
 	  "-unchecked"
@@ -83,14 +83,14 @@ lazy val atto = project.in(file("."))
   .settings(noPublishSettings)
   .settings(unidocSettings)
   .settings(unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(tests))
-  .dependsOn(core, tests, scalaz71, scalaz72, cats04)
-  .aggregate(core, tests, scalaz71, scalaz72, cats04)
+  .dependsOn(core, tests, scalaz71, scalaz72, cats)
+  .aggregate(core, tests, scalaz71, scalaz72, cats)
 
 lazy val core = project.in(file("core"))
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-core")
 
-lazy val tests = project.in(file("tests")).dependsOn(core, scalaz71, cats04)
+lazy val tests = project.in(file("tests")).dependsOn(core, scalaz71, cats)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
   .settings(name := "atto-tests")
   .settings(libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.0" % "test")
@@ -105,10 +105,10 @@ lazy val scalaz72 = project.in(file("compat/scalaz72")).dependsOn(core)
   .settings(name := "atto-compat-scalaz72")
   .settings(libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.1")
 
-lazy val cats04 = project.in(file("compat/cats04")).dependsOn(core)
+lazy val cats = project.in(file("compat/cats")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
-  .settings(name := "atto-compat-cats04")
-  .settings(libraryDependencies += "org.typelevel" %% "cats" % "0.4.1")
+  .settings(name := "atto-compat-cats")
+  .settings(libraryDependencies += "org.typelevel" %% "cats" % "0.5.0")
   .settings(crossScalaVersions := crossScalaVersions.value.filterNot(_.startsWith("2.12")))
 
 

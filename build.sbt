@@ -7,8 +7,8 @@ lazy val buildSettings = Seq(
 		("MIT", url("http://opensource.org/licenses/MIT")),
 		("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
 	),
-	scalaVersion := "2.11.7",
-	crossScalaVersions := Seq("2.10.5", scalaVersion.value)
+	scalaVersion := "2.11.8",
+	crossScalaVersions := Seq("2.10.6", scalaVersion.value)
 )
 
 lazy val commonSettings = Seq(
@@ -90,7 +90,7 @@ lazy val core = project.in(file("core"))
   .settings(name := "atto-core")
   .settings(
   	libraryDependencies ++= Seq(
-      "org.scalaz"     %% "scalaz-core" % "7.2.1",
+      "org.scalaz"     %% "scalaz-core" % "7.2.4",
       "org.scalacheck" %% "scalacheck"  % "1.13.1" % "test"
 		)
 	)

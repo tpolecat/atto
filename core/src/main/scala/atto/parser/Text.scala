@@ -21,11 +21,11 @@ trait Text {
 
   /** Parser that returns a string of characters matched by `p`. */
   def stringOf(p: Parser[Char]): Parser[String] =
-    many(p).map(cs => new String(cs.toArray)) named "stringOf(" + p + ")"
+    many(p).map(cs => new String(cs.toList.toArray)) named "stringOf(" + p + ")"
 
   /** Parser that returns a non-empty string of characters matched by `p`. */
   def stringOf1(p: Parser[Char]): Parser[String] =
-    many1(p).map(cs => new String(cs.list.toArray)) named "stringOf1(" + p + ")"
+    many1(p).map(cs => new String(cs.list.toList.toArray)) named "stringOf1(" + p + ")"
 
   def takeWith(n: Int, p: String => Boolean, what: => String = "takeWith(...)"): Parser[String] =
     ensure(n) flatMap { s =>
@@ -156,10 +156,10 @@ trait Text {
 
     // Unicode escaped characters
     val unicode: Parser[Char] =
-      string("\\u") ~> count(4, hexDigit).map(ds => Integer.parseInt(new String(ds.toArray), 16).toChar)
+      string("\\u") ~> count(4, hexDigit).map(ds => Integer.parseInt(new String(ds.toList.toArray), 16).toChar)
 
     // Quoted strings
-    char('"') ~> many(nesc | esc | unicode ).map(cs => new String(cs.toArray)) <~ char('"')
+    char('"') ~> many(nesc | esc | unicode ).map(cs => new String(cs.toList.toArray)) <~ char('"')
 
   } named "stringLiteral"
 

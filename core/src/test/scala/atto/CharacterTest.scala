@@ -55,7 +55,7 @@ object CharacterTest extends Properties("Character") {
 
   property("optElem + many") = forAll { (s: String, c: Char) =>
     val p = many(optElem(ch => Some(ch).filter(_ < c)))
-    p.parseOnly(s).option == Some(s.toList.takeWhile(_ < c))
+    p.parseOnly(s).option.map(_.toList) == Some(s.toList.takeWhile(_ < c))
   }
 
 }

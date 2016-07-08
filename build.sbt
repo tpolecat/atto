@@ -90,8 +90,8 @@ lazy val core = project.in(file("core"))
   .settings(name := "atto-core")
   .settings(
   	libraryDependencies ++= Seq(
-		  "org.scalaz"     %% "scalaz-core" % "7.1.0",
-		  "org.scalacheck" %% "scalacheck"  % "1.11.3" % "test"
+      "org.scalaz"     %% "scalaz-core" % "7.2.1",
+      "org.scalacheck" %% "scalacheck"  % "1.13.1" % "test"
 		)
 	)
 	.settings(initialCommands := "import scalaz._, Scalaz._, atto._, Atto._")

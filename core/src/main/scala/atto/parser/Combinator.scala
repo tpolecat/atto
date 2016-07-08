@@ -2,10 +2,12 @@ package atto
 package parser
 
 import java.lang.String
-import scala.{ Boolean, Nothing, Unit, Int, Nil, List, PartialFunction, StringContext, Option }
+
+import scala.{Boolean, Int, List, Nil, Nothing, Option, PartialFunction, StringContext, Unit}
 import scala.language.higherKinds
-import scalaz.NonEmptyList
-import scalaz.Scalaz.{ some, none }
+import scalaz.{IList, INil, NonEmptyList}
+import NonEmptyList.nel
+import scalaz.Scalaz.{none, some}
 import scalaz.syntax.monad._
 import atto.syntax.all._
 
@@ -221,8 +223,8 @@ trait Combinator extends Combinator0 {
   def collect[A, B](m: Parser[A], f: PartialFunction[A,B]): Parser[B] =
     m.filter(f isDefinedAt _).map(f)
 
-  def cons[A, B >: A](m: Parser[A], n: => Parser[List[B]]): Parser[NonEmptyList[B]] =
-    m flatMap (x => n map (xs => NonEmptyList(x, xs: _*)))
+  def cons[A, B >: A](m: Parser[A], n: => Parser[IList[B]]): Parser[NonEmptyList[B]] =
+    m flatMap (x => n map (xs => nel(x, xs)))
 
   /** Parser that matches `p` only if there is no remaining input */
   def phrase[A](p: Parser[A]): Parser[A] =
@@ -230,8 +232,8 @@ trait Combinator extends Combinator0 {
 
   // TODO: return a parser of a reducer of A
   /** Parser that matches zero or more `p`. */
-  def many[A](p: => Parser[A]): Parser[List[A]] = {
-    lazy val many_p : Parser[List[A]] = cons(p, many_p).map(_.list) | ok(Nil)
+  def many[A](p: => Parser[A]): Parser[IList[A]] = {
+    lazy val many_p : Parser[IList[A]] = cons(p, many_p).map(_.list) | ok(INil())
     many_p named ("many(" + p + ")")
   }
 
@@ -239,11 +241,11 @@ trait Combinator extends Combinator0 {
   def many1[A](p: => Parser[A]): Parser[NonEmptyList[A]] =
     cons(p, many(p))
 
-  def manyN[A](n: Int, a: Parser[A]): Parser[List[A]] =
-    ((1 to n) :\ ok(List[A]()))((_, p) => cons(a, p).map(_.list)) named "ManyN(" + n + ", " + a + ")"
+  def manyN[A](n: Int, a: Parser[A]): Parser[IList[A]] =
+    ((1 to n) :\ ok(IList[A]()))((_, p) => cons(a, p).map(_.list)) named "ManyN(" + n + ", " + a + ")"
 
-  def manyUntil[A](p: Parser[A], q: Parser[_]): Parser[List[A]] = {
-    lazy val scan: Parser[List[A]] = (q ~> ok(Nil)) | cons(p, scan).map(_.list)
+  def manyUntil[A](p: Parser[A], q: Parser[_]): Parser[IList[A]] = {
+    lazy val scan: Parser[IList[A]] = (q ~> ok(INil[A]())) | cons(p, scan).map(_.list)
     scan named ("manyUntil(" + p + "," + q + ")")
   }
 
@@ -256,11 +258,11 @@ trait Combinator extends Combinator0 {
   def skipManyN(n: Int, p: Parser[_]): Parser[Unit] =
     manyN(n, p).void named s"skipManyN($n, $p)"
 
-  def sepBy[A](p: Parser[A], s: Parser[_]): Parser[List[A]] =
-    cons(p, ((s ~> sepBy1(p,s)).map(_.list) | ok(Nil))).map(_.list) | ok(Nil) named ("sepBy(" + p + "," + s + ")")
+  def sepBy[A](p: Parser[A], s: Parser[_]): Parser[IList[A]] =
+    cons(p, ((s ~> sepBy1(p,s)).map(_.list) | ok(INil[A]()))).map(_.list) | ok(INil[A]()) named ("sepBy(" + p + "," + s + ")")
 
   def sepBy1[A](p: Parser[A], s: Parser[_]): Parser[NonEmptyList[A]] = {
-    lazy val scan : Parser[NonEmptyList[A]] = cons(p, s ~> scan.map(_.list) | ok(Nil))
+    lazy val scan : Parser[NonEmptyList[A]] = cons(p, s ~> scan.map(_.list) | ok(INil()))
     scan named ("sepBy1(" + p + "," + s + ")")
   }
 
@@ -282,7 +284,7 @@ trait Combinator extends Combinator0 {
       if (p(a)) ok(a) else err("filter")
     } named "filter(...)"
 
-  def count[A](n: Int, p: Parser[A]): Parser[List[A]] =
-    ((1 to n) :\ ok(List[A]()))((_, a) => cons(p, a).map(_.list))
+  def count[A](n: Int, p: Parser[A]): Parser[IList[A]] =
+    ((1 to n) :\ ok(IList[A]()))((_, a) => cons(p, a).map(_.list))
 
 }

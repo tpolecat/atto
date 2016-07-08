@@ -15,7 +15,7 @@ object IncrementalTest extends Properties("Incremental") {
       val p = sepBy(int, string(sep))
       val s = ns.mkString(sep)
       val c = s.grouped(1 max (n % s.length).abs).toList
-      (p.parse("") /: c)(_ feed _).done match {
+      (p.parse("") /: c)(_ feed _).done.map(_.toList) match {
         case ParseResult.Done("", `ns`) => true
         case _ => false
       }

@@ -2,10 +2,11 @@ package atto
 package syntax
 
 import java.lang.String
-import scala.{ StringContext, PartialFunction }
+
+import scala.{PartialFunction, StringContext}
 import scala.language.implicitConversions
 import scalaz.syntax.Ops
-import scalaz.{ \/, NonEmptyList }
+import scalaz.{IList, NonEmptyList, \/}
 import atto.parser._
 
 trait ParserOps[A] extends Ops[Parser[A]] {
@@ -65,7 +66,7 @@ trait ParserOps[A] extends Ops[Parser[A]] {
   def collect[B](pf: PartialFunction[A,B]): Parser[B] =
     combinator.collect(self, pf)
 
-  def sepBy[B](s: Parser[B]): Parser[List[A]] =
+  def sepBy[B](s: Parser[B]): Parser[IList[A]] =
     combinator.sepBy(self, s)
 
   def sepBy1[B](s: Parser[B]): Parser[NonEmptyList[A]] =
@@ -83,13 +84,13 @@ trait ParserOps[A] extends Ops[Parser[A]] {
   def skipManyN(n: Int): Parser[Unit] =
     combinator.skipManyN(n, self)
 
-  def many: Parser[List[A]] =
+  def many: Parser[IList[A]] =
     combinator.many(self)
 
   def many1: Parser[NonEmptyList[A]] =
     combinator.many1(self)
 
-  def manyN(n: Int): Parser[List[A]] =
+  def manyN(n: Int): Parser[IList[A]] =
     combinator.manyN(n, self)
 }
 

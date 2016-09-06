@@ -108,7 +108,7 @@ lazy val scalaz72 = project.in(file("compat/scalaz72")).dependsOn(core)
 lazy val cats = project.in(file("compat/cats")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-compat-cats")
-  .settings(libraryDependencies += "org.typelevel" %% "cats" % "0.6.0")
+  .settings(libraryDependencies += "org.typelevel" %% "cats" % "0.7.2")
   .settings(crossScalaVersions := crossScalaVersions.value.filterNot(_.startsWith("2.12")))
 
 

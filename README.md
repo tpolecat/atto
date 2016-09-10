@@ -33,7 +33,7 @@ libraryDependencies += "org.tpolecat" %% "atto-core"  % "0.5.0-SNAPSHOT"
 ```scala
 libraryDependencies += "org.tpolecat" %% "atto-compat-scalaz71" % "0.5.0-SNAPSHOT" // for scalaz 7.1
                        "org.tpolecat" %% "atto-compat-scalaz72" % "0.5.0-SNAPSHOT" // for scalaz 7.2
-                       "org.tpolecat" %% "atto-compat-cats"     % "0.5.0-SNAPSHOT" // for cats 7.2
+                       "org.tpolecat" %% "atto-compat-cats"     % "0.5.0-SNAPSHOT" // for cats 0.7.2
 ```
 
 - Import stuff:

@@ -23,7 +23,7 @@ trait CatsModes {
 
   implicit val CatsNonEmptyListy: NonEmptyListy[NonEmptyList] =
     new NonEmptyListy[NonEmptyList] {
-      def cons[A](a: A, as: List[A]): NonEmptyList[A] = NonEmptyList(a, as: _*)
+      def cons[A](a: A, as: List[A]): NonEmptyList[A] = NonEmptyList(a, as)
       def toList[A](as: NonEmptyList[A]): List[A] = as.head :: as.tail
     }
 
@@ -45,6 +45,7 @@ trait CatsInstances {
       def pure[A](a: A): Parser[A] = ok(a)
       def flatMap[A,B](ma: Parser[A])(f: A => Parser[B]) = ma flatMap f
       override def map[A,B](ma: Parser[A])(f: A => B) = ma map f
+      def tailRecM[A, B](a: A)(f: A => Parser[Either[A, B]]) = defaultTailRecM(a)(f)
     }
 
   implicit val ParserSemigroupK: SemigroupK[Parser] =

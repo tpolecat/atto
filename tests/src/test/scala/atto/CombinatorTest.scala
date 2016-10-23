@@ -36,6 +36,20 @@ object CombinatorTest extends Properties("Combinator") {
     }
   }
 
+  property("pos") = forAll { (s: String) =>
+    (s.length > 0) ==> {
+      val simpleParser = for {
+        _ <- take(s.length - 1)
+        p <- pos
+      } yield p
+
+      simpleParser.parseOnly(s) match {
+        case ParseResult.Done(_, position) => position == s.length - 1
+        case _ => false
+      }
+    }
+  }
+
   property("advance") = forAll { (s: String, x: Int) =>
     (x >= 0) ==> {
       advance(x).parseOnly(s) match {

@@ -10,7 +10,7 @@ scala> int.sepBy1(spaceChar).parseOnly("1 20 300").option
 res0: Option[scalaz.NonEmptyList[Int]] = Some(NonEmptyList(1, 20, 300))
 ```
 
-Current version is **0.5.0-SNAPSHOT** and is available for Scala 2.10, 2.11, and 2.12 (but note that Cats support is not yet available for 2.12).
+Current version is **0.5.0-M1** and is available for Scala 2.10 and 2.11.
 
 ### What's New?
 
@@ -25,21 +25,21 @@ The **0.5.x** series is a **breaking** change from 0.4.x, but for most users the
 - Add **atto** as a dependency in your `build.sbt` file.
 
 ```scala
-libraryDependencies += "org.tpolecat" %% "atto-core"  % "0.5.0-SNAPSHOT"
+libraryDependencies += "org.tpolecat" %% "atto-core"  % "0.5.0-M3"
 ```
 
 - Add a compatibility layer for the FP library you are using (if any). If you wish to limp along with the Scala standard library there is a built-in compatibility layer and no extra dependency is needed.
 
 ```scala
-libraryDependencies += "org.tpolecat" %% "atto-compat-scalaz71" % "0.5.0-SNAPSHOT" // for scalaz 7.1
-                       "org.tpolecat" %% "atto-compat-scalaz72" % "0.5.0-SNAPSHOT" // for scalaz 7.2
-                       "org.tpolecat" %% "atto-compat-cats"     % "0.5.0-SNAPSHOT" // for cats 0.7.2
+libraryDependencies += "org.tpolecat" %% "atto-compat-scalaz71" % "0.5.0-M3" // for scalaz 7.1
+                       "org.tpolecat" %% "atto-compat-scalaz72" % "0.5.0-M3" // for scalaz 7.2
+                       "org.tpolecat" %% "atto-compat-cats"     % "0.5.0-M3" // for cats 0.7.2
 ```
 
 - Import stuff:
 
 ```scala
-import atto._, Atto._, compat.scalaz._ // or compat.cats._ 
+import atto._, Atto._, compat.scalaz._ // or compat.cats._
                                        // or compat.stdlib._
 ```
 
@@ -92,4 +92,3 @@ The core of **atto** originated in Edward Kmett's Scala port of [Attoparsec](htt
 ### License
 
 **Attoparsec**, a Haskell library, is licensed under BSD-3 as specified [here](https://github.com/bos/attoparsec); the derivative work **atto** is provided under the MIT licence [here](LICENSE). Both licenses appear in project metadata.
-

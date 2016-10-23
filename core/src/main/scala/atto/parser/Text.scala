@@ -15,12 +15,14 @@ trait Text {
   import character._
 
   /** Parser that returns a string of characters matched by `p`. */
-  def stringOf[F[_]: NonEmptyListy](p: Parser[Char]): Parser[String] =
+  def stringOf(p: Parser[Char]): Parser[String] =
     many(p).map(cs => new String(cs.toArray)) named "stringOf(" + p + ")"
 
   /** Parser that returns a non-empty string of characters matched by `p`. */
-  def stringOf1[F[_]](p: Parser[Char])(implicit N: NonEmptyListy[F]): Parser[String] =
+  def stringOf1(p: Parser[Char]): Parser[String] = {
+    implicit val N = stdlib.StdlibNonEmptyListy
     many1(p).map(cs => new String(N.toList(cs).toArray)) named "stringOf1(" + p + ")"
+  }
 
   def takeWith(n: Int, p: String => Boolean, what: => String = "takeWith(...)"): Parser[String] =
     ensure(n) flatMap { s =>
@@ -132,7 +134,7 @@ trait Text {
   }
 
   /** Quoted strings with control and unicode escapes, Java/JSON style. **/
-  def stringLiteral[F[_]: NonEmptyListy]: Parser[String] = {
+  def stringLiteral: Parser[String] = {
 
     // Unescaped characters
     val nesc: Parser[Char] =
@@ -200,4 +202,3 @@ trait Text {
     bracket(string("(|"), q, string("|)")).named(s"banana(${q.toString})")
   }
 }
-

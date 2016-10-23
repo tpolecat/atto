@@ -224,7 +224,8 @@ trait Combinator extends Combinator0 {
 
   // TODO: return a parser of a reducer of A
   /** Parser that matches zero or more `p`. */
-  def many[F[_], A](p: => Parser[A])(implicit N: NonEmptyListy[F]): Parser[List[A]] = {
+  def many[A](p: => Parser[A]): Parser[List[A]] = {
+    implicit val N = stdlib.StdlibNonEmptyListy
     lazy val many_p : Parser[List[A]] = cons(p, many_p).map(N.toList) | ok(Nil)
     many_p named ("many(" + p + ")")
   }
@@ -233,25 +234,32 @@ trait Combinator extends Combinator0 {
   def many1[F[_]: NonEmptyListy, A](p: => Parser[A]): Parser[F[A]] =
     cons(p, many(p))
 
-  def manyN[F[_], A](n: Int, a: Parser[A])(implicit N: NonEmptyListy[F]): Parser[List[A]] =
+  def manyN[A](n: Int, a: Parser[A]): Parser[List[A]] = {
+    implicit val N = stdlib.StdlibNonEmptyListy
     ((1 to n) :\ ok(List[A]()))((_, p) => cons(a, p).map(N.toList)) named "ManyN(" + n + ", " + a + ")"
+  }
 
-  def manyUntil[F[_], A](p: Parser[A], q: Parser[_])(implicit N: NonEmptyListy[F]): Parser[List[A]] = {
+  def manyUntil[A](p: Parser[A], q: Parser[_]): Parser[List[A]] = {
+    implicit val N = stdlib.StdlibNonEmptyListy
     lazy val scan: Parser[List[A]] = (q ~> ok(Nil)) | cons(p, scan).map(N.toList)
     scan named ("manyUntil(" + p + "," + q + ")")
   }
 
-  def skipMany[F[_]: NonEmptyListy](p: Parser[_]): Parser[Unit] =
+  def skipMany(p: Parser[_]): Parser[Unit] =
     many(p).void named s"skipMany($p)"
 
-  def skipMany1[F[_]: NonEmptyListy](p: Parser[_]): Parser[Unit] =
+  def skipMany1(p: Parser[_]): Parser[Unit] = {
+    implicit val N = stdlib.StdlibNonEmptyListy
     many1(p).void named s"skipMany1($p)"
+  }
 
-  def skipManyN[F[_]: NonEmptyListy](n: Int, p: Parser[_]): Parser[Unit] =
+  def skipManyN(n: Int, p: Parser[_]): Parser[Unit] =
     manyN(n, p).void named s"skipManyN($n, $p)"
 
-  def sepBy[F[_], A](p: Parser[A], s: Parser[_])(implicit N: NonEmptyListy[F]): Parser[List[A]] =
+  def sepBy[A](p: Parser[A], s: Parser[_]): Parser[List[A]] = {
+    implicit val N = stdlib.StdlibNonEmptyListy
     cons(p, ((s ~> sepBy1(p,s)).map(N.toList) | ok(List.empty[A]))).map(N.toList) | ok(List.empty[A]) named ("sepBy(" + p + "," + s + ")")
+  }
 
   def sepBy1[F[_], A](p: Parser[A], s: Parser[_])(implicit N: NonEmptyListy[F]): Parser[F[A]] = {
     lazy val scan : Parser[F[A]] = cons(p, s ~> scan.map(N.toList) | ok(Nil))
@@ -276,7 +284,9 @@ trait Combinator extends Combinator0 {
       if (p(a)) ok(a) else err[A]("filter")
     } named "filter(...)"
 
-  def count[F[_], A](n: Int, p: Parser[A])(implicit N: NonEmptyListy[F]): Parser[List[A]] =
+  def count[A](n: Int, p: Parser[A]): Parser[List[A]] = {
+    implicit val N = stdlib.StdlibNonEmptyListy
     ((1 to n) :\ ok(List[A]()))((_, a) => cons(p, a).map(N.toList))
-
+  }
+  
 }

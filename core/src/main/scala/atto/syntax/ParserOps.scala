@@ -66,7 +66,7 @@ trait ParserOps[A] {
   def collect[B](pf: PartialFunction[A,B]): Parser[B] =
     combinator.collect(self, pf)
 
-  def sepBy[F[_]: NonEmptyListy, B](s: Parser[B]): Parser[List[A]] =
+  def sepBy[B](s: Parser[B]): Parser[List[A]] =
     combinator.sepBy(self, s)
 
   def sepBy1[F[_]: NonEmptyListy, B](s: Parser[B]): Parser[F[A]] =
@@ -75,22 +75,22 @@ trait ParserOps[A] {
   def attempt: Parser[A] =
     combinator.attempt(self)
 
-  def skipMany[F[_]: NonEmptyListy]: Parser[Unit] =
+  def skipMany: Parser[Unit] =
     combinator.skipMany(self)
 
-  def skipMany1[F[_]: NonEmptyListy]: Parser[Unit] =
+  def skipMany1: Parser[Unit] =
     combinator.skipMany1(self)
 
-  def skipManyN[F[_]: NonEmptyListy](n: Int): Parser[Unit] =
+  def skipManyN(n: Int): Parser[Unit] =
     combinator.skipManyN(n, self)
 
-  def many[F[_]: NonEmptyListy]: Parser[List[A]] =
+  def many: Parser[List[A]] =
     combinator.many(self)
 
   def many1[F[_]: NonEmptyListy]: Parser[F[A]] =
     combinator.many1(self)
 
-  def manyN[F[_]: NonEmptyListy](n: Int): Parser[List[A]] =
+  def manyN(n: Int): Parser[List[A]] =
     combinator.manyN(n, self)
 }
 

@@ -10,7 +10,7 @@ scala> int.sepBy1(spaceChar).parseOnly("1 20 300").option
 res0: Option[scalaz.NonEmptyList[Int]] = Some(NonEmptyList(1, 20, 300))
 ```
 
-Current version is **0.5.0-M1** and is available for Scala 2.10 and 2.11.
+Current version is **0.5.0-M3** and is available for Scala 2.10 and 2.11.
 
 ### What's New?
 

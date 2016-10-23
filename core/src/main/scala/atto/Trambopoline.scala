@@ -15,8 +15,11 @@ sealed abstract class Trambopoline[A] { self =>
       case c: Trambopoline.Moar[A] =>
         new Trambopoline.Moar[B] {
           type Start = c.Start
-          val start = c.start
-          val go = (s: c.Start) =>
+          // See https://issues.scala-lang.org/browse/SI-9931 for an explanation
+          // of why the type annotations are necessary in these two lines on
+          // Scala 2.12.0.
+          val start: () => Trambopoline[Start] = c.start
+          val go: Start => Trambopoline[B] = (s: c.Start) =>
             new Trambopoline.Moar[B] {
               type Start = A
               val start = () => c.go(s)

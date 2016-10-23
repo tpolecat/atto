@@ -10,8 +10,8 @@ lazy val buildSettings = Seq(
 		("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
 	),
 	scalaVersion := "2.11.8",
-	crossScalaVersions := Seq("2.10.6", scalaVersion.value, "2.12.0-M3"),
-  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.7.1" cross CrossVersion.binary)
+	crossScalaVersions := Seq("2.10.6", scalaVersion.value),
+  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.2" cross CrossVersion.binary)
 )
 
 lazy val commonSettings = Seq(
@@ -98,17 +98,15 @@ lazy val tests = project.in(file("tests")).dependsOn(core, scalaz71, cats)
 lazy val scalaz71 = project.in(file("compat/scalaz71")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-compat-scalaz71")
-  .settings(libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.6")
+  .settings(libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.10")
 
 lazy val scalaz72 = project.in(file("compat/scalaz72")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-compat-scalaz72")
-  .settings(libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.1")
+  .settings(libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.6")
 
 lazy val cats = project.in(file("compat/cats")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-compat-cats")
   .settings(libraryDependencies += "org.typelevel" %% "cats" % "0.7.2")
   .settings(crossScalaVersions := crossScalaVersions.value.filterNot(_.startsWith("2.12")))
-
-

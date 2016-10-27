@@ -7,7 +7,7 @@ import atto.syntax.parser._
 import scala.language.higherKinds
 
 import _root_.cats.{ Foldable, Functor, Monad, Monoid, SemigroupK }
-import _root_.cats.data.{ Xor, NonEmptyList }
+import _root_.cats.data.{ NonEmptyList }
 
 object cats extends CatsModes
                with CatsShims
@@ -15,11 +15,7 @@ object cats extends CatsModes
 
 trait CatsModes {
 
-  implicit val CatsEithery: Eithery[Xor] =
-    new Eithery[Xor] {
-      def  left[A, B](a: A): A Xor B = Xor.left(a)
-      def right[A, B](b: B): A Xor B = Xor.right(b)
-    }
+  implicit val StdlibEithery = atto.compat.stdlib.StdlibEithery
 
   implicit val CatsNonEmptyListy: NonEmptyListy[NonEmptyList] =
     new NonEmptyListy[NonEmptyList] {
@@ -45,7 +41,11 @@ trait CatsInstances {
       def pure[A](a: A): Parser[A] = ok(a)
       def flatMap[A,B](ma: Parser[A])(f: A => Parser[B]) = ma flatMap f
       override def map[A,B](ma: Parser[A])(f: A => B) = ma map f
-      def tailRecM[A, B](a: A)(f: A => Parser[Either[A, B]]) = defaultTailRecM(a)(f)
+      def tailRecM[A, B](a: A)(f: A => Parser[Either[A, B]]): Parser[B] =
+        f(a).flatMap {
+          case Left(a)  => tailRecM(a)(f)
+          case Right(b) => pure(b)
+        }
     }
 
   implicit val ParserSemigroupK: SemigroupK[Parser] =

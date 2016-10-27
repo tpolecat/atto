@@ -10,7 +10,7 @@ scala> int.sepBy1(spaceChar).parseOnly("1 20 300").option
 res0: Option[scalaz.NonEmptyList[Int]] = Some(NonEmptyList(1, 20, 300))
 ```
 
-Current version is **0.5.0-M3** and is available for Scala 2.10 and 2.11.
+Current version is **0.5.0-RC1** and is available for Scala 2.10, 2.11, and 2.12.0-RC2.
 
 ### What's New?
 
@@ -25,15 +25,15 @@ The **0.5.x** series is a **breaking** change from 0.4.x, but for most users the
 - Add **atto** as a dependency in your `build.sbt` file.
 
 ```scala
-libraryDependencies += "org.tpolecat" %% "atto-core"  % "0.5.0-M3"
+libraryDependencies += "org.tpolecat" %% "atto-core"  % "0.5.0-RC1"
 ```
 
 - Add a compatibility layer for the FP library you are using (if any). If you wish to limp along with the Scala standard library there is a built-in compatibility layer and no extra dependency is needed.
 
 ```scala
-libraryDependencies += "org.tpolecat" %% "atto-compat-scalaz71" % "0.5.0-M3" // for scalaz 7.1
-                       "org.tpolecat" %% "atto-compat-scalaz72" % "0.5.0-M3" // for scalaz 7.2
-                       "org.tpolecat" %% "atto-compat-cats"     % "0.5.0-M3" // for cats 0.7.2
+libraryDependencies += "org.tpolecat" %% "atto-compat-scalaz71" % "0.5.0-RC1" // for scalaz 7.1
+                       "org.tpolecat" %% "atto-compat-scalaz72" % "0.5.0-RC1" // for scalaz 7.2
+                       "org.tpolecat" %% "atto-compat-cats"     % "0.5.0-RC1" // for cats 0.8.0
 ```
 
 - Import stuff:
@@ -55,7 +55,7 @@ import atto._, Atto._, compat.scalaz._ // or compat.cats._
 
 | Concept                | Stdlib Type      | Scalaz Type       | Cats Type         |
 |------------------------|------------------|-------------------|-------------------|
-| Disjunction            | `Either[A, B]`   | `A \/ B`          | `A Xor B`         |
+| Disjunction            | `Either[A, B]`   | `A \/ B`          | `Either[A, B]`    |
 | Non-Empty List         | `(A, List[A])`   | `NonEmptyList[A]` | `NonEmptyList[A]` |
 | Monoid                 |                  | `Monoid[A]`       | `Monoid[A]`       |
 | Higher-Order Semigroup |                  | `Plus[F]`         | `SemigroupK[F]`   |

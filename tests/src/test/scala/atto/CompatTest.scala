@@ -14,7 +14,7 @@ object CompatTest {
       val b: String \/ Int = a
     }
 
-    { 
+    {
       val a = many1(int)
       val b: Parser[NonEmptyList[Int]] = a
     }
@@ -34,7 +34,7 @@ object CompatTest {
       val b: Either[String, Int] = a
     }
 
-    { 
+    {
       val a = many1(int)
       val b: Parser[(Int, List[Int])] = a
     }
@@ -52,10 +52,10 @@ object CompatTest {
 
     {
       val a = (null : ParseResult[Int]).either
-      val b: String Xor Int = a
+      val b: Either[String, Int] = a
     }
 
-    { 
+    {
       val a = many1(int)
       val b: Parser[NonEmptyList[Int]] = a
     }

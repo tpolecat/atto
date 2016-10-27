@@ -1,8 +1,6 @@
 import UnidocKeys._
 import ReleaseTransformations._
 
-enablePlugins(CrossPerProjectPlugin)
-
 lazy val buildSettings = Seq(
 	organization := "org.tpolecat",
 	licenses ++= Seq(
@@ -10,7 +8,7 @@ lazy val buildSettings = Seq(
 		("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
 	),
 	scalaVersion := "2.11.8",
-	crossScalaVersions := Seq("2.10.6", scalaVersion.value),
+	crossScalaVersions := Seq("2.10.6", scalaVersion.value, "2.12.0-RC2"),
   addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.2" cross CrossVersion.binary)
 )
 
@@ -108,5 +106,4 @@ lazy val scalaz72 = project.in(file("compat/scalaz72")).dependsOn(core)
 lazy val cats = project.in(file("compat/cats")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-compat-cats")
-  .settings(libraryDependencies += "org.typelevel" %% "cats" % "0.7.2")
-  .settings(crossScalaVersions := crossScalaVersions.value.filterNot(_.startsWith("2.12")))
+  .settings(libraryDependencies += "org.typelevel" %% "cats" % "0.8.0")

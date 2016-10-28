@@ -83,7 +83,7 @@ Although **atto** is 50 times faster now than version 0.1, it's still not the fa
 
 ### Documentation
 
-TODO: wee tut book
+Forthcoming. For now see the `master` branch.
 
 ### Contributors
 

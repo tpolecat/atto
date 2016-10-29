@@ -78,7 +78,7 @@ letter ~ digit
 (letter ~ digit).parse("a1")
 (many(letter) ~ many(digit)).parse("aaa")
 (many(letter) ~ many(digit)).parse("aaa").feed("bcd123").done
-(many(letter) ~ many(digit)).map { case (a, b) => 1 ++ b } .parse("aaa").feed("bcd123").done
+(many(letter) ~ many(digit)).map { case (a, b) => a ++ b } .parse("aaa").feed("bcd123").done
 ```
 
 Destructuring the pair in `map` is a pain, and it gets worse with nested pairs.

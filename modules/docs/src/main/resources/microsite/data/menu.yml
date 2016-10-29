@@ -1,0 +1,10 @@
+options:
+
+  - title: Getting Started
+    url: index.html
+
+  - title: Basic Parsers
+    url: first-steps.html
+
+  - title: Parsing Log Entries
+    url: next-steps.html

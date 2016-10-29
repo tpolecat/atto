@@ -84,26 +84,51 @@ lazy val atto = project.in(file("."))
   .dependsOn(core, tests, scalaz71, scalaz72, cats)
   .aggregate(core, tests, scalaz71, scalaz72, cats)
 
-lazy val core = project.in(file("core"))
+lazy val core = project.in(file("modules/core"))
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-core")
 
-lazy val tests = project.in(file("tests")).dependsOn(core, scalaz71, cats)
+lazy val tests = project.in(file("modules/tests")).dependsOn(core, scalaz71, cats)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
   .settings(name := "atto-tests")
   .settings(libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.0" % "test")
 
-lazy val scalaz71 = project.in(file("compat/scalaz71")).dependsOn(core)
+lazy val scalaz71 = project.in(file("modules/compat/scalaz71")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-compat-scalaz71")
   .settings(libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.10")
 
-lazy val scalaz72 = project.in(file("compat/scalaz72")).dependsOn(core)
+lazy val scalaz72 = project.in(file("modules/compat/scalaz72")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-compat-scalaz72")
   .settings(libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.6")
 
-lazy val cats = project.in(file("compat/cats")).dependsOn(core)
+lazy val cats = project.in(file("modules/compat/cats")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-compat-cats")
   .settings(libraryDependencies += "org.typelevel" %% "cats" % "0.8.0")
+
+lazy val docs = project.in(file("modules/docs")).dependsOn(core, scalaz71, cats)
+  .settings(buildSettings ++ commonSettings ++ noPublishSettings)
+  .settings(name := "atto-docs")
+	.enablePlugins(MicrositesPlugin)
+  .settings(
+    micrositeName             := "atto",
+    micrositeDescription      := "Everyday parsers.",
+    micrositeAuthor           := "Rob Norris",
+    micrositeGithubOwner      := "tpolecat",
+    micrositeGithubRepo       := "atto",
+    micrositeBaseUrl          := "/atto",
+    micrositeDocumentationUrl := "/atto/docs/",
+    micrositeHighlightTheme   := "color-brewer"
+    // micrositePalette := Map(
+    //   "brand-primary"     -> "#0B6E0B",
+    //   "brand-secondary"   -> "#084D08",
+    //   "brand-tertiary"    -> "#053605",
+    //   "gray-dark"         -> "#453E46",
+    //   "gray"              -> "#837F84",
+    //   "gray-light"        -> "#E3E2E3",
+    //   "gray-lighter"      -> "#F4F3F4",
+    //   "white-color"       -> "#FFFFFF"
+    // )
+  )

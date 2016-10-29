@@ -159,8 +159,7 @@ case class LogEntry(entryTime: DateTime, entryIP: IP, entryProduct: Product)
 type Log = List[LogEntry]
 ```
 
-There's no built-in parser for fixed-width ints, so we can just make one. Probably shouldn't
-be doing this in a tutorial though. How should we handle this?
+There's no built-in parser for fixed-width ints, so we can just make one. We parse some number of digits and parse them as an `Int`, handling the case where the value is too large by flatmapping to `ok` or `err`.
 
 ```tut:silent
 def fixed(n:Int): Parser[Int] =

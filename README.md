@@ -81,9 +81,10 @@ It's not a big deal to construct and use **atto** parsers; use them in any situa
 
 Although **atto** is 50 times faster now than version 0.1, it's still not the fastest parsing lib on the block. If you're doing massive data processing you might look at a heavier library like Parboiled2, or even a hand-built parser like those used in the fastest JSON libs. But for "everyday" parsing where you have to turn user input into something useful, **atto** is a friendly little library to use.
 
-### Documentation
+### Support
 
-Forthcoming. For now see the `master` branch.
+- Chat it up on [Gitter](https://gitter.im/tpolecat/atto).
+- Check the new documentation [microsite](http://tpolecat.github.com/atto/).
 
 ### Contributors
 

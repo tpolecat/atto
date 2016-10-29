@@ -37,6 +37,11 @@ It's not a big deal to construct and use **atto** parsers; use them in any situa
 
 Although **atto** is 50 times faster now than version 0.1, it's still not the fastest parsing lib on the block. If you have a need for speed and don't need incremental parsing you might checkout FastParse or Parboiled2. But for "everyday" parsing where you just have to turn user input into something useful, **atto** is a friendly little library to use.
 
+### Support
+
+- Chat it up on [Gitter](https://gitter.im/tpolecat/atto).
+- Check the new [documentation](/atto/docs/).
+
 ### History and Contributors
 
 The core of **atto** originated in Edward Kmett's Scala port of [Attoparsec](https://github.com/bos/attoparsec). This library is an elaboration maintained by @tpolecat with contributions from some [very helpful folks](https://github.com/tpolecat/atto/graphs/contributors). Feedback and suggestions are always welcome.

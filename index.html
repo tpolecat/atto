@@ -1,0 +1,42 @@
+<html><head><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>atto</title><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Everyday parsers." /><meta name="author" content="Rob Norris" /><meta name="og:image" content="/atto/img/poster.png" /><meta name="og:title" content="atto" /><meta name="og:site_name" content="atto" /><meta name="og:url" content="" /><meta name="og:type" content="website" /><meta name="og:description" content="Everyday parsers." /><meta name="twitter:image" content="/atto/img/poster.png" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:site" content="" /><link rel="icon" type="image/png" href="/atto/img/favicon.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/styles/color-brewer.min.css" /><link rel="stylesheet" href="/atto/css/style.css" /><link rel="stylesheet" href="/atto/css/palette.css" /></head><body><header id="site-header"><div class="navbar-wrapper"><div class="container"><div class="row"><div class="col-xs-6"><a href="/atto/" class="brand"><div class="icon-wrapper" style="background:url('/atto/img/navbar_brand.png') no-repeat"><span>atto</span></div></a></div><div class="col-xs-6"><nav class="text-right"><ul class=""><li><a href="https://github.com/tpolecat/atto"><i class="fa fa-github"></i><span class="hidden-xs">GitHub</span></a></li><li><a href="/atto/docs/"><i class="fa fa-file-text"></i><span class="hidden-xs">Documentation</span></a></li></ul></nav></div></div></div></div><div class="jumbotron" style="background-image:url('/atto/img/jumbotron_pattern.png')"><div class="container"><h1 class="text-center">Everyday parsers.</h1><h2></h2><p class="text-center"><a href="https://github.com/tpolecat/atto" class="btn btn-outline-inverse">View on GitHub</a></p></div></div><div><ul class="horizontalNav">            </ul></div></header><main id="site-main"><section class="use"><div class="container"><div id="content"><h3 id="hello">Hello</h3>
+
+<p><strong>atto</strong> is a compact, pure-functional, incremental text parsing library for Scala (if you’re looking for <strong>binary</strong> parsing, please turn your attention to <a href="https://github.com/scodec/scodec">scodec</a>). The <strong>atto</strong> API is non-invasive (nothing to extend!) and uses sensible and familiar abstractions. <strong>atto</strong> parsers are a fun and principled tool for everyday parsing.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">int</span><span class="o">.</span><span class="n">sepBy1</span><span class="o">(</span><span class="n">spaceChar</span><span class="o">).</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"1 20 300"</span><span class="o">).</span><span class="n">option</span>
+<span class="n">res0</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">scalaz.NonEmptyList</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">NonEmptyList</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">20</span><span class="o">,</span> <span class="mi">300</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<h3 id="whats-new">What’s New?</h3>
+
+<p>The <strong>0.5.x</strong> series is a <strong>breaking</strong> change from 0.4.x, but for most users the impact will be minor. The important changes are:</p>
+
+<ul>
+  <li><strong>atto</strong> no longer depends on scalaz. Instead you can select a compatibility layer.</li>
+  <li><code class="highlighter-rouge">Parser</code> and <code class="highlighter-rouge">ParseResult</code> are now <strong>invariant</strong>, so you may need to add explicit type arguments in some cases.</li>
+  <li>The Spire and scalaz-stream support libraries have been dropped for now. Please speak up if you need them.</li>
+</ul>
+
+<h3 id="why-atto">Why atto?</h3>
+
+<p><strong>atto</strong> differs from stdlib parser combinators in a number of ways:</p>
+
+<ul>
+  <li>You don’t have to extend a trait or implement any methods.</li>
+  <li>There is no tokenizer; the input type is always <code class="highlighter-rouge">Char</code>.</li>
+  <li>Abstractions are better defined, which leads to simpler, more general code. <code class="highlighter-rouge">Parser</code> is a <code class="highlighter-rouge">Monad</code> for example, which gives us a lot of helpful operations for free.</li>
+  <li>Parsers are <em>incremental</em> which means you can evaluate whether a prefix of your input is “ok so far.” This can be helpful when working with streams or interactive UIs.</li>
+</ul>
+
+<p>It’s not a big deal to construct and use <strong>atto</strong> parsers; use them in any situation where you might otherwise reach for regular expressions or raw string manipulation.</p>
+
+<p>Although <strong>atto</strong> is 50 times faster now than version 0.1, it’s still not the fastest parsing lib on the block. If you have a need for speed and don’t need incremental parsing you might checkout FastParse or Parboiled2. But for “everyday” parsing where you just have to turn user input into something useful, <strong>atto</strong> is a friendly little library to use.</p>
+
+<h3 id="history-and-contributors">History and Contributors</h3>
+
+<p>The core of <strong>atto</strong> originated in Edward Kmett’s Scala port of <a href="https://github.com/bos/attoparsec">Attoparsec</a>. This library is an elaboration maintained by @tpolecat with contributions from some <a href="https://github.com/tpolecat/atto/graphs/contributors">very helpful folks</a>. Feedback and suggestions are always welcome.</p>
+
+<h3 id="license">License</h3>
+
+<p><strong>Attoparsec</strong>, a Haskell library, is licensed under BSD-3 as specified <a href="https://github.com/bos/attoparsec">here</a>; the derivative work <strong>atto</strong> is provided under the MIT licence <a href="LICENSE">here</a>. Both licenses appear in project metadata.</p>
+</div></div></section><section class="technologies"><div class="container"><div class="row"></div></div></section></main><footer id="site-footer"><div class="container"><div class="row"><div class="col-xs-6"><p>atto is designed and developed by <a href="" target="_blank">Rob Norris</a></p></div><div class="col-xs-6"><p class="text-right"><a href="https://github.com/tpolecat/atto"><span class="fa fa-github"></span>View on Github</a></p></div></div></div></footer><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/languages/scala.min.js"></script><script>jQuery(document).ready(function(){hljs.initHighlightingOnLoad();});</script></body></html>

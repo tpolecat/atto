@@ -1,0 +1,228 @@
+<html><head><meta charset="utf-8" /><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" /><title>atto</title><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Everyday parsers." /><meta name="author" content="Rob Norris" /><meta name="og:image" content="/atto/img/poster.png" /><meta name="og:title" content="atto" /><meta name="og:site_name" content="atto" /><meta name="og:url" content="" /><meta name="og:type" content="website" /><meta name="og:description" content="Everyday parsers." /><meta name="twitter:image" content="/atto/img/poster.png" /><meta name="twitter:card" content="summary_large_image" /><meta name="twitter:site" content="" /><link rel="icon" type="image/png" href="/atto/img/favicon.png" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" /><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/styles/color-brewer.min.css" /><link rel="stylesheet" href="/atto/css/style.css" /><link rel="stylesheet" href="/atto/css/palette.css" /></head><body class="docs"><div id="wrapper"><div id="sidebar-wrapper"><ul id="sidebar" class="sidebar-nav"><li class="sidebar-brand"><a href="/atto/" class="brand"><div class="brand-wrapper" style="background:url('/atto/img/sidebar_brand.png') no-repeat"><span>atto</span></div></a></li>  <li><a href="/atto/docs/index.html" class="">Getting Started</a>  <li><a href="/atto/docs/first-steps.html" class="">Basic Parsers</a>  <li><a href="/atto/docs/next-steps.html" class=" active ">Parsing Log Entries</a> </li></ul></div><div id="page-content-wrapper"><div class="nav"><div class="container-fluid"><div class="row"><div class="col-lg-12"><div class="action-menu pull-left clearfix"><a href="#menu-toggle" id="menu-toggle"><i class="fa fa-bars" aria-hidden="true"></i></a></div><ul class="pull-right"><li class="hidden-xs"><a href="https://github.com/tpolecat/atto"><i class="fa fa-eye"></i><span>WATCH<span id="eyes" class="label label-default">--</span></span></a></li><li class="hidden-xs"><a href="https://github.com/tpolecat/atto"><i class="fa fa-star-o"></i><span>STARS<span id="stars" class="label label-default">--</span></span></a></li><li><a href="#" onclick="shareSiteTwitter('atto Everyday parsers.');"><i class="fa fa-twitter"></i></a></li><li><a href="#" onclick="shareSiteFacebook('atto Everyday parsers.');"><i class="fa fa-facebook"></i></a></li><li><a href="#" onclick="shareSiteGoogle();"><i class="fa fa-google-plus"></i></a></li></ul></div></div></div></div><div id="content" data-github-owner="tpolecat" data-github-repo="atto"><div class="content-wrapper"><section><h3 id="parsing-log-entries">Parsing Log Entries</h3>
+
+<p>Our goal for this chapter is to parse the following log data into structured values. This is taken from a nice tutorial over at <a href="https://www.fpcomplete.com/school/text-manipulation/attoparsec">FP Complete</a>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">val</span> <span class="n">logData</span> <span class="k">=</span>
+  <span class="s">"""|2013-06-29 11:16:23 124.67.34.60 keyboard
+     |2013-06-29 11:32:12 212.141.23.67 mouse
+     |2013-06-29 11:33:08 212.141.23.67 monitor
+     |2013-06-29 12:12:34 125.80.32.31 speakers
+     |2013-06-29 12:51:50 101.40.50.62 keyboard
+     |2013-06-29 13:10:45 103.29.60.13 mouse
+     |"""</span><span class="o">.</span><span class="n">stripMargin</span>
+</code></pre>
+</div>
+
+<p>We’ll use the same imports as before.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">scalaz._</span><span class="o">,</span> <span class="nc">Scalaz</span><span class="o">.</span><span class="k">_</span>
+<span class="k">import</span> <span class="nn">atto._</span><span class="o">,</span> <span class="nc">Atto</span><span class="o">.</span><span class="k">_</span><span class="o">,</span> <span class="n">compat</span><span class="o">.</span><span class="n">scalaz</span><span class="o">.</span><span class="k">_</span>
+</code></pre>
+</div>
+
+<p>This data contains IP addresses, which in turn contain unsigned bytes. So our first order of business is figuring out how to parse these.</p>
+
+<h3 id="parsing-unsigned-bytes-and-ip-addresses">Parsing Unsigned Bytes and IP Addresses</h3>
+
+<p>IP addresses contain unsigned bytes, which we don’t have in Scala. So the first thing we’ll do is create a data type wrapping a signed byte, and then write a parser for it.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">case</span> <span class="k">class</span> <span class="nc">UByte</span><span class="o">(</span><span class="n">toByte</span><span class="k">:</span> <span class="kt">Byte</span><span class="o">)</span> <span class="o">{</span>
+  <span class="k">override</span> <span class="k">def</span> <span class="n">toString</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="o">(</span><span class="n">toByte</span><span class="o">.</span><span class="n">toInt</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="o">).</span><span class="n">toString</span>
+<span class="o">}</span>
+
+<span class="k">val</span> <span class="n">ubyte</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">UByte</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+  <span class="n">int</span><span class="o">.</span><span class="n">filter</span><span class="o">(</span><span class="n">n</span> <span class="k">=&gt;</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">n</span> <span class="o">&lt;</span> <span class="mi">256</span><span class="o">)</span> <span class="c1">// ensure value is in [0 .. 256)
+</span>     <span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="n">n</span> <span class="k">=&gt;</span> <span class="nc">UByte</span><span class="o">(</span><span class="n">n</span><span class="o">.</span><span class="n">toByte</span><span class="o">))</span>      <span class="c1">// construct our UByte
+</span>     <span class="o">.</span><span class="n">namedOpaque</span><span class="o">(</span><span class="s">"UByte"</span><span class="o">)</span>           <span class="c1">// give our parser a name
+</span><span class="o">}</span>
+</code></pre>
+</div>
+
+<p>It works!</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ubyte</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"foo"</span><span class="o">)</span>
+<span class="n">res1</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">UByte</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Fail</span><span class="o">(</span><span class="n">foo</span><span class="o">,</span><span class="nc">List</span><span class="o">(),</span><span class="nc">Failure</span> <span class="n">reading</span><span class="k">:</span><span class="kt">UByte</span><span class="o">)</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">ubyte</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"-42"</span><span class="o">)</span>
+<span class="n">res2</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">UByte</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Fail</span><span class="o">(,</span><span class="nc">List</span><span class="o">(),</span><span class="nc">Failure</span> <span class="n">reading</span><span class="k">:</span><span class="kt">UByte</span><span class="o">)</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">ubyte</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"255"</span><span class="o">)</span> <span class="c1">// ok!
+</span><span class="n">res3</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">UByte</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Done</span><span class="o">(,</span><span class="mi">255</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>We can now define our <code class="highlighter-rouge">IP</code> data type and a parser for it. As a first pass we can parse an IP address in the form 128.42.30.1 by using the <code class="highlighter-rouge">ubyte</code> and <code class="highlighter-rouge">char</code> parsers directly, in a <code class="highlighter-rouge">for</code> comprehension.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">case</span> <span class="k">class</span> <span class="nc">IP</span><span class="o">(</span><span class="n">a</span><span class="k">:</span> <span class="kt">UByte</span><span class="o">,</span> <span class="n">b</span><span class="k">:</span> <span class="kt">UByte</span><span class="o">,</span> <span class="n">c</span><span class="k">:</span> <span class="kt">UByte</span><span class="o">,</span> <span class="n">d</span><span class="k">:</span> <span class="kt">UByte</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">ip</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">IP</span><span class="o">]</span> <span class="k">=</span>
+  <span class="k">for</span> <span class="o">{</span>
+    <span class="n">a</span> <span class="k">&lt;-</span> <span class="n">ubyte</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="n">char</span><span class="o">(</span><span class="sc">'.'</span><span class="o">)</span>
+    <span class="n">b</span> <span class="k">&lt;-</span> <span class="n">ubyte</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="n">char</span><span class="o">(</span><span class="sc">'.'</span><span class="o">)</span>
+    <span class="n">c</span> <span class="k">&lt;-</span> <span class="n">ubyte</span>
+    <span class="k">_</span> <span class="k">&lt;-</span> <span class="n">char</span><span class="o">(</span><span class="sc">'.'</span><span class="o">)</span>
+    <span class="n">d</span> <span class="k">&lt;-</span> <span class="n">ubyte</span>
+  <span class="o">}</span> <span class="k">yield</span> <span class="nc">IP</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">,</span> <span class="n">c</span><span class="o">,</span> <span class="n">d</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>It works!</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip</span> <span class="n">parseOnly</span> <span class="s">"foo.bar"</span>
+<span class="n">res5</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">IP</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Fail</span><span class="o">(</span><span class="n">foo</span><span class="o">.</span><span class="n">bar</span><span class="o">,</span><span class="nc">List</span><span class="o">(),</span><span class="nc">Failure</span> <span class="n">reading</span><span class="k">:</span><span class="kt">UByte</span><span class="o">)</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip</span> <span class="n">parseOnly</span> <span class="s">"128.42.42.1"</span>
+<span class="n">res6</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">IP</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Done</span><span class="o">(,</span><span class="nc">IP</span><span class="o">(</span><span class="mi">128</span><span class="o">,</span><span class="mi">42</span><span class="o">,</span><span class="mi">42</span><span class="o">,</span><span class="mi">1</span><span class="o">))</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"128.42.42.1"</span><span class="o">).</span><span class="n">option</span>
+<span class="n">res7</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">IP</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">IP</span><span class="o">(</span><span class="mi">128</span><span class="o">,</span><span class="mi">42</span><span class="o">,</span><span class="mi">42</span><span class="o">,</span><span class="mi">1</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>The <code class="highlighter-rouge">&lt;~</code> and <code class="highlighter-rouge">~&gt;</code> combinators combine two parsers sequentially, discarding the value produced by
+the parser on the <code class="highlighter-rouge">~</code> side. We can factor out the dot and use <code class="highlighter-rouge">&lt;~</code> to simplify our comprehension a bit.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">val</span> <span class="n">dot</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">Char</span><span class="o">]</span> <span class="k">=</span>  <span class="n">char</span><span class="o">(</span><span class="sc">'.'</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">ip</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">IP</span><span class="o">]</span> <span class="k">=</span>
+  <span class="k">for</span> <span class="o">{</span>
+    <span class="n">a</span> <span class="k">&lt;-</span> <span class="n">ubyte</span> <span class="o">&lt;~</span> <span class="n">dot</span>
+    <span class="n">b</span> <span class="k">&lt;-</span> <span class="n">ubyte</span> <span class="o">&lt;~</span> <span class="n">dot</span>
+    <span class="n">c</span> <span class="k">&lt;-</span> <span class="n">ubyte</span> <span class="o">&lt;~</span> <span class="n">dot</span>
+    <span class="n">d</span> <span class="k">&lt;-</span> <span class="n">ubyte</span>
+  <span class="o">}</span> <span class="k">yield</span> <span class="nc">IP</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">,</span> <span class="n">c</span><span class="o">,</span> <span class="n">d</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>And it still works.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"128.42.42.1"</span><span class="o">).</span><span class="n">option</span>
+<span class="n">res9</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">IP</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">IP</span><span class="o">(</span><span class="mi">128</span><span class="o">,</span><span class="mi">42</span><span class="o">,</span><span class="mi">42</span><span class="o">,</span><span class="mi">1</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>We can name our parser, which provides slightly more enlightening failure messages</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">val</span> <span class="n">ip2</span> <span class="k">=</span> <span class="n">ip</span> <span class="n">named</span> <span class="s">"ip-address"</span>
+<span class="k">val</span> <span class="n">ip3</span> <span class="k">=</span> <span class="n">ip</span> <span class="n">namedOpaque</span> <span class="s">"ip-address"</span> <span class="c1">// difference is illustrated below
+</span></code></pre>
+</div>
+
+<p>Thus.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip2</span> <span class="n">parseOnly</span> <span class="s">"foo.bar"</span>
+<span class="n">res10</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">IP</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Fail</span><span class="o">(</span><span class="n">foo</span><span class="o">.</span><span class="n">bar</span><span class="o">,</span><span class="nc">List</span><span class="o">(</span><span class="n">ip</span><span class="o">-</span><span class="n">address</span><span class="o">),</span><span class="nc">Failure</span> <span class="n">reading</span><span class="k">:</span><span class="kt">UByte</span><span class="o">)</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip3</span> <span class="n">parseOnly</span> <span class="s">"foo.bar"</span>
+<span class="n">res11</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">IP</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Fail</span><span class="o">(</span><span class="n">foo</span><span class="o">.</span><span class="n">bar</span><span class="o">,</span><span class="nc">List</span><span class="o">(),</span><span class="nc">Failure</span> <span class="n">reading</span><span class="k">:</span><span class="kt">ip-address</span><span class="o">)</span>
+</code></pre>
+</div>
+
+<p>Since nothing that occurs on the right-hand side of our &lt;- appears on the left-hand side, we
+don’t actually need a monad; we can use applicative syntax here.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">val</span> <span class="n">ubyteDot</span> <span class="k">=</span> <span class="n">ubyte</span> <span class="o">&lt;~</span> <span class="n">dot</span> <span class="c1">// why not?
+</span><span class="k">val</span> <span class="n">ip4</span> <span class="k">=</span> <span class="o">(</span><span class="n">ubyteDot</span> <span class="o">|@|</span> <span class="n">ubyteDot</span> <span class="o">|@|</span> <span class="n">ubyteDot</span> <span class="o">|@|</span> <span class="n">ubyte</span><span class="o">)(</span><span class="nc">IP</span><span class="o">.</span><span class="n">apply</span><span class="o">)</span> <span class="n">named</span> <span class="s">"ip-address"</span>
+</code></pre>
+</div>
+
+<p>And it still works.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip4</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"128.42.42.1"</span><span class="o">).</span><span class="n">option</span>
+<span class="n">res12</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">IP</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">IP</span><span class="o">(</span><span class="mi">128</span><span class="o">,</span><span class="mi">42</span><span class="o">,</span><span class="mi">42</span><span class="o">,</span><span class="mi">1</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>We might prefer to get some information about failure, so <code class="highlighter-rouge">either</code> is an, um, option.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip4</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"abc.42.42.1"</span><span class="o">).</span><span class="n">either</span>
+<span class="n">res13</span><span class="k">:</span> <span class="kt">scalaz.\/</span><span class="err">[</span><span class="kt">String</span><span class="o">,</span><span class="nc">IP</span><span class="err">]</span> <span class="k">=</span> <span class="o">-\/(</span><span class="nc">Failure</span> <span class="n">reading</span><span class="k">:</span><span class="kt">UByte</span><span class="o">)</span>
+
+<span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip4</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"128.42.42.1"</span><span class="o">).</span><span class="n">either</span>
+<span class="n">res14</span><span class="k">:</span> <span class="kt">scalaz.\/</span><span class="err">[</span><span class="kt">String</span><span class="o">,</span><span class="nc">IP</span><span class="err">]</span> <span class="k">=</span> <span class="o">\/-(</span><span class="nc">IP</span><span class="o">(</span><span class="mi">128</span><span class="o">,</span><span class="mi">42</span><span class="o">,</span><span class="mi">42</span><span class="o">,</span><span class="mi">1</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>Ok, so we can parse IP addresses now. Let’s move on to the log.</p>
+
+<h3 id="parsing-log-entries-1">Parsing Log Entries</h3>
+
+<p>Here are our log entries defined in <code class="highlighter-rouge">logData</code> above.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code>2013-06-29 11:16:23 124.67.34.60 keyboard
+2013-06-29 11:32:12 212.141.23.67 mouse
+2013-06-29 11:33:08 212.141.23.67 monitor
+2013-06-29 12:12:34 125.80.32.31 speakers
+2013-06-29 12:51:50 101.40.50.62 keyboard
+2013-06-29 13:10:45 103.29.60.13 mouse
+
+</code></pre>
+</div>
+
+<p>And some data types for the parsed data.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">case</span> <span class="k">class</span> <span class="nc">Date</span><span class="o">(</span><span class="n">year</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">month</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">day</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
+<span class="k">case</span> <span class="k">class</span> <span class="nc">Time</span><span class="o">(</span><span class="n">hour</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">minutes</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">seconds</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
+<span class="k">case</span> <span class="k">class</span> <span class="nc">DateTime</span><span class="o">(</span><span class="n">date</span><span class="k">:</span> <span class="kt">Date</span><span class="o">,</span> <span class="n">time</span><span class="k">:</span> <span class="kt">Time</span><span class="o">)</span>
+
+<span class="k">sealed</span> <span class="k">trait</span> <span class="nc">Product</span> <span class="c1">// Products are an enumerated type
+</span><span class="k">case</span> <span class="k">object</span> <span class="nc">Mouse</span> <span class="k">extends</span> <span class="nc">Product</span>
+<span class="k">case</span> <span class="k">object</span> <span class="nc">Keyboard</span> <span class="k">extends</span> <span class="nc">Product</span>
+<span class="k">case</span> <span class="k">object</span> <span class="nc">Monitor</span> <span class="k">extends</span> <span class="nc">Product</span>
+<span class="k">case</span> <span class="k">object</span> <span class="nc">Speakers</span> <span class="k">extends</span> <span class="nc">Product</span>
+
+<span class="k">case</span> <span class="k">class</span> <span class="nc">LogEntry</span><span class="o">(</span><span class="n">entryTime</span><span class="k">:</span> <span class="kt">DateTime</span><span class="o">,</span> <span class="n">entryIP</span><span class="k">:</span> <span class="kt">IP</span><span class="o">,</span> <span class="n">entryProduct</span><span class="k">:</span> <span class="kt">Product</span><span class="o">)</span>
+<span class="k">type</span> <span class="kt">Log</span> <span class="o">=</span> <span class="nc">List</span><span class="o">[</span><span class="kt">LogEntry</span><span class="o">]</span>
+</code></pre>
+</div>
+
+<p>There’s no built-in parser for fixed-width ints, so we can just make one. We parse some number of digits and parse them as an <code class="highlighter-rouge">Int</code>, handling the case where the value is too large by flatmapping to <code class="highlighter-rouge">ok</code> or <code class="highlighter-rouge">err</code>.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="n">fixed</span><span class="o">(</span><span class="n">n</span><span class="k">:</span><span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span>
+  <span class="n">count</span><span class="o">(</span><span class="n">n</span><span class="o">,</span> <span class="n">digit</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">mkString</span><span class="o">).</span><span class="n">flatMap</span> <span class="o">{</span> <span class="n">s</span> <span class="k">=&gt;</span>
+    <span class="k">try</span> <span class="n">ok</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="n">toInt</span><span class="o">)</span> <span class="k">catch</span> <span class="o">{</span> <span class="k">case</span> <span class="n">e</span><span class="k">:</span> <span class="kt">NumberFormatException</span> <span class="o">=&gt;</span> <span class="n">err</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="n">toString</span><span class="o">)</span> <span class="o">}</span>
+  <span class="o">}</span>
+</code></pre>
+</div>
+
+<p>Now we have what we need to put the log parser together.</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">val</span> <span class="n">date</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">Date</span><span class="o">]</span> <span class="k">=</span>
+  <span class="o">(</span><span class="n">fixed</span><span class="o">(</span><span class="mi">4</span><span class="o">)</span> <span class="o">&lt;~</span> <span class="n">char</span><span class="o">(</span><span class="sc">'-'</span><span class="o">)</span> <span class="o">|@|</span> <span class="n">fixed</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span> <span class="o">&lt;~</span> <span class="n">char</span><span class="o">(</span><span class="sc">'-'</span><span class="o">)</span> <span class="o">|@|</span> <span class="n">fixed</span><span class="o">(</span><span class="mi">2</span><span class="o">))(</span><span class="nc">Date</span><span class="o">.</span><span class="n">apply</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">time</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">Time</span><span class="o">]</span> <span class="k">=</span>
+  <span class="o">(</span><span class="n">fixed</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span> <span class="o">&lt;~</span> <span class="n">char</span><span class="o">(</span><span class="sc">':'</span><span class="o">)</span> <span class="o">|@|</span> <span class="n">fixed</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span> <span class="o">&lt;~</span> <span class="n">char</span><span class="o">(</span><span class="sc">':'</span><span class="o">)</span> <span class="o">|@|</span> <span class="n">fixed</span><span class="o">(</span><span class="mi">2</span><span class="o">))(</span><span class="nc">Time</span><span class="o">.</span><span class="n">apply</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">dateTime</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">DateTime</span><span class="o">]</span> <span class="k">=</span>
+  <span class="o">(</span><span class="n">date</span> <span class="o">&lt;~</span> <span class="n">char</span><span class="o">(</span><span class="sc">' '</span><span class="o">)</span> <span class="o">|@|</span> <span class="n">time</span><span class="o">)(</span><span class="nc">DateTime</span><span class="o">.</span><span class="n">apply</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">product</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">Product</span><span class="o">]</span> <span class="k">=</span> <span class="o">{</span>
+  <span class="n">string</span><span class="o">(</span><span class="s">"keyboard"</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span> <span class="k">=&gt;</span> <span class="nc">Keyboard</span> <span class="k">:</span> <span class="kt">Product</span><span class="o">)</span> <span class="o">|</span>
+  <span class="n">string</span><span class="o">(</span><span class="s">"mouse"</span><span class="o">)</span>   <span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span> <span class="k">=&gt;</span> <span class="nc">Mouse</span> <span class="k">:</span> <span class="kt">Product</span><span class="o">)</span>    <span class="o">|</span>
+  <span class="n">string</span><span class="o">(</span><span class="s">"monitor"</span><span class="o">)</span> <span class="o">.</span><span class="n">map</span><span class="o">(</span><span class="k">_</span> <span class="k">=&gt;</span> <span class="nc">Monitor</span> <span class="k">:</span> <span class="kt">Product</span><span class="o">)</span>  <span class="o">|</span>
+  <span class="n">string</span><span class="o">(</span><span class="s">"speakers"</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span> <span class="k">=&gt;</span> <span class="nc">Speakers</span> <span class="k">:</span> <span class="kt">Product</span><span class="o">)</span>
+<span class="o">}</span>
+
+<span class="k">val</span> <span class="n">logEntry</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">LogEntry</span><span class="o">]</span> <span class="k">=</span>
+  <span class="o">(</span><span class="n">dateTime</span> <span class="o">&lt;~</span> <span class="n">char</span><span class="o">(</span><span class="sc">' '</span><span class="o">)</span> <span class="o">|@|</span> <span class="n">ip</span> <span class="o">&lt;~</span> <span class="n">char</span><span class="o">(</span><span class="sc">' '</span><span class="o">)</span> <span class="o">|@|</span> <span class="n">product</span><span class="o">)(</span><span class="nc">LogEntry</span><span class="o">.</span><span class="n">apply</span><span class="o">)</span>
+
+<span class="k">val</span> <span class="n">log</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">Log</span><span class="o">]</span> <span class="k">=</span>
+  <span class="n">sepBy</span><span class="o">(</span><span class="n">logEntry</span><span class="o">,</span> <span class="n">char</span><span class="o">(</span><span class="sc">'\n'</span><span class="o">))</span>
+</code></pre>
+</div>
+
+<p>It works!</p>
+
+<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="o">(</span><span class="n">log</span> <span class="n">parseOnly</span> <span class="n">logData</span><span class="o">).</span><span class="n">option</span><span class="o">.</span><span class="n">foldMap</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">mkString</span><span class="o">(</span><span class="s">"\n"</span><span class="o">))</span>
+<span class="n">res23</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span>
+<span class="nc">LogEntry</span><span class="o">(</span><span class="nc">DateTime</span><span class="o">(</span><span class="nc">Date</span><span class="o">(</span><span class="mi">2013</span><span class="o">,</span><span class="mi">6</span><span class="o">,</span><span class="mi">29</span><span class="o">),</span><span class="nc">Time</span><span class="o">(</span><span class="mi">11</span><span class="o">,</span><span class="mi">16</span><span class="o">,</span><span class="mi">23</span><span class="o">)),</span><span class="nc">IP</span><span class="o">(</span><span class="mi">124</span><span class="o">,</span><span class="mi">67</span><span class="o">,</span><span class="mi">34</span><span class="o">,</span><span class="mi">60</span><span class="o">),</span><span class="nc">Keyboard</span><span class="o">)</span>
+<span class="nc">LogEntry</span><span class="o">(</span><span class="nc">DateTime</span><span class="o">(</span><span class="nc">Date</span><span class="o">(</span><span class="mi">2013</span><span class="o">,</span><span class="mi">6</span><span class="o">,</span><span class="mi">29</span><span class="o">),</span><span class="nc">Time</span><span class="o">(</span><span class="mi">11</span><span class="o">,</span><span class="mi">32</span><span class="o">,</span><span class="mi">12</span><span class="o">)),</span><span class="nc">IP</span><span class="o">(</span><span class="mi">212</span><span class="o">,</span><span class="mi">141</span><span class="o">,</span><span class="mi">23</span><span class="o">,</span><span class="mi">67</span><span class="o">),</span><span class="nc">Mouse</span><span class="o">)</span>
+<span class="nc">LogEntry</span><span class="o">(</span><span class="nc">DateTime</span><span class="o">(</span><span class="nc">Date</span><span class="o">(</span><span class="mi">2013</span><span class="o">,</span><span class="mi">6</span><span class="o">,</span><span class="mi">29</span><span class="o">),</span><span class="nc">Time</span><span class="o">(</span><span class="mi">11</span><span class="o">,</span><span class="mi">33</span><span class="o">,</span><span class="mi">8</span><span class="o">)),</span><span class="nc">IP</span><span class="o">(</span><span class="mi">212</span><span class="o">,</span><span class="mi">141</span><span class="o">,</span><span class="mi">23</span><span class="o">,</span><span class="mi">67</span><span class="o">),</span><span class="nc">Monitor</span><span class="o">)</span>
+<span class="nc">LogEntry</span><span class="o">(</span><span class="nc">DateTime</span><span class="o">(</span><span class="nc">Date</span><span class="o">(</span><span class="mi">2013</span><span class="o">,</span><span class="mi">6</span><span class="o">,</span><span class="mi">29</span><span class="o">),</span><span class="nc">Time</span><span class="o">(</span><span class="mi">12</span><span class="o">,</span><span class="mi">12</span><span class="o">,</span><span class="mi">34</span><span class="o">)),</span><span class="nc">IP</span><span class="o">(</span><span class="mi">125</span><span class="o">,</span><span class="mi">80</span><span class="o">,</span><span class="mi">32</span><span class="o">,</span><span class="mi">31</span><span class="o">),</span><span class="nc">Speakers</span><span class="o">)</span>
+<span class="nc">LogEntry</span><span class="o">(</span><span class="nc">DateTime</span><span class="o">(</span><span class="nc">Date</span><span class="o">(</span><span class="mi">2013</span><span class="o">,</span><span class="mi">6</span><span class="o">,</span><span class="mi">29</span><span class="o">),</span><span class="nc">Time</span><span class="o">(</span><span class="mi">12</span><span class="o">,</span><span class="mi">51</span><span class="o">,</span><span class="mi">50</span><span class="o">)),</span><span class="nc">IP</span><span class="o">(</span><span class="mi">101</span><span class="o">,</span><span class="mi">40</span><span class="o">,</span><span class="mi">50</span><span class="o">,</span><span class="mi">62</span><span class="o">),</span><span class="nc">Keyboard</span><span class="o">)</span>
+<span class="nc">LogEntry</span><span class="o">(</span><span class="nc">DateTime</span><span class="o">(</span><span class="nc">Date</span><span class="o">(</span><span class="mi">2013</span><span class="o">,</span><span class="mi">6</span><span class="o">,</span><span class="mi">29</span><span class="o">),</span><span class="nc">Time</span><span class="o">(</span><span class="mi">13</span><span class="o">,</span><span class="mi">10</span><span class="o">,</span><span class="mi">45</span><span class="o">)),</span><span class="nc">IP</span><span class="o">(</span><span class="mi">103</span><span class="o">,</span><span class="mi">29</span><span class="o">,</span><span class="mi">60</span><span class="o">,</span><span class="mi">13</span><span class="o">),</span><span class="nc">Mouse</span><span class="o">)</span>
+</code></pre>
+</div>
+</section></div></div></div></div><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/highlight.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.6.0/languages/scala.min.js"></script><script src="/atto/js/main.js"></script></body></html>

@@ -107,3 +107,28 @@ lazy val cats = project.in(file("modules/compat/cats")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-compat-cats")
   .settings(libraryDependencies += "org.typelevel" %% "cats" % "0.8.0")
+
+lazy val docs = project.in(file("modules/docs")).dependsOn(core, scalaz71, cats)
+  .settings(buildSettings ++ commonSettings ++ noPublishSettings)
+  .settings(name := "atto-docs")
+	.enablePlugins(MicrositesPlugin)
+  .settings(
+    micrositeName             := "atto",
+    micrositeDescription      := "Everyday parsers.",
+    micrositeAuthor           := "Rob Norris",
+    micrositeGithubOwner      := "tpolecat",
+    micrositeGithubRepo       := "atto",
+    micrositeBaseUrl          := "/atto",
+    micrositeDocumentationUrl := "/atto/docs/",
+    micrositeHighlightTheme   := "color-brewer"
+    // micrositePalette := Map(
+    //   "brand-primary"     -> "#0B6E0B",
+    //   "brand-secondary"   -> "#084D08",
+    //   "brand-tertiary"    -> "#053605",
+    //   "gray-dark"         -> "#453E46",
+    //   "gray"              -> "#837F84",
+    //   "gray-light"        -> "#E3E2E3",
+    //   "gray-lighter"      -> "#F4F3F4",
+    //   "white-color"       -> "#FFFFFF"
+    // )
+  )

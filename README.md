@@ -84,7 +84,7 @@ Although **atto** is 50 times faster now than version 0.1, it's still not the fa
 ### Support
 
 - Chat it up on [Gitter](https://gitter.im/tpolecat/atto).
-- Check the new documentation [microsite](http://tpolecat.github.com/atto/).
+- Check the new documentation [microsite](https://tpolecat.github.com/atto/).
 
 ### Contributors
 

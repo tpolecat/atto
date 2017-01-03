@@ -42,8 +42,8 @@ lazy val publishSettings = Seq(
   pomIncludeRepository := Function.const(false),
   pomExtra := (
     <scm>
-      <url>git@github.com:tpolecat/tut.git</url>
-      <connection>scm:git:git@github.com:tpolecat/tut.git</connection>
+      <url>git@github.com:tpolecat/atto.git</url>
+      <connection>scm:git:git@github.com:tpolecat/atto.git</connection>
     </scm>
     <developers>
       <developer>

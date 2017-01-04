@@ -106,7 +106,7 @@ lazy val scalaz72 = project.in(file("modules/compat/scalaz72")).dependsOn(core)
 lazy val cats = project.in(file("modules/compat/cats")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-compat-cats")
-  .settings(libraryDependencies += "org.typelevel" %% "cats" % "0.8.1")
+  .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "0.8.1")
 
 lazy val docs = project.in(file("modules/docs")).dependsOn(core, scalaz71, cats)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)

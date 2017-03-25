@@ -1,6 +1,7 @@
 import UnidocKeys._
 import ReleaseTransformations._
 
+
 lazy val buildSettings = Seq(
 	organization := "org.tpolecat",
 	licenses ++= Seq(
@@ -81,37 +82,46 @@ lazy val atto = project.in(file("."))
   .settings(noPublishSettings)
   .settings(unidocSettings)
   .settings(unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(tests))
-  .dependsOn(core, tests, scalaz71, scalaz72, cats)
-  .aggregate(core, tests, scalaz71, scalaz72, cats)
+  .dependsOn(coreJVM, coreJS, tests, scalaz71, scalaz72JVM, scalaz72JS, catsJVM, catsJS)
+  .aggregate(coreJVM, coreJS, tests, scalaz71, scalaz72JVM, scalaz72JS, catsJVM, catsJS)
 
-lazy val core = project.in(file("modules/core"))
+lazy val core = crossProject.crossType(CrossType.Pure).in(file("modules/core"))
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-core")
 
-lazy val tests = project.in(file("modules/tests")).dependsOn(core, scalaz71, cats)
+lazy val coreJVM = core.jvm
+lazy val coreJS = core.js
+
+lazy val tests = project.in(file("modules/tests")).dependsOn(coreJVM, scalaz71, catsJVM)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
   .settings(name := "atto-tests")
-  .settings(libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.0" % "test")
+  .settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.13.0" % "test")
 
-lazy val scalaz71 = project.in(file("modules/compat/scalaz71")).dependsOn(core)
+lazy val scalaz71 = project.in(file("modules/compat/scalaz71")).dependsOn(coreJVM)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-compat-scalaz71")
   .settings(libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.11")
 
-lazy val scalaz72 = project.in(file("modules/compat/scalaz72")).dependsOn(core)
+lazy val scalaz72 = crossProject.crossType(CrossType.Pure).in(file("modules/compat/scalaz72")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-compat-scalaz72")
-  .settings(libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.2.7")
+  .settings(libraryDependencies += "org.scalaz" %%% "scalaz-core" % "7.2.7")
 
-lazy val cats = project.in(file("modules/compat/cats")).dependsOn(core)
+lazy val scalaz72JVM = scalaz72.jvm
+lazy val scalaz72JS = scalaz72.js
+
+lazy val cats = crossProject.crossType(CrossType.Pure).in(file("modules/compat/cats")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-compat-cats")
-  .settings(libraryDependencies += "org.typelevel" %% "cats-core" % "0.8.1")
+  .settings(libraryDependencies += "org.typelevel" %%% "cats-core" % "0.8.1")
 
-lazy val docs = project.in(file("modules/docs")).dependsOn(core, scalaz71, cats)
+lazy val catsJVM = cats.jvm
+lazy val catsJS = cats.js
+
+lazy val docs = project.in(file("modules/docs")).dependsOn(coreJVM, scalaz71, catsJVM)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
   .settings(name := "atto-docs")
-	.enablePlugins(MicrositesPlugin)
+  .enablePlugins(MicrositesPlugin)
   .settings(
     micrositeName             := "atto",
     micrositeDescription      := "Everyday parsers.",

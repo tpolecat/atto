@@ -95,7 +95,7 @@ lazy val coreJS = core.js
 lazy val tests = project.in(file("modules/tests")).dependsOn(coreJVM, scalaz71, catsJVM)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
   .settings(name := "atto-tests")
-  .settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.13.0" % "test")
+  .settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.13.4" % "test")
 
 lazy val scalaz71 = project.in(file("modules/compat/scalaz71")).dependsOn(coreJVM)
   .settings(buildSettings ++ commonSettings ++ publishSettings)

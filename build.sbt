@@ -113,7 +113,7 @@ lazy val scalaz72JS = scalaz72.js
 lazy val cats = crossProject.crossType(CrossType.Pure).in(file("modules/compat/cats")).dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-compat-cats")
-  .settings(libraryDependencies += "org.typelevel" %%% "cats-core" % "0.8.1")
+  .settings(libraryDependencies += "org.typelevel" %%% "cats-core" % "0.9.0")
 
 lazy val catsJVM = cats.jvm
 lazy val catsJS = cats.js

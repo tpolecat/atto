@@ -2,7 +2,7 @@
 
 <p>Our goal for this chapter is to parse the following log data into structured values. This is taken from a nice tutorial over at <a href="https://www.fpcomplete.com/school/text-manipulation/attoparsec">FP Complete</a>.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">val</span> <span class="n">logData</span> <span class="k">=</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">val</span> <span class="n">logData</span> <span class="k">=</span>
   <span class="s">"""|2013-06-29 11:16:23 124.67.34.60 keyboard
      |2013-06-29 11:32:12 212.141.23.67 mouse
      |2013-06-29 11:33:08 212.141.23.67 monitor
@@ -15,7 +15,7 @@
 
 <p>We’ll use the same imports as before.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">scalaz._</span><span class="o">,</span> <span class="nc">Scalaz</span><span class="o">.</span><span class="k">_</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">scalaz._</span><span class="o">,</span> <span class="nc">Scalaz</span><span class="o">.</span><span class="k">_</span>
 <span class="k">import</span> <span class="nn">atto._</span><span class="o">,</span> <span class="nc">Atto</span><span class="o">.</span><span class="k">_</span><span class="o">,</span> <span class="n">compat</span><span class="o">.</span><span class="n">scalaz</span><span class="o">.</span><span class="k">_</span>
 </code></pre>
 </div>
@@ -26,7 +26,7 @@
 
 <p>IP addresses contain unsigned bytes, which we don’t have in Scala. So the first thing we’ll do is create a data type wrapping a signed byte, and then write a parser for it.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">case</span> <span class="k">class</span> <span class="nc">UByte</span><span class="o">(</span><span class="n">toByte</span><span class="k">:</span> <span class="kt">Byte</span><span class="o">)</span> <span class="o">{</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">case</span> <span class="k">class</span> <span class="nc">UByte</span><span class="o">(</span><span class="n">toByte</span><span class="k">:</span> <span class="kt">Byte</span><span class="o">)</span> <span class="o">{</span>
   <span class="k">override</span> <span class="k">def</span> <span class="n">toString</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span> <span class="o">(</span><span class="n">toByte</span><span class="o">.</span><span class="n">toInt</span> <span class="o">&amp;</span> <span class="mh">0xFF</span><span class="o">).</span><span class="n">toString</span>
 <span class="o">}</span>
 
@@ -40,7 +40,7 @@
 
 <p>It works!</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ubyte</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"foo"</span><span class="o">)</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ubyte</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"foo"</span><span class="o">)</span>
 <span class="n">res1</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">UByte</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Fail</span><span class="o">(</span><span class="n">foo</span><span class="o">,</span><span class="nc">List</span><span class="o">(),</span><span class="nc">Failure</span> <span class="n">reading</span><span class="k">:</span><span class="kt">UByte</span><span class="o">)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">ubyte</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"-42"</span><span class="o">)</span>
@@ -53,7 +53,7 @@
 
 <p>We can now define our <code class="highlighter-rouge">IP</code> data type and a parser for it. As a first pass we can parse an IP address in the form 128.42.30.1 by using the <code class="highlighter-rouge">ubyte</code> and <code class="highlighter-rouge">char</code> parsers directly, in a <code class="highlighter-rouge">for</code> comprehension.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">case</span> <span class="k">class</span> <span class="nc">IP</span><span class="o">(</span><span class="n">a</span><span class="k">:</span> <span class="kt">UByte</span><span class="o">,</span> <span class="n">b</span><span class="k">:</span> <span class="kt">UByte</span><span class="o">,</span> <span class="n">c</span><span class="k">:</span> <span class="kt">UByte</span><span class="o">,</span> <span class="n">d</span><span class="k">:</span> <span class="kt">UByte</span><span class="o">)</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">case</span> <span class="k">class</span> <span class="nc">IP</span><span class="o">(</span><span class="n">a</span><span class="k">:</span> <span class="kt">UByte</span><span class="o">,</span> <span class="n">b</span><span class="k">:</span> <span class="kt">UByte</span><span class="o">,</span> <span class="n">c</span><span class="k">:</span> <span class="kt">UByte</span><span class="o">,</span> <span class="n">d</span><span class="k">:</span> <span class="kt">UByte</span><span class="o">)</span>
 
 <span class="k">val</span> <span class="n">ip</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">IP</span><span class="o">]</span> <span class="k">=</span>
   <span class="k">for</span> <span class="o">{</span>
@@ -70,7 +70,7 @@
 
 <p>It works!</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip</span> <span class="n">parseOnly</span> <span class="s">"foo.bar"</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip</span> <span class="n">parseOnly</span> <span class="s">"foo.bar"</span>
 <span class="n">res5</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">IP</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Fail</span><span class="o">(</span><span class="n">foo</span><span class="o">.</span><span class="n">bar</span><span class="o">,</span><span class="nc">List</span><span class="o">(),</span><span class="nc">Failure</span> <span class="n">reading</span><span class="k">:</span><span class="kt">UByte</span><span class="o">)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip</span> <span class="n">parseOnly</span> <span class="s">"128.42.42.1"</span>
@@ -84,7 +84,7 @@
 <p>The <code class="highlighter-rouge">&lt;~</code> and <code class="highlighter-rouge">~&gt;</code> combinators combine two parsers sequentially, discarding the value produced by
 the parser on the <code class="highlighter-rouge">~</code> side. We can factor out the dot and use <code class="highlighter-rouge">&lt;~</code> to simplify our comprehension a bit.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">val</span> <span class="n">dot</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">Char</span><span class="o">]</span> <span class="k">=</span>  <span class="n">char</span><span class="o">(</span><span class="sc">'.'</span><span class="o">)</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">val</span> <span class="n">dot</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">Char</span><span class="o">]</span> <span class="k">=</span>  <span class="n">char</span><span class="o">(</span><span class="sc">'.'</span><span class="o">)</span>
 
 <span class="k">val</span> <span class="n">ip</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">IP</span><span class="o">]</span> <span class="k">=</span>
   <span class="k">for</span> <span class="o">{</span>
@@ -98,21 +98,21 @@ the parser on the <code class="highlighter-rouge">~</code> side. We can factor o
 
 <p>And it still works.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"128.42.42.1"</span><span class="o">).</span><span class="n">option</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"128.42.42.1"</span><span class="o">).</span><span class="n">option</span>
 <span class="n">res9</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">IP</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">IP</span><span class="o">(</span><span class="mi">128</span><span class="o">,</span><span class="mi">42</span><span class="o">,</span><span class="mi">42</span><span class="o">,</span><span class="mi">1</span><span class="o">))</span>
 </code></pre>
 </div>
 
 <p>We can name our parser, which provides slightly more enlightening failure messages</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">val</span> <span class="n">ip2</span> <span class="k">=</span> <span class="n">ip</span> <span class="n">named</span> <span class="s">"ip-address"</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">val</span> <span class="n">ip2</span> <span class="k">=</span> <span class="n">ip</span> <span class="n">named</span> <span class="s">"ip-address"</span>
 <span class="k">val</span> <span class="n">ip3</span> <span class="k">=</span> <span class="n">ip</span> <span class="n">namedOpaque</span> <span class="s">"ip-address"</span> <span class="c1">// difference is illustrated below
 </span></code></pre>
 </div>
 
 <p>Thus.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip2</span> <span class="n">parseOnly</span> <span class="s">"foo.bar"</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip2</span> <span class="n">parseOnly</span> <span class="s">"foo.bar"</span>
 <span class="n">res10</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">IP</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Fail</span><span class="o">(</span><span class="n">foo</span><span class="o">.</span><span class="n">bar</span><span class="o">,</span><span class="nc">List</span><span class="o">(</span><span class="n">ip</span><span class="o">-</span><span class="n">address</span><span class="o">),</span><span class="nc">Failure</span> <span class="n">reading</span><span class="k">:</span><span class="kt">UByte</span><span class="o">)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip3</span> <span class="n">parseOnly</span> <span class="s">"foo.bar"</span>
@@ -123,21 +123,21 @@ the parser on the <code class="highlighter-rouge">~</code> side. We can factor o
 <p>Since nothing that occurs on the right-hand side of our &lt;- appears on the left-hand side, we
 don’t actually need a monad; we can use applicative syntax here.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">val</span> <span class="n">ubyteDot</span> <span class="k">=</span> <span class="n">ubyte</span> <span class="o">&lt;~</span> <span class="n">dot</span> <span class="c1">// why not?
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">val</span> <span class="n">ubyteDot</span> <span class="k">=</span> <span class="n">ubyte</span> <span class="o">&lt;~</span> <span class="n">dot</span> <span class="c1">// why not?
 </span><span class="k">val</span> <span class="n">ip4</span> <span class="k">=</span> <span class="o">(</span><span class="n">ubyteDot</span> <span class="o">|@|</span> <span class="n">ubyteDot</span> <span class="o">|@|</span> <span class="n">ubyteDot</span> <span class="o">|@|</span> <span class="n">ubyte</span><span class="o">)(</span><span class="nc">IP</span><span class="o">.</span><span class="n">apply</span><span class="o">)</span> <span class="n">named</span> <span class="s">"ip-address"</span>
 </code></pre>
 </div>
 
 <p>And it still works.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip4</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"128.42.42.1"</span><span class="o">).</span><span class="n">option</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip4</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"128.42.42.1"</span><span class="o">).</span><span class="n">option</span>
 <span class="n">res12</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">IP</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">IP</span><span class="o">(</span><span class="mi">128</span><span class="o">,</span><span class="mi">42</span><span class="o">,</span><span class="mi">42</span><span class="o">,</span><span class="mi">1</span><span class="o">))</span>
 </code></pre>
 </div>
 
 <p>We might prefer to get some information about failure, so <code class="highlighter-rouge">either</code> is an, um, option.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip4</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"abc.42.42.1"</span><span class="o">).</span><span class="n">either</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip4</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"abc.42.42.1"</span><span class="o">).</span><span class="n">either</span>
 <span class="n">res13</span><span class="k">:</span> <span class="kt">scalaz.\/</span><span class="err">[</span><span class="kt">String</span><span class="o">,</span><span class="nc">IP</span><span class="err">]</span> <span class="k">=</span> <span class="o">-\/(</span><span class="nc">Failure</span> <span class="n">reading</span><span class="k">:</span><span class="kt">UByte</span><span class="o">)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">ip4</span><span class="o">.</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"128.42.42.1"</span><span class="o">).</span><span class="n">either</span>
@@ -163,7 +163,7 @@ don’t actually need a monad; we can use applicative syntax here.</p>
 
 <p>And some data types for the parsed data.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">case</span> <span class="k">class</span> <span class="nc">Date</span><span class="o">(</span><span class="n">year</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">month</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">day</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">case</span> <span class="k">class</span> <span class="nc">Date</span><span class="o">(</span><span class="n">year</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">month</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">day</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
 <span class="k">case</span> <span class="k">class</span> <span class="nc">Time</span><span class="o">(</span><span class="n">hour</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">minutes</span><span class="k">:</span> <span class="kt">Int</span><span class="o">,</span> <span class="n">seconds</span><span class="k">:</span> <span class="kt">Int</span><span class="o">)</span>
 <span class="k">case</span> <span class="k">class</span> <span class="nc">DateTime</span><span class="o">(</span><span class="n">date</span><span class="k">:</span> <span class="kt">Date</span><span class="o">,</span> <span class="n">time</span><span class="k">:</span> <span class="kt">Time</span><span class="o">)</span>
 
@@ -180,7 +180,7 @@ don’t actually need a monad; we can use applicative syntax here.</p>
 
 <p>There’s no built-in parser for fixed-width ints, so we can just make one. We parse some number of digits and parse them as an <code class="highlighter-rouge">Int</code>, handling the case where the value is too large by flatmapping to <code class="highlighter-rouge">ok</code> or <code class="highlighter-rouge">err</code>.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="n">fixed</span><span class="o">(</span><span class="n">n</span><span class="k">:</span><span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">def</span> <span class="n">fixed</span><span class="o">(</span><span class="n">n</span><span class="k">:</span><span class="kt">Int</span><span class="o">)</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span>
   <span class="n">count</span><span class="o">(</span><span class="n">n</span><span class="o">,</span> <span class="n">digit</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">mkString</span><span class="o">).</span><span class="n">flatMap</span> <span class="o">{</span> <span class="n">s</span> <span class="k">=&gt;</span>
     <span class="k">try</span> <span class="n">ok</span><span class="o">(</span><span class="n">s</span><span class="o">.</span><span class="n">toInt</span><span class="o">)</span> <span class="k">catch</span> <span class="o">{</span> <span class="k">case</span> <span class="n">e</span><span class="k">:</span> <span class="kt">NumberFormatException</span> <span class="o">=&gt;</span> <span class="n">err</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="n">toString</span><span class="o">)</span> <span class="o">}</span>
   <span class="o">}</span>
@@ -189,7 +189,7 @@ don’t actually need a monad; we can use applicative syntax here.</p>
 
 <p>Now we have what we need to put the log parser together.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">val</span> <span class="n">date</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">Date</span><span class="o">]</span> <span class="k">=</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">val</span> <span class="n">date</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">Date</span><span class="o">]</span> <span class="k">=</span>
   <span class="o">(</span><span class="n">fixed</span><span class="o">(</span><span class="mi">4</span><span class="o">)</span> <span class="o">&lt;~</span> <span class="n">char</span><span class="o">(</span><span class="sc">'-'</span><span class="o">)</span> <span class="o">|@|</span> <span class="n">fixed</span><span class="o">(</span><span class="mi">2</span><span class="o">)</span> <span class="o">&lt;~</span> <span class="n">char</span><span class="o">(</span><span class="sc">'-'</span><span class="o">)</span> <span class="o">|@|</span> <span class="n">fixed</span><span class="o">(</span><span class="mi">2</span><span class="o">))(</span><span class="nc">Date</span><span class="o">.</span><span class="n">apply</span><span class="o">)</span>
 
 <span class="k">val</span> <span class="n">time</span><span class="k">:</span> <span class="kt">Parser</span><span class="o">[</span><span class="kt">Time</span><span class="o">]</span> <span class="k">=</span>
@@ -215,7 +215,7 @@ don’t actually need a monad; we can use applicative syntax here.</p>
 
 <p>It works!</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="o">(</span><span class="n">log</span> <span class="n">parseOnly</span> <span class="n">logData</span><span class="o">).</span><span class="n">option</span><span class="o">.</span><span class="n">foldMap</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">mkString</span><span class="o">(</span><span class="s">"\n"</span><span class="o">))</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="o">(</span><span class="n">log</span> <span class="n">parseOnly</span> <span class="n">logData</span><span class="o">).</span><span class="n">option</span><span class="o">.</span><span class="n">foldMap</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">mkString</span><span class="o">(</span><span class="s">"\n"</span><span class="o">))</span>
 <span class="n">res23</span><span class="k">:</span> <span class="kt">String</span> <span class="o">=</span>
 <span class="nc">LogEntry</span><span class="o">(</span><span class="nc">DateTime</span><span class="o">(</span><span class="nc">Date</span><span class="o">(</span><span class="mi">2013</span><span class="o">,</span><span class="mi">6</span><span class="o">,</span><span class="mi">29</span><span class="o">),</span><span class="nc">Time</span><span class="o">(</span><span class="mi">11</span><span class="o">,</span><span class="mi">16</span><span class="o">,</span><span class="mi">23</span><span class="o">)),</span><span class="nc">IP</span><span class="o">(</span><span class="mi">124</span><span class="o">,</span><span class="mi">67</span><span class="o">,</span><span class="mi">34</span><span class="o">,</span><span class="mi">60</span><span class="o">),</span><span class="nc">Keyboard</span><span class="o">)</span>
 <span class="nc">LogEntry</span><span class="o">(</span><span class="nc">DateTime</span><span class="o">(</span><span class="nc">Date</span><span class="o">(</span><span class="mi">2013</span><span class="o">,</span><span class="mi">6</span><span class="o">,</span><span class="mi">29</span><span class="o">),</span><span class="nc">Time</span><span class="o">(</span><span class="mi">11</span><span class="o">,</span><span class="mi">32</span><span class="o">,</span><span class="mi">12</span><span class="o">)),</span><span class="nc">IP</span><span class="o">(</span><span class="mi">212</span><span class="o">,</span><span class="mi">141</span><span class="o">,</span><span class="mi">23</span><span class="o">,</span><span class="mi">67</span><span class="o">),</span><span class="nc">Mouse</span><span class="o">)</span>

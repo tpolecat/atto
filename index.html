@@ -2,12 +2,14 @@
 
 <p><strong>atto</strong> is a compact, pure-functional, incremental text parsing library for Scala (if you’re looking for <strong>binary</strong> parsing, please turn your attention to <a href="https://github.com/scodec/scodec">scodec</a>). The <strong>atto</strong> API is non-invasive (nothing to extend!) and uses sensible and familiar abstractions. <strong>atto</strong> parsers are a fun and principled tool for everyday parsing.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">int</span><span class="o">.</span><span class="n">sepBy1</span><span class="o">(</span><span class="n">spaceChar</span><span class="o">).</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"1 20 300"</span><span class="o">).</span><span class="n">option</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">int</span><span class="o">.</span><span class="n">sepBy1</span><span class="o">(</span><span class="n">spaceChar</span><span class="o">).</span><span class="n">parseOnly</span><span class="o">(</span><span class="s">"1 20 300"</span><span class="o">).</span><span class="n">option</span>
 <span class="n">res0</span><span class="k">:</span> <span class="kt">Option</span><span class="o">[</span><span class="kt">scalaz.NonEmptyList</span><span class="o">[</span><span class="kt">Int</span><span class="o">]]</span> <span class="k">=</span> <span class="nc">Some</span><span class="o">(</span><span class="nc">NonEmptyList</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span> <span class="mi">20</span><span class="o">,</span> <span class="mi">300</span><span class="o">))</span>
 </code></pre>
 </div>
 
 <h3 id="whats-new">What’s New?</h3>
+
+<p>Starting with <strong>0.5.2</strong> atto supports Scala-JS! Thanks Pepe García!</p>
 
 <p>The <strong>0.5.x</strong> series is a <strong>breaking</strong> change from 0.4.x, but for most users the impact will be minor. The important changes are:</p>
 

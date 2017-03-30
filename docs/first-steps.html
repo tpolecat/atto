@@ -4,35 +4,35 @@
 
 <p>But first we need to import some stuff. Fine-grained imports are supported but it’s usually fine to just import everything. We’re using the compatibility layer for <strong>scalaz</strong> here but you could just as well use the one for Cats or stdlib by importing <code class="highlighter-rouge">compat.cats._</code> or <code class="highlighter-rouge">compat.stdlib._</code> respectively.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">scalaz._</span><span class="o">,</span> <span class="nc">Scalaz</span><span class="o">.</span><span class="k">_</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="k">import</span> <span class="nn">scalaz._</span><span class="o">,</span> <span class="nc">Scalaz</span><span class="o">.</span><span class="k">_</span>
 <span class="k">import</span> <span class="nn">atto._</span><span class="o">,</span> <span class="nc">Atto</span><span class="o">.</span><span class="k">_</span><span class="o">,</span> <span class="n">compat</span><span class="o">.</span><span class="n">scalaz</span><span class="o">.</span><span class="k">_</span>
 </code></pre>
 </div>
 
 <p>Rock on, let’s parse an integer!</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">int</span> <span class="n">parseOnly</span> <span class="s">"123abc"</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">int</span> <span class="n">parseOnly</span> <span class="s">"123abc"</span>
 <span class="n">res0</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Done</span><span class="o">(</span><span class="n">abc</span><span class="o">,</span><span class="mi">123</span><span class="o">)</span>
 </code></pre>
 </div>
 
 <p>This result means we successfully parsed an <code class="highlighter-rouge">Int</code> and have the text <code class="highlighter-rouge">"abc"</code> left over. We’ll talk more about this momentarily. But let’s back up. What’s this <code class="highlighter-rouge">int</code> thing?</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">int</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">int</span>
 <span class="n">res1</span><span class="k">:</span> <span class="kt">atto.Parser</span><span class="o">[</span><span class="kt">Int</span><span class="o">]</span> <span class="k">=</span> <span class="n">int</span>
 </code></pre>
 </div>
 
 <p>A <code class="highlighter-rouge">Parser[A]</code> is a computation that consumes characters and produces a value of type <code class="highlighter-rouge">A</code>. In this case <code class="highlighter-rouge">Int</code>. Let’s look at another predefined parser that matches only characters where <code class="highlighter-rouge">isLetter</code> is true.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">letter</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">letter</span>
 <span class="n">res2</span><span class="k">:</span> <span class="kt">atto.Parser</span><span class="o">[</span><span class="kt">Char</span><span class="o">]</span> <span class="k">=</span> <span class="n">letter</span>
 </code></pre>
 </div>
 
 <p>We can ask a parser to parse a string, and we get back a <code class="highlighter-rouge">ParseResult[A]</code>. The <code class="highlighter-rouge">Done</code> constructor shows the remaining input (if any) and the answer.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">letter</span><span class="o">.</span><span class="n">parse</span><span class="o">(</span><span class="s">"x"</span><span class="o">)</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">letter</span><span class="o">.</span><span class="n">parse</span><span class="o">(</span><span class="s">"x"</span><span class="o">)</span>
 <span class="n">res3</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">Char</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Done</span><span class="o">(,</span><span class="n">x</span><span class="o">)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">letter</span><span class="o">.</span><span class="n">parse</span><span class="o">(</span><span class="s">"xyz"</span><span class="o">)</span>
@@ -42,14 +42,14 @@
 
 <p>The <code class="highlighter-rouge">Failure</code> constructor shows us the remaining input, the parsing stack (ignore this for now), and a description of the failiure.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">letter</span><span class="o">.</span><span class="n">parse</span><span class="o">(</span><span class="s">"1"</span><span class="o">)</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">letter</span><span class="o">.</span><span class="n">parse</span><span class="o">(</span><span class="s">"1"</span><span class="o">)</span>
 <span class="n">res5</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">Char</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Fail</span><span class="o">(</span><span class="mi">1</span><span class="o">,</span><span class="nc">List</span><span class="o">(),</span><span class="nc">Failure</span> <span class="n">reading</span><span class="k">:</span><span class="kt">letter</span><span class="o">)</span>
 </code></pre>
 </div>
 
 <p>The <code class="highlighter-rouge">Partial</code> constructor indicates that the parser has neither succeeded nor failed; more input is required before we will know. We can <code class="highlighter-rouge">feed</code> more data to continue parsing. Our parsers thus support <em>incremental parsing</em> which allows us to parse directly from a stream, for example.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">letter</span><span class="o">.</span><span class="n">parse</span><span class="o">(</span><span class="s">""</span><span class="o">)</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">letter</span><span class="o">.</span><span class="n">parse</span><span class="o">(</span><span class="s">""</span><span class="o">)</span>
 <span class="n">res6</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">Char</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Partial</span><span class="o">(&lt;</span><span class="n">function1</span><span class="o">&gt;)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">letter</span><span class="o">.</span><span class="n">parse</span><span class="o">(</span><span class="s">""</span><span class="o">).</span><span class="n">feed</span><span class="o">(</span><span class="s">"abc"</span><span class="o">)</span>
@@ -59,7 +59,7 @@
 
 <p>The <code class="highlighter-rouge">many</code> combinator turns a <code class="highlighter-rouge">Parser[A]</code> into a <code class="highlighter-rouge">Parser[List[A]]</code>.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">many</span><span class="o">(</span><span class="n">letter</span><span class="o">).</span><span class="n">parse</span><span class="o">(</span><span class="s">"abc"</span><span class="o">)</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">many</span><span class="o">(</span><span class="n">letter</span><span class="o">).</span><span class="n">parse</span><span class="o">(</span><span class="s">"abc"</span><span class="o">)</span>
 <span class="n">res8</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">List</span><span class="o">[</span><span class="kt">Char</span><span class="o">]]</span> <span class="k">=</span> <span class="nc">Partial</span><span class="o">(&lt;</span><span class="n">function1</span><span class="o">&gt;)</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">many</span><span class="o">(</span><span class="n">letter</span><span class="o">).</span><span class="n">parse</span><span class="o">(</span><span class="s">"abc"</span><span class="o">).</span><span class="n">feed</span><span class="o">(</span><span class="s">"def"</span><span class="o">)</span>
@@ -69,21 +69,21 @@
 
 <p>There may be more letters coming, so we can say we’re <code class="highlighter-rouge">done</code> to indicate that there is no more input.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">many</span><span class="o">(</span><span class="n">letter</span><span class="o">).</span><span class="n">parse</span><span class="o">(</span><span class="s">"abc"</span><span class="o">).</span><span class="n">feed</span><span class="o">(</span><span class="s">"def"</span><span class="o">).</span><span class="n">done</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">many</span><span class="o">(</span><span class="n">letter</span><span class="o">).</span><span class="n">parse</span><span class="o">(</span><span class="s">"abc"</span><span class="o">).</span><span class="n">feed</span><span class="o">(</span><span class="s">"def"</span><span class="o">).</span><span class="n">done</span>
 <span class="n">res10</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">List</span><span class="o">[</span><span class="kt">Char</span><span class="o">]]</span> <span class="k">=</span> <span class="nc">Done</span><span class="o">(,</span><span class="nc">List</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">,</span> <span class="n">c</span><span class="o">,</span> <span class="n">d</span><span class="o">,</span> <span class="n">e</span><span class="o">,</span> <span class="n">f</span><span class="o">))</span>
 </code></pre>
 </div>
 
 <p><code class="highlighter-rouge">Parser</code> is a functor, so you can <code class="highlighter-rouge">map</code> the result and turn it int something else.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">many</span><span class="o">(</span><span class="n">letter</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">mkString</span><span class="o">).</span><span class="n">parse</span><span class="o">(</span><span class="s">"abc"</span><span class="o">).</span><span class="n">feed</span><span class="o">(</span><span class="s">"def"</span><span class="o">).</span><span class="n">done</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">many</span><span class="o">(</span><span class="n">letter</span><span class="o">).</span><span class="n">map</span><span class="o">(</span><span class="k">_</span><span class="o">.</span><span class="n">mkString</span><span class="o">).</span><span class="n">parse</span><span class="o">(</span><span class="s">"abc"</span><span class="o">).</span><span class="n">feed</span><span class="o">(</span><span class="s">"def"</span><span class="o">).</span><span class="n">done</span>
 <span class="n">res11</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="nc">Done</span><span class="o">(,</span><span class="n">abcdef</span><span class="o">)</span>
 </code></pre>
 </div>
 
 <p>The <code class="highlighter-rouge">~</code> combinator turns <code class="highlighter-rouge">Parser[A], Parser[B]</code> into <code class="highlighter-rouge">Parser[(A,B)]</code></p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">letter</span> <span class="o">~</span> <span class="n">digit</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="n">letter</span> <span class="o">~</span> <span class="n">digit</span>
 <span class="n">res12</span><span class="k">:</span> <span class="kt">atto.Parser</span><span class="o">[(</span><span class="kt">Char</span>, <span class="kt">Char</span><span class="o">)]</span> <span class="k">=</span> <span class="o">(</span><span class="n">letter</span><span class="o">)</span> <span class="o">~</span> <span class="n">digit</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="o">(</span><span class="n">letter</span> <span class="o">~</span> <span class="n">digit</span><span class="o">).</span><span class="n">parse</span><span class="o">(</span><span class="s">"a1"</span><span class="o">)</span>
@@ -102,21 +102,21 @@
 
 <p>Destructuring the pair in <code class="highlighter-rouge">map</code> is a pain, and it gets worse with nested pairs.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="o">(</span><span class="n">letter</span> <span class="o">~</span> <span class="n">int</span> <span class="o">~</span> <span class="n">digit</span> <span class="o">~</span> <span class="n">byte</span><span class="o">)</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="o">(</span><span class="n">letter</span> <span class="o">~</span> <span class="n">int</span> <span class="o">~</span> <span class="n">digit</span> <span class="o">~</span> <span class="n">byte</span><span class="o">)</span>
 <span class="n">res17</span><span class="k">:</span> <span class="kt">atto.Parser</span><span class="o">[(((</span><span class="kt">Char</span>, <span class="kt">Int</span><span class="o">)</span>, <span class="kt">Char</span><span class="o">)</span>, <span class="kt">Byte</span><span class="o">)]</span> <span class="k">=</span> <span class="o">(((</span><span class="n">letter</span><span class="o">)</span> <span class="o">~</span> <span class="n">int</span><span class="o">)</span> <span class="o">~</span> <span class="n">digit</span><span class="o">)</span> <span class="o">~</span> <span class="n">byte</span>
 </code></pre>
 </div>
 
 <p>But have no fear, <code class="highlighter-rouge">Parser</code> is an <em>applicative</em> functor.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="o">(</span><span class="n">many</span><span class="o">(</span><span class="n">letter</span><span class="o">)</span> <span class="o">|@|</span> <span class="n">many</span><span class="o">(</span><span class="n">digit</span><span class="o">))(</span><span class="k">_</span> <span class="o">++</span> <span class="k">_</span><span class="o">).</span><span class="n">parse</span><span class="o">(</span><span class="s">"aaa"</span><span class="o">).</span><span class="n">feed</span><span class="o">(</span><span class="s">"bcd123"</span><span class="o">).</span><span class="n">done</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="o">(</span><span class="n">many</span><span class="o">(</span><span class="n">letter</span><span class="o">)</span> <span class="o">|@|</span> <span class="n">many</span><span class="o">(</span><span class="n">digit</span><span class="o">))(</span><span class="k">_</span> <span class="o">++</span> <span class="k">_</span><span class="o">).</span><span class="n">parse</span><span class="o">(</span><span class="s">"aaa"</span><span class="o">).</span><span class="n">feed</span><span class="o">(</span><span class="s">"bcd123"</span><span class="o">).</span><span class="n">done</span>
 <span class="n">res18</span><span class="k">:</span> <span class="kt">atto.ParseResult</span><span class="o">[</span><span class="kt">List</span><span class="o">[</span><span class="kt">Char</span><span class="o">]]</span> <span class="k">=</span> <span class="nc">Done</span><span class="o">(,</span><span class="nc">List</span><span class="o">(</span><span class="n">a</span><span class="o">,</span> <span class="n">a</span><span class="o">,</span> <span class="n">a</span><span class="o">,</span> <span class="n">b</span><span class="o">,</span> <span class="n">c</span><span class="o">,</span> <span class="n">d</span><span class="o">,</span> <span class="mi">1</span><span class="o">,</span> <span class="mi">2</span><span class="o">,</span> <span class="mi">3</span><span class="o">))</span>
 </code></pre>
 </div>
 
 <p>In fact, it’s a monad. This allows the result of one parser to influence the behavior of subsequent parsers. Here we build a parser that parses an integer followed by an arbitrary string of that length.</p>
 
-<div class="highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">p</span> <span class="k">=</span> <span class="k">for</span> <span class="o">{</span> <span class="n">n</span> <span class="k">&lt;-</span> <span class="n">int</span><span class="o">;</span> <span class="n">c</span> <span class="k">&lt;-</span> <span class="n">take</span><span class="o">(</span><span class="n">n</span><span class="o">)</span> <span class="o">}</span> <span class="k">yield</span> <span class="n">c</span>
+<div class="language-scala highlighter-rouge"><pre class="highlight"><code><span class="n">scala</span><span class="o">&gt;</span> <span class="k">val</span> <span class="n">p</span> <span class="k">=</span> <span class="k">for</span> <span class="o">{</span> <span class="n">n</span> <span class="k">&lt;-</span> <span class="n">int</span><span class="o">;</span> <span class="n">c</span> <span class="k">&lt;-</span> <span class="n">take</span><span class="o">(</span><span class="n">n</span><span class="o">)</span> <span class="o">}</span> <span class="k">yield</span> <span class="n">c</span>
 <span class="n">p</span><span class="k">:</span> <span class="kt">atto.Parser</span><span class="o">[</span><span class="kt">String</span><span class="o">]</span> <span class="k">=</span> <span class="o">(</span><span class="n">int</span><span class="o">)</span> <span class="n">flatMap</span> <span class="o">...</span>
 
 <span class="n">scala</span><span class="o">&gt;</span> <span class="n">p</span><span class="o">.</span><span class="n">parse</span><span class="o">(</span><span class="s">"3abcdef"</span><span class="o">)</span>

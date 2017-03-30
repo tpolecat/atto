@@ -5,19 +5,19 @@ title: Getting Started
 
 ### {{page.title}}
 
-The current version of **atto** is **0.5.1**. It is available for Scala 2.10, 2.11, and 2.12. To include it as a dependency in your project, add the following to your `build.sbt` file.
+The current version of **atto** is **0.5.2**. It is available for Scala 2.10, 2.11, and 2.12. To include it as a dependency in your project, add the following to your `build.sbt` file.
 
 ```scala
-libraryDependencies += "org.tpolecat" %% "atto-core"  % "0.5.1"
+libraryDependencies += "org.tpolecat" %% "atto-core"  % "0.5.2"
 ```
 
 It is recommended that you also add a compatibility layer for the FP library you are using (if any). If you wish to limp along with the Scala standard library there is a built-in compatibility layer and no extra dependency is needed.
 
 ```scala
 libraryDependencies +=
-  "org.tpolecat" %% "atto-compat-scalaz71" % "0.5.1" // for scalaz 7.1
-  "org.tpolecat" %% "atto-compat-scalaz72" % "0.5.1" // for scalaz 7.2
-  "org.tpolecat" %% "atto-compat-cats"     % "0.5.1" // for cats 0.8.1
+  "org.tpolecat" %% "atto-compat-scalaz71" % "0.5.2" // for scalaz 7.1
+  "org.tpolecat" %% "atto-compat-scalaz72" % "0.5.2" // for scalaz 7.2
+  "org.tpolecat" %% "atto-compat-cats"     % "0.5.2" // for cats 0.9.0
 ```
 
 These layers provide:

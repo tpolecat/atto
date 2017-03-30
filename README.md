@@ -10,9 +10,11 @@ scala> int.sepBy1(spaceChar).parseOnly("1 20 300").option
 res0: Option[scalaz.NonEmptyList[Int]] = Some(NonEmptyList(1, 20, 300))
 ```
 
-Current version is **0.5.1** and is available for Scala 2.10, 2.11, and 2.12.
+Current version is **0.5.2** and is available for Scala 2.10 (JVM only), 2.11, and 2.12 (JVM and Scala-JS).
 
 ### What's New?
+
+Starting with **0.5.2** atto supports Scala-JS! Thanks Pepe García!
 
 The **0.5.x** series is a **breaking** change from 0.4.x, but for most users the impact will be minor. The important changes are:
 
@@ -25,15 +27,15 @@ The **0.5.x** series is a **breaking** change from 0.4.x, but for most users the
 - Add **atto** as a dependency in your `build.sbt` file.
 
 ```scala
-libraryDependencies += "org.tpolecat" %% "atto-core"  % "0.5.1"
+libraryDependencies += "org.tpolecat" %% "atto-core"  % "0.5.2"
 ```
 
 - Add a compatibility layer for the FP library you are using (if any). If you wish to limp along with the Scala standard library there is a built-in compatibility layer and no extra dependency is needed.
 
 ```scala
-libraryDependencies += "org.tpolecat" %% "atto-compat-scalaz71" % "0.5.1" // for scalaz 7.1
-                       "org.tpolecat" %% "atto-compat-scalaz72" % "0.5.1" // for scalaz 7.2
-                       "org.tpolecat" %% "atto-compat-cats"     % "0.5.1" // for cats 0.8.1
+libraryDependencies += "org.tpolecat" %% "atto-compat-scalaz71" % "0.5.2" // for scalaz 7.1
+                       "org.tpolecat" %% "atto-compat-scalaz72" % "0.5.2" // for scalaz 7.2
+                       "org.tpolecat" %% "atto-compat-cats"     % "0.5.2" // for cats 0.9.0
 ```
 
 - Import stuff:

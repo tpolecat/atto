@@ -10,8 +10,7 @@ In this chapter we will learn the basics of using primitive parsers, and combini
 But first we need to import some stuff. Fine-grained imports are supported but it’s usually fine to just import everything. We're using the compatibility layer for **scalaz** here but you could just as well use the one for Cats or stdlib by importing `compat.cats._` or `compat.stdlib._` respectively.
 
 ```tut:silent
-import scalaz._, Scalaz._
-import atto._, Atto._, compat.scalaz._
+import atto._, Atto._
 ```
 
 Rock on, let's parse an integer!

@@ -1,13 +1,11 @@
 package atto
 package parser
 
-import atto.compat._
 import atto.syntax.parser._
 
 import java.lang.{ String, Integer }
 import scala.{ Char, List, Int, StringContext, Boolean, Nil, Nothing, Unit, Option, Some, None }
 import scala.Predef.{ augmentString, charWrapper }
-import scala.language.higherKinds
 
 /** Text parsers. */
 trait Text {
@@ -20,8 +18,7 @@ trait Text {
 
   /** Parser that returns a non-empty string of characters matched by `p`. */
   def stringOf1(p: Parser[Char]): Parser[String] = {
-    implicit val N = stdlib.StdlibNonEmptyListy
-    many1(p).map(cs => new String(N.toList(cs).toArray)) named "stringOf1(" + p + ")"
+    many1(p).map(cs => new String(cs.toList.toArray)) named "stringOf1(" + p + ")"
   }
 
   def takeWith(n: Int, p: String => Boolean, what: => String = "takeWith(...)"): Parser[String] =

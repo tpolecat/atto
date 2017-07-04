@@ -1,15 +1,12 @@
 package atto
 import Atto._
-import atto.compat.scalaz._
 
 import scala.util.Random
 
 import org.scalacheck._
-import scalaz.\/._
 
 object CharacterTest extends Properties("Character") {
   import Prop._
-  import Parser._
 
   property("satisfy") = forAll { (w: Char, s: String) =>
     satisfy(_ <= w).parse(w +: s).option == Some(w)
@@ -60,4 +57,3 @@ object CharacterTest extends Properties("Character") {
   }
 
 }
-

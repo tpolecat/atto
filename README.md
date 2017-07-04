@@ -10,17 +10,11 @@ scala> int.sepBy1(spaceChar).parseOnly("1 20 300").option
 res0: Option[scalaz.NonEmptyList[Int]] = Some(NonEmptyList(1, 20, 300))
 ```
 
-Current version is **0.5.2** and is available for Scala 2.10 (JVM only), 2.11, and 2.12 (JVM and Scala-JS).
+Current version is **0.6.0** and is available for Scala 2.10 (JVM only), 2.11, and 2.12 (JVM and Scala-JS) with **cats 0.9**.
 
 ### What's New?
 
-Starting with **0.5.2** atto supports Scala-JS! Thanks Pepe García!
-
-The **0.5.x** series is a **breaking** change from 0.4.x, but for most users the impact will be minor. The important changes are:
-
-- **atto** no longer depends on scalaz. Instead you can select a compatibility layer (see below).
-- `Parser` and `ParseResult` are now **invariant**, so you may need to add explicit type arguments in some cases.
-- The Spire and scalaz-stream support libraries have been dropped for now. Please speak up if you need them.
+**atto** has standardized on [Cats](https://github.com/typelevel/cats). The 0.5.x compatibility layers have been removed.
 
 ### Getting Started
 
@@ -30,45 +24,7 @@ The **0.5.x** series is a **breaking** change from 0.4.x, but for most users the
 libraryDependencies += "org.tpolecat" %% "atto-core"  % "0.5.2"
 ```
 
-- Add a compatibility layer for the FP library you are using (if any). If you wish to limp along with the Scala standard library there is a built-in compatibility layer and no extra dependency is needed.
-
-```scala
-libraryDependencies += "org.tpolecat" %% "atto-compat-scalaz71" % "0.5.2" // for scalaz 7.1
-                       "org.tpolecat" %% "atto-compat-scalaz72" % "0.5.2" // for scalaz 7.2
-                       "org.tpolecat" %% "atto-compat-cats"     % "0.5.2" // for cats 0.9.0
-```
-
-- Import stuff:
-
-```scala
-import atto._, Atto._, compat.scalaz._ // or compat.cats._
-                                       // or compat.stdlib._
-```
-
 - Profit.
-
-### Functional Programming Compatibility Layers
-
-**atto** provides compatibility layers that abstract out the differences between various versions of various FP libraries. *This is an experimental design* that is intended to lessen the headaches associated with versioning and library dependencies. These layers provide three things:
-
-1. **Instances** for typeclasses that are not used in **atto** but are useful for end users.
-2. **Shims** for typeclasses that *are* used in **atto**.
-3. **Modes** for return types that differ between libraries (`Xor` vs. `\/` for example.)
-
-| Concept                | Stdlib Type      | Scalaz Type       | Cats Type         |
-|------------------------|------------------|-------------------|-------------------|
-| Disjunction            | `Either[A, B]`   | `A \/ B`          | `Either[A, B]`    |
-| Non-Empty List         | `(A, List[A])`   | `NonEmptyList[A]` | `NonEmptyList[A]` |
-| Monoid                 |                  | `Monoid[A]`       | `Monoid[A]`       |
-| Higher-Order Semigroup |                  | `Plus[F]`         | `SemigroupK[F]`   |
-| Functors               |                  | `Functor[F]`      | `Functor[F]`      |
-| Monads                 |                  | `Monad[F]`        | `Monad[F]`        |
-| Foldable               | `Traversable[A]` | `Foldable[F]`     | `Foldable[F]`     |
-
-The **tl;dr** is that if you import the right compatibility layer everything should work as expected.
-
-
-
 
 ### Why atto?
 

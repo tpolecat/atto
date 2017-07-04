@@ -21,8 +21,7 @@ val logData =
 We'll use the same imports as before.
 
 ```tut:silent
-import scalaz._, Scalaz._
-import atto._, Atto._, compat.scalaz._
+import atto._, Atto._
 ```
 
 This data contains IP addresses, which in turn contain unsigned bytes. So our first order of business is figuring out how to parse these.

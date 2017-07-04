@@ -1,11 +1,9 @@
 package atto
 package syntax
 
+import cats.data.NonEmptyList
 import java.lang.String
-import scala.{ StringContext, PartialFunction }
 import scala.language.implicitConversions
-import scala.language.higherKinds
-import atto.compat._
 import atto.parser._
 
 trait ParserOps[A] {
@@ -46,7 +44,7 @@ trait ParserOps[A] {
     combinator.orElse(self, n)
 
   /** `a || b` is shorthand for `either(a, b)` */
-  def ||[E[_, _]: Eithery, B](n: => Parser[B]): Parser[E[A, B]] =
+  def ||[B](n: => Parser[B]): Parser[Either[A, B]] =
     combinator.either(self, n)
 
   /** `a -| f` is shorthand for `a map f` */
@@ -69,7 +67,7 @@ trait ParserOps[A] {
   def sepBy[B](s: Parser[B]): Parser[List[A]] =
     combinator.sepBy(self, s)
 
-  def sepBy1[F[_]: NonEmptyListy, B](s: Parser[B]): Parser[F[A]] =
+  def sepBy1[B](s: Parser[B]): Parser[NonEmptyList[A]] =
     combinator.sepBy1(self, s)
 
   def attempt: Parser[A] =
@@ -87,7 +85,7 @@ trait ParserOps[A] {
   def many: Parser[List[A]] =
     combinator.many(self)
 
-  def many1[F[_]: NonEmptyListy]: Parser[F[A]] =
+  def many1: Parser[NonEmptyList[A]] =
     combinator.many1(self)
 
   def manyN(n: Int): Parser[List[A]] =

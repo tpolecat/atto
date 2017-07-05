@@ -1,5 +1,6 @@
 package atto
 
+import cats.Functor
 import java.lang.String
 import scala.{ Option, Some, None, List }
 
@@ -35,5 +36,11 @@ object ParseResult {
     def option = Some(result)
     def either: Either[String, A] = Right(result)
   }
+
+  implicit val ParseResultFunctor: Functor[ParseResult] =
+    new Functor[ParseResult] {
+      def map[A,B](ma: ParseResult[A])(f: A => B) =
+        ma map f
+    }
 
 }

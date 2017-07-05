@@ -1,6 +1,4 @@
-import UnidocKeys._
 import ReleaseTransformations._
-
 
 lazy val buildSettings = Seq(
 	organization := "org.tpolecat",
@@ -80,8 +78,6 @@ lazy val noPublishSettings = Seq(
 lazy val atto = project.in(file("."))
   .settings(buildSettings ++ commonSettings)
   .settings(noPublishSettings)
-  .settings(unidocSettings)
-  .settings(unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(tests))
   .dependsOn(coreJVM, coreJS, tests)
   .aggregate(coreJVM, coreJS, tests)
 

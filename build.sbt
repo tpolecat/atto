@@ -97,7 +97,10 @@ lazy val tests = project.in(file("modules/tests"))
 
 lazy val docs = project.in(file("modules/docs")).dependsOn(coreJVM)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
-  .settings(name := "atto-docs")
+  .settings(
+		name := "atto-docs",
+		scalacOptions -= "-Xlint"
+	)
   .enablePlugins(MicrositesPlugin)
   .settings(
     micrositeName             := "atto",

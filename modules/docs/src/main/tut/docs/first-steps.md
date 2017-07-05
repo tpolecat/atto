@@ -7,10 +7,11 @@ title: Basic Parsers
 
 In this chapter we will learn the basics of using primitive parsers, and combining them to build larger parsers.
 
-But first we need to import some stuff. Fine-grained imports are supported but it’s usually fine to just import everything. We're using the compatibility layer for **scalaz** here but you could just as well use the one for Cats or stdlib by importing `compat.cats._` or `compat.stdlib._` respectively.
+But first we need to import some stuff. Fine-grained imports are supported but it’s usually fine to just import everything. We also need cats implicits for applicative syntax below.
 
 ```tut:silent
 import atto._, Atto._
+import cats.implicits._
 ```
 
 Rock on, let's parse an integer!
@@ -89,7 +90,7 @@ Destructuring the pair in `map` is a pain, and it gets worse with nested pairs.
 But have no fear, `Parser` is an *applicative* functor.
 
 ```tut
-(many(letter) |@| many(digit))(_ ++ _).parse("aaa").feed("bcd123").done
+(many(letter) |@| many(digit)).map(_ ++ _).parse("aaa").feed("bcd123").done
 ```
 
 In fact, it's a monad. This allows the result of one parser to influence the behavior of subsequent parsers. Here we build a parser that parses an integer followed by an arbitrary string of that length.

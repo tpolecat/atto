@@ -21,7 +21,7 @@ Current version is **0.6.0** and is available for Scala 2.10 (JVM only), 2.11, a
 - Add **atto** as a dependency in your `build.sbt` file.
 
 ```scala
-libraryDependencies += "org.tpolecat" %% "atto-core"  % "0.5.2"
+libraryDependencies += "org.tpolecat" %% "atto-core"  % "0.6.0"
 ```
 
 - Profit.

@@ -1,5 +1,5 @@
-import scalaz._, Scalaz.{ char => _, _ }
-import atto._, Atto._, compat.scalaz._
+import atto._, Atto._
+import cats._, cats.implicits._
 import scala.language.higherKinds
 
 sealed trait Expr[A] {
@@ -36,8 +36,8 @@ object Example extends App {
   type P = Parser[Fix[Expr]]
 
   val num: P = int.map(n => Fix(Lit(n)))
-  val mul: P = num.sepBy1(char('*')).map(nel => nel.foldLeft1((a, b) => Fix(Mul(a, b))))
-  val add: P = mul.sepBy1(char('+')).map(nel => nel.foldLeft1((a, b) => Fix(Add(a, b))))
+  val mul: P = num.sepBy1(char('*')).map(nel => nel.reduceLeft((a, b) => Fix(Mul(a, b))))
+  val add: P = mul.sepBy1(char('+')).map(nel => nel.reduceLeft((a, b) => Fix(Add(a, b))))
 
   val e: Fix[Expr] = add.parseOnly("1+2*3+10").option.get
 
@@ -49,13 +49,13 @@ object Example extends App {
     case Sub(a, b) => a - b
   }
 
-  val m = e.cata[String \/ Int] {
-    case Lit(a)    => a.right
-    case Mul(a, b) => (a |@| b)(_ * _)
-    case Div(a, \/-(0)) => "Division by Zero".left
-    case Div(a, b) => (a |@| b)(_ / _)
-    case Add(a, b) => (a |@| b)(_ + _)
-    case Sub(a, b) => (a |@| b)(_ - _)
+  val m = e.cata[Either[String, Int]] {
+    case Lit(a)    => Right(a)
+    case Mul(a, b) => (a |@| b).map(_ * _)
+    case Div(a, Right(0)) => Left("Division by Zero")
+    case Div(a, b) => (a |@| b).map(_ / _)
+    case Add(a, b) => (a |@| b).map(_ + _)
+    case Sub(a, b) => (a |@| b).map(_ - _)
   }
 
   println(n)

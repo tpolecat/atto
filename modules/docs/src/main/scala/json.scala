@@ -1,11 +1,6 @@
+import atto._, Atto._
 import java.lang.String
 import scala.{ Boolean, Char, Double, List }
-
-import scalaz.syntax.functor._
-import scalaz.std.list._
-
-import atto._
-import Atto._
 
 object JsonExample extends Whitespace {
 

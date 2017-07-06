@@ -1,17 +1,18 @@
 package atto
 package parser
 
+import cats.{ Eval, Foldable }
+import cats.data.NonEmptyList
+import cats.implicits._
+
 import java.lang.String
-import scala.{ Boolean, Nothing, Unit, Int, Nil, List, PartialFunction, StringContext, Option }
 import scala.language.higherKinds
 
-import atto.compat._
 import atto.syntax.all._
 
 // These guys need access to the implementation
 trait Combinator0 {
 
-  import Trambopoline._
   import Parser._
   import Parser.Internal._
   import atto.syntax.all._
@@ -21,7 +22,7 @@ trait Combinator0 {
     new Parser[A] {
       override def toString = "ok(" + a + ")"
       def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R] =
-        suspend(ks(st0,a))
+        Eval.defer(ks(st0,a))
     }
 
   /** Parser that consumes no data and fails with the specified error message. */
@@ -29,7 +30,7 @@ trait Combinator0 {
     new Parser[A] {
       override def toString = "err(" + what + ")"
       def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R] =
-        suspend(kf(st0,Nil, what))
+        Eval.defer(kf(st0,Nil, what))
     }
 
   /** Construct the given parser lazily; useful when defining recursive parsers. */
@@ -53,8 +54,8 @@ trait Combinator0 {
 
   private def prompt[R](st0: State, kf: State => TResult[R], ks: State => TResult[R]): Result[R] =
     Partial[R](s =>
-      if (s.isEmpty) suspend(kf(st0 copy (complete = true)))
-      else suspend(ks(st0 copy (input = st0.input + s, complete = false)))
+      if (s.isEmpty) Eval.defer(kf(st0 copy (complete = true)))
+      else Eval.defer(ks(st0 copy (input = st0.input + s, complete = false)))
     )
 
   def demandInput: Parser[Unit] =
@@ -62,9 +63,9 @@ trait Combinator0 {
       override def toString = "demandInput"
       def apply[R](st0: State, kf: Failure[R], ks: Success[Unit,R]): TResult[R] =
         if (st0.complete)
-          suspend(kf(st0,List(),"not enough bytes"))
+          Eval.defer(kf(st0,List(),"not enough bytes"))
         else
-          done(prompt(st0, st => kf(st,List(),"not enough bytes"), a => ks(a,())))
+          Eval.now(prompt(st0, st => kf(st,List(),"not enough bytes"), a => ks(a,())))
     }
 
   private def ensureSuspended(n: Int): Parser[String] =
@@ -72,9 +73,9 @@ trait Combinator0 {
       override def toString = "ensureSuspended(" + n + ")"
       def apply[R](st0: State, kf: Failure[R], ks: Success[String,R]): TResult[R] =
         if (st0.input.length >= st0.pos + n)
-          suspend(ks(st0,st0.input.substring(st0.pos, st0.pos + n)))
+          Eval.defer(ks(st0,st0.input.substring(st0.pos, st0.pos + n)))
         else
-          suspend((demandInput ~> ensureSuspended(n))(st0,kf,ks))
+          Eval.defer((demandInput ~> ensureSuspended(n))(st0,kf,ks))
     }
 
   def ensure(n: Int): Parser[String] =
@@ -82,18 +83,18 @@ trait Combinator0 {
       override def toString = "ensure(" + n + ")"
       def apply[R](st0: State, kf: Failure[R], ks: Success[String,R]): TResult[R] =
         if (st0.input.length >= st0.pos + n)
-          suspend(ks(st0,st0.input.substring(st0.pos, st0.pos + n)))
+          Eval.defer(ks(st0,st0.input.substring(st0.pos, st0.pos + n)))
         else
-          suspend(ensureSuspended(n)(st0,kf,ks))
+          Eval.defer(ensureSuspended(n)(st0,kf,ks))
     }
 
   val wantInput: Parser[Boolean] =
     new Parser[Boolean] {
       override def toString = "wantInput"
       def apply[R](st0: State, kf: Failure[R], ks: Success[Boolean,R]): TResult[R] =
-        if (st0.input.length >= st0.pos + 1)   suspend(ks(st0,true))
-        else if (st0.complete) suspend(ks(st0,false))
-        else done(prompt(st0, a => ks(a,false), a => ks(a,true)))
+        if (st0.input.length >= st0.pos + 1)   Eval.defer(ks(st0,true))
+        else if (st0.complete) Eval.defer(ks(st0,false))
+        else Eval.now(prompt(st0, a => ks(a,false), a => ks(a,true)))
     }
 
   //////
@@ -103,7 +104,7 @@ trait Combinator0 {
     new Parser[String] {
       override def toString = "get"
       def apply[R](st0: State, kf: Failure[R], ks: Success[String,R]): TResult[R] =
-        suspend(ks(st0,st0.input.drop(st0.pos)))
+        Eval.defer(ks(st0,st0.input.drop(st0.pos)))
     }
 
   /* Parser that produces the current offset in the input. */
@@ -111,14 +112,14 @@ trait Combinator0 {
     new Parser[Int] {
       override def toString = "pos"
       def apply[R](st0: State, kf: Failure[R], ks: Success[Int,R]): TResult[R] =
-        suspend(ks(st0,st0.pos))
+        Eval.defer(ks(st0,st0.pos))
     }
 
   def endOfChunk: Parser[Boolean] =
     new Parser[Boolean] {
       override def toString = "endOfChunk"
       def apply[R](st0: State, kf: Failure[R], ks: Success[Boolean,R]): TResult[R] =
-        suspend(ks(st0,st0.pos == st0.input.length))
+        Eval.defer(ks(st0,st0.pos == st0.input.length))
     }
 
   //////
@@ -134,7 +135,7 @@ trait Combinator0 {
     new Parser[Unit] {
       override def toString = "endOfInput"
       def apply[R](st0: State, kf: Failure[R], ks: Success[Unit,R]): TResult[R] =
-        suspend(if (st0.pos >= st0.input.length) {
+        Eval.defer(if (st0.pos >= st0.input.length) {
           if (st0.complete)
             ks(st0,())
           else
@@ -152,7 +153,7 @@ trait Combinator0 {
     new Parser[B] {
       override def toString = m infix ("~> " + n)
       def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): TResult[R] =
-        suspend(m(st0,kf,(s:State, a: A) => n(s, kf, ks)))
+        Eval.defer(m(st0,kf,(s:State, a: A) => n(s, kf, ks)))
     }
   }
 
@@ -161,7 +162,7 @@ trait Combinator0 {
     new Parser[A] {
       override def toString = m infix ("<~ " + n)
       def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R] =
-        suspend(m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, a))))
+        Eval.defer(m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, a))))
     }
   }
 
@@ -170,7 +171,7 @@ trait Combinator0 {
     new Parser[(A,B)] {
       override def toString = m infix ("~ " + n)
       def apply[R](st0: State, kf: Failure[R], ks: Success[(A,B),R]): TResult[R] =
-        suspend(m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, (a, b)))))
+        Eval.defer(m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, (a, b)))))
     }
   }
 
@@ -179,19 +180,19 @@ trait Combinator0 {
     new Parser[B] {
       override def toString = m infix ("| ...")
       def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): TResult[R] =
-        suspend(m(st0, (st1: State, stack: List[String], msg: String) => n(st1.copy(pos = st0.pos), kf, ks), ks))
+        Eval.defer(m(st0, (st1: State, stack: List[String], msg: String) => n(st1.copy(pos = st0.pos), kf, ks), ks))
     }
   }
 
-  def either[E[_, _], A, B](m: Parser[A], b: => Parser[B])(implicit E: Eithery[E]): Parser[E[A,B]] = {
+  def either[A, B](m: Parser[A], b: => Parser[B]): Parser[Either[A,B]] = {
     lazy val n = b
-    new Parser[E[A,B]] {
+    new Parser[Either[A,B]] {
       override def toString = m infix ("|| " + n)
-      def apply[R](st0: State, kf: Failure[R], ks: Success[E[A,B],R]): TResult[R] =
-        suspend(m(
+      def apply[R](st0: State, kf: Failure[R], ks: Success[Either[A, B], R]): TResult[R] =
+        Eval.defer(m(
           st0,
-          (st1: State, stack: List[String], msg: String) => n (st1.copy(pos = st0.pos), kf, (st1: State, b: B) => ks(st1, E.right(b))),
-          (st1: State, a: A) => ks(st1, E.left(a))
+          (st1: State, stack: List[String], msg: String) => n (st1.copy(pos = st0.pos), kf, (st1: State, b: B) => ks(st1, Right(b))),
+          (st1: State, a: A) => ks(st1, Left(a))
         ))
     }
   }
@@ -203,14 +204,14 @@ trait Combinator0 {
     new Parser[A] {
       override def toString = s
       def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R] =
-        suspend(m(st0, (st1: State, stack: List[String], msg: String) => kf(st1, s :: stack, msg), ks))
+        Eval.defer(m(st0, (st1: State, stack: List[String], msg: String) => kf(st1, s :: stack, msg), ks))
     }
 
   def namedOpaque[A](m: Parser[A], s: => String): Parser[A] =
     new Parser[A] {
       override def toString = s
       def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R] =
-        suspend(m(st0, (st1: State, stack: List[String], msg: String) => kf(st1, Nil, "Failure reading:" + s), ks))
+        Eval.defer(m(st0, (st1: State, stack: List[String], msg: String) => kf(st1, Nil, "Failure reading:" + s), ks))
     }
 
 }
@@ -223,8 +224,8 @@ trait Combinator extends Combinator0 {
   def collect[A, B](m: Parser[A], f: PartialFunction[A,B]): Parser[B] =
     m.filter(f isDefinedAt _).map(f)
 
-  def cons[F[_], A, B >: A](m: Parser[A], n: => Parser[List[B]])(implicit N: NonEmptyListy[F]): Parser[F[B]] =
-    m flatMap (x => n map (xs => N.cons(x, xs)))
+  def cons[A, B >: A](m: Parser[A], n: => Parser[List[B]]): Parser[NonEmptyList[B]] =
+    m flatMap (x => n map (xs => NonEmptyList(x, xs)))
 
   /** Parser that matches `p` only if there is no remaining input */
   def phrase[A](p: Parser[A]): Parser[A] =
@@ -233,44 +234,36 @@ trait Combinator extends Combinator0 {
   // TODO: return a parser of a reducer of A
   /** Parser that matches zero or more `p`. */
   def many[A](p: => Parser[A]): Parser[List[A]] = {
-    implicit val N = stdlib.StdlibNonEmptyListy
-    lazy val many_p : Parser[List[A]] = cons(p, many_p).map(N.toList) | ok(Nil)
+    lazy val many_p : Parser[List[A]] = cons(p, many_p).map(_.toList) | ok(Nil)
     many_p named ("many(" + p + ")")
   }
 
   /** Parser that matches one or more `p`. */
-  def many1[F[_]: NonEmptyListy, A](p: => Parser[A]): Parser[F[A]] =
+  def many1[A](p: => Parser[A]): Parser[NonEmptyList[A]] =
     cons(p, many(p))
 
-  def manyN[A](n: Int, a: Parser[A]): Parser[List[A]] = {
-    implicit val N = stdlib.StdlibNonEmptyListy
-    ((1 to n) :\ ok(List[A]()))((_, p) => cons(a, p).map(N.toList)) named "ManyN(" + n + ", " + a + ")"
-  }
+  def manyN[A](n: Int, a: Parser[A]): Parser[List[A]] =
+    ((1 to n) :\ ok(List[A]()))((_, p) => cons(a, p).map(_.toList)) named "ManyN(" + n + ", " + a + ")"
 
   def manyUntil[A](p: Parser[A], q: Parser[_]): Parser[List[A]] = {
-    implicit val N = stdlib.StdlibNonEmptyListy
-    lazy val scan: Parser[List[A]] = (q ~> ok(Nil)) | cons(p, scan).map(N.toList)
+    lazy val scan: Parser[List[A]] = (q ~> ok(Nil)) | cons(p, scan).map(_.toList)
     scan named ("manyUntil(" + p + "," + q + ")")
   }
 
   def skipMany(p: Parser[_]): Parser[Unit] =
     many(p).void named s"skipMany($p)"
 
-  def skipMany1(p: Parser[_]): Parser[Unit] = {
-    implicit val N = stdlib.StdlibNonEmptyListy
+  def skipMany1(p: Parser[_]): Parser[Unit] =
     many1(p).void named s"skipMany1($p)"
-  }
 
   def skipManyN(n: Int, p: Parser[_]): Parser[Unit] =
     manyN(n, p).void named s"skipManyN($n, $p)"
 
-  def sepBy[A](p: Parser[A], s: Parser[_]): Parser[List[A]] = {
-    implicit val N = stdlib.StdlibNonEmptyListy
-    cons(p, ((s ~> sepBy1(p,s)).map(N.toList) | ok(List.empty[A]))).map(N.toList) | ok(List.empty[A]) named ("sepBy(" + p + "," + s + ")")
-  }
+  def sepBy[A](p: Parser[A], s: Parser[_]): Parser[List[A]] =
+    cons(p, ((s ~> sepBy1(p,s)).map(_.toList) | ok(List.empty[A]))).map(_.toList) | ok(List.empty[A]) named ("sepBy(" + p + "," + s + ")")
 
-  def sepBy1[F[_], A](p: Parser[A], s: Parser[_])(implicit N: NonEmptyListy[F]): Parser[F[A]] = {
-    lazy val scan : Parser[F[A]] = cons(p, s ~> scan.map(N.toList) | ok(Nil))
+  def sepBy1[A](p: Parser[A], s: Parser[_]): Parser[NonEmptyList[A]] = {
+    lazy val scan: Parser[NonEmptyList[A]] = cons(p, s ~> scan.map(_.toList) | ok(Nil))
     scan named ("sepBy1(" + p + "," + s + ")")
   }
 
@@ -281,8 +274,8 @@ trait Combinator extends Combinator0 {
   def choice[A](xs: Parser[A]*) : Parser[A] =
     xs.foldRight[Parser[A]](err("choice: no match"))(_ | _) named s"choice(${xs.mkString(", ")})"
 
-  def choice[F[_], A](fpa: F[Parser[A]])(implicit F: Foldy[F]) : Parser[A] =
-    choice(F.toList(fpa): _*)
+  def choice[F[_]: Foldable, A](fpa: F[Parser[A]]): Parser[A] =
+    choice(fpa.toList: _*)
 
   def opt[A](m: Parser[A]): Parser[Option[A]] =
     (attempt(m).map[Option[A]](Some(_)) | ok(Option.empty[A])) named s"opt($m)"
@@ -292,9 +285,7 @@ trait Combinator extends Combinator0 {
       if (p(a)) ok(a) else err[A]("filter")
     } named "filter(...)"
 
-  def count[A](n: Int, p: Parser[A]): Parser[List[A]] = {
-    implicit val N = stdlib.StdlibNonEmptyListy
-    ((1 to n) :\ ok(List[A]()))((_, a) => cons(p, a).map(N.toList))
-  }
-  
+  def count[A](n: Int, p: Parser[A]): Parser[List[A]] =
+    ((1 to n) :\ ok(List[A]()))((_, a) => cons(p, a).map(_.toList))
+
 }

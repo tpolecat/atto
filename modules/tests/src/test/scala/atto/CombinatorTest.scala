@@ -1,19 +1,13 @@
 package atto
 import Atto._
 
+import cats._, cats.data._, cats.implicits._
 import org.scalacheck._
-import scalaz._
-import scalaz.syntax.functor._
-import scalaz.syntax.std.list._
-import scalaz.std.option._
-import scalaz.std.anyVal.{ char => charInstance }
-import atto.compat.scalaz._
 
 object CombinatorTest extends Properties("Combinator") {
   import Prop._
-  import Parser._
 
-  implicit val eqChar: Equal[Char] = Order[Char] // :-\
+  implicit val eqChar: Eq[Char] = Order[Char] // :-\
 
   property("ok") = forAll { (s: String, n: Int) =>
     ok(n).parseOnly(s) match {
@@ -110,10 +104,10 @@ object CombinatorTest extends Properties("Combinator") {
 
   property("orElse/left") = forAll { (n: Int, s: String) =>
     !(s.isEmpty || s.exists(_.isDigit)) ==> {
-      val p1: Parser[Int \/ String] = string(s).map(\/-(_))
-      val p2: Parser[Int \/ String] = int.map(-\/(_))
+      val p1: Parser[Either[Int, String]] = string(s).map(Right(_))
+      val p2: Parser[Either[Int, String]] = int.map(Left(_))
       orElse(p1, p2).parseOnly(n + s) match {
-        case ParseResult.Done(`s`, -\/(`n`)) => true
+        case ParseResult.Done(`s`, Left(`n`)) => true
         case _ => false
       }
     }
@@ -121,10 +115,10 @@ object CombinatorTest extends Properties("Combinator") {
 
   property("orElse/right") = forAll { (n: Int, s: String) =>
     !(s.exists(_.isDigit)) ==> {
-      val p1: Parser[Int \/ String] = string(s).map(\/-(_))
-      val p2: Parser[Int \/ String] = int.map(-\/(_))
+      val p1: Parser[Either[Int, String]] = string(s).map(Right(_))
+      val p2: Parser[Either[Int, String]] = int.map(Left(_))
       orElse(p1, p2).parseOnly(s + n) match {
-        case ParseResult.Done(_, \/-(`s`)) => true
+        case ParseResult.Done(_, Right(`s`)) => true
         case _ => false
       }
     }
@@ -133,7 +127,7 @@ object CombinatorTest extends Properties("Combinator") {
   property("either/left") = forAll { (n: Int, s: String) =>
     !(s.isEmpty || s.exists(_.isDigit)) ==> {
       either(int, string(s)).parseOnly(n + s) match {
-        case ParseResult.Done(`s`, -\/(`n`)) => true
+        case ParseResult.Done(`s`, Left(`n`)) => true
         case _ => false
       }
     }
@@ -142,7 +136,7 @@ object CombinatorTest extends Properties("Combinator") {
   property("either/right") = forAll { (n: Int, s: String) =>
     !(s.isEmpty || s.exists(_.isDigit)) ==> {
       either(int, string(s)).parseOnly(s + n) match {
-        case ParseResult.Done(_, \/-(`s`)) => true
+        case ParseResult.Done(_, Right(`s`)) => true
         case _ => false
       }
     }
@@ -159,8 +153,8 @@ object CombinatorTest extends Properties("Combinator") {
   }
 
   property("cons") = forAll { (c: Char, s: String) =>
-    lazy val p: Parser[NonEmptyList[Char]] = cons(anyChar, orElse(p.map(_.list), ok(List.empty[Char])))
-    p.parseOnly(c + s).option == Some(NonEmptyList(c, s.toList: _*))
+    lazy val p: Parser[NonEmptyList[Char]] = cons(anyChar, orElse(p.map(_.toList), ok(List.empty[Char])))
+    p.parseOnly(c + s).option == Some(NonEmptyList(c, s.toList))
   }
 
   // phrase
@@ -214,11 +208,11 @@ object CombinatorTest extends Properties("Combinator") {
   }
 
   property("sepBy1") = forAll { (n0: Int, ns0: List[Int], c: Char, s: String) =>
-    val ns = NonEmptyList(n0, ns0: _*)
+    val ns = NonEmptyList(n0, ns0)
     val sep = s + c
     !(sep.exists(_.isDigit)) ==> {
       val p = sepBy1(int, string(sep))
-      p.parseOnly(ns.list.mkString(sep)) match {
+      p.parseOnly(ns.toList.mkString(sep)) match {
         case ParseResult.Done("", `ns`) => true
         case _ => false
       }
@@ -259,4 +253,3 @@ object CombinatorTest extends Properties("Combinator") {
   }
 
 }
-

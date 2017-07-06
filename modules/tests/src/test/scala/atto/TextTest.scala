@@ -2,12 +2,9 @@ package atto
 import Atto._
 
 import org.scalacheck._
-import scalaz.\/._
-import atto.compat.scalaz._
 
 object TextTest extends Properties("Text") {
   import Prop._
-  import Parser._
 
   property("stringOf") = forAll { (s: String) =>
     stringOf(elem(c => s.exists(_ == c))).parseOnly(s).option == Some(s)
@@ -44,7 +41,7 @@ object TextTest extends Properties("Text") {
     (for {
       hp <- takeWhile(_ == w)
       tp <- takeText
-    } yield (hp, tp)).parseOnly(s).either == right((h, t))
+    } yield (hp, tp)).parseOnly(s).either == Right((h, t))
   }
 
   property("takeWhile1") = forAll { (w: Char, s: String) =>
@@ -53,7 +50,7 @@ object TextTest extends Properties("Text") {
     (for {
       hp <- takeWhile1(_ <= w)
       tp <- takeText
-    } yield (hp, tp)).parseOnly(sp).either == right((h, t))
+    } yield (hp, tp)).parseOnly(sp).either == Right((h, t))
   }
 
   property("takeWhile1/empty") =

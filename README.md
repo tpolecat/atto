@@ -43,6 +43,7 @@ Although **atto** is 50 times faster now than version 0.1, it's still not the fa
 
 - Chat it up on [Gitter](https://gitter.im/tpolecat/atto).
 - Check the new documentation [microsite](https://tpolecat.github.com/atto/).
+- Fancy Scaladoc is [here](https://www.javadoc.io/doc/org.tpolecat/atto-core_2.12/0.6.0)!
 
 ### Contributors
 

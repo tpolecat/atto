@@ -8,4 +8,7 @@ scala:
 jdk:
   - oraclejdk8
 
-script: sbt ++$TRAVIS_SCALA_VERSION test docs/tut
+script: sbt ++$TRAVIS_SCALA_VERSION coverage test docs/tut coverageReport
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

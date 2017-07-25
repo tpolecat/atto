@@ -1,7 +1,11 @@
 language: scala
 scala:
-  - 2.11.8
-  - 2.10.5
+  - 2.11.11
+  - 2.10.6
+install:
+  - . $HOME/.nvm/nvm.sh
+  - nvm install stable
+  - nvm use stable
 jdk:
   - oraclejdk8
   - oraclejdk7

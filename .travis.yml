@@ -5,6 +5,11 @@ scala:
   - 2.11.11
   - 2.12.2
 
+install:
+  - . $HOME/.nvm/nvm.sh
+  - nvm install stable
+  - nvm use stable
+
 jdk:
   - oraclejdk8
 

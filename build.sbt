@@ -24,7 +24,8 @@ lazy val commonSettings = Seq(
 	scalacOptions in compile ++= Seq(
 		"-Yno-imports",
 		"-Ywarn-numeric-widen"
-	)
+	),
+	parallelExecution in Test := false
 )
 
 lazy val publishSettings = Seq(
@@ -78,8 +79,8 @@ lazy val noPublishSettings = Seq(
 lazy val atto = project.in(file("."))
   .settings(buildSettings ++ commonSettings)
   .settings(noPublishSettings)
-  .dependsOn(coreJVM, coreJS, tests)
-  .aggregate(coreJVM, coreJS, tests)
+  .dependsOn(coreJVM, coreJS, testsJVM, testsJS)
+  .aggregate(coreJVM, coreJS, testsJVM, testsJS)
 
 lazy val core = crossProject.crossType(CrossType.Pure).in(file("modules/core"))
   .settings(buildSettings ++ commonSettings ++ publishSettings)
@@ -89,11 +90,14 @@ lazy val core = crossProject.crossType(CrossType.Pure).in(file("modules/core"))
 lazy val coreJVM = core.jvm
 lazy val coreJS = core.js
 
-lazy val tests = project.in(file("modules/tests"))
-	.dependsOn(coreJVM)
+lazy val tests = crossProject.crossType(CrossType.Pure).in(file("modules/tests"))
+	.dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
 	.settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.13.4" % "test")
   .settings(name := "atto-tests")
+
+lazy val testsJVM = tests.jvm
+lazy val testsJS = tests.js
 
 lazy val docs = project.in(file("modules/docs")).dependsOn(coreJVM)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)

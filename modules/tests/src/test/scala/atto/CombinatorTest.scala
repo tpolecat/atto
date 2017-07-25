@@ -159,7 +159,7 @@ object CombinatorTest extends Properties("Combinator") {
   }
 
   property("cons") = forAll { (c: Char, s: String) =>
-    lazy val p: Parser[NonEmptyList[Char]] = cons(anyChar, orElse(p.map(_.list), ok(List.empty[Char])))
+    lazy val p: Parser[NonEmptyList[Char]] = cons(anyChar, orElse(p.map(_.list.toList), ok(List.empty[Char])))
     p.parseOnly(c + s).option == Some(NonEmptyList(c, s.toList: _*))
   }
 
@@ -218,7 +218,7 @@ object CombinatorTest extends Properties("Combinator") {
     val sep = s + c
     !(sep.exists(_.isDigit)) ==> {
       val p = sepBy1(int, string(sep))
-      p.parseOnly(ns.list.mkString(sep)) match {
+      p.parseOnly(ns.list.toList.mkString(sep)) match {
         case ParseResult.Done("", `ns`) => true
         case _ => false
       }

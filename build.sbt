@@ -1,15 +1,14 @@
 import UnidocKeys._
 import ReleaseTransformations._
 
-
 lazy val buildSettings = Seq(
 	organization := "org.tpolecat",
 	licenses ++= Seq(
 		("MIT", url("http://opensource.org/licenses/MIT")),
 		("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
 	),
-	scalaVersion := "2.11.8",
-	crossScalaVersions := Seq("2.10.6", scalaVersion.value, "2.12.0"),
+	scalaVersion := "2.11.11",
+	crossScalaVersions := Seq("2.10.6", scalaVersion.value, "2.12.2"),
   addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.3" cross CrossVersion.binary)
 )
 
@@ -26,7 +25,8 @@ lazy val commonSettings = Seq(
 	scalacOptions in compile ++= Seq(
 		"-Yno-imports",
 		"-Ywarn-numeric-widen"
-	)
+	),
+	parallelExecution in Test := false
 )
 
 lazy val publishSettings = Seq(
@@ -81,9 +81,9 @@ lazy val atto = project.in(file("."))
   .settings(buildSettings ++ commonSettings)
   .settings(noPublishSettings)
   .settings(unidocSettings)
-  .settings(unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(tests))
-  .dependsOn(coreJVM, coreJS, tests, scalaz71, scalaz72JVM, scalaz72JS, catsJVM, catsJS)
-  .aggregate(coreJVM, coreJS, tests, scalaz71, scalaz72JVM, scalaz72JS, catsJVM, catsJS)
+  .settings(unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(testsJVM) -- inProjects(testsJS))
+  .dependsOn(coreJVM, coreJS, testsJVM, testsJS, scalaz71, scalaz72JVM, scalaz72JS, catsJVM, catsJS)
+  .aggregate(coreJVM, coreJS, testsJVM, testsJS, scalaz71, scalaz72JVM, scalaz72JS, catsJVM, catsJS)
 
 lazy val core = crossProject.crossType(CrossType.Pure).in(file("modules/core"))
   .settings(buildSettings ++ commonSettings ++ publishSettings)
@@ -92,10 +92,13 @@ lazy val core = crossProject.crossType(CrossType.Pure).in(file("modules/core"))
 lazy val coreJVM = core.jvm
 lazy val coreJS = core.js
 
-lazy val tests = project.in(file("modules/tests")).dependsOn(coreJVM, scalaz71, catsJVM)
+lazy val tests = crossProject.crossType(CrossType.Pure).in(file("modules/tests")).dependsOn(core, scalaz72, cats)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
   .settings(name := "atto-tests")
   .settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.13.4" % "test")
+
+lazy val testsJVM = tests.jvm
+lazy val testsJS = tests.js
 
 lazy val scalaz71 = project.in(file("modules/compat/scalaz71")).dependsOn(coreJVM)
   .settings(buildSettings ++ commonSettings ++ publishSettings)

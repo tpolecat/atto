@@ -2,7 +2,7 @@ package atto
 package parser
 
 import java.lang.String
-import scala.{ Boolean, Nothing, Unit, Int, Nil, List, PartialFunction, StringContext, Option }
+import scala.{ Boolean, Unit, Int, Nil, List, PartialFunction, StringContext, Option }
 import scala.language.higherKinds
 
 import atto.compat._
@@ -296,5 +296,5 @@ trait Combinator extends Combinator0 {
     implicit val N = stdlib.StdlibNonEmptyListy
     ((1 to n) :\ ok(List[A]()))((_, a) => cons(p, a).map(N.toList))
   }
-  
+
 }

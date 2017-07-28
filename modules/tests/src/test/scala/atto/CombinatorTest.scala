@@ -11,7 +11,6 @@ import atto.compat.scalaz._
 
 object CombinatorTest extends Properties("Combinator") {
   import Prop._
-  import Parser._
 
   implicit val eqChar: Equal[Char] = Order[Char] // :-\
 
@@ -259,4 +258,3 @@ object CombinatorTest extends Properties("Combinator") {
   }
 
 }
-

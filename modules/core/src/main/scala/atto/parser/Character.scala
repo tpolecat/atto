@@ -3,13 +3,12 @@ package parser
 
 import java.lang.String
 import atto.syntax.parser._
-import scala.{ Char, Boolean, Unit, StringContext, Option }
+import scala.{ Char, Boolean, Unit, Option }
 import scala.Predef.{ charWrapper, augmentString }
 
 /** Parsers for various kinds of characters. */
 trait Character {
   import combinator._
-  import text._
 
   /** Parser that returns a `Char` if it satisfies predicate `p`. */
   def elem(p: Char => Boolean, what: => String = "elem(...)"): Parser[Char] =
@@ -101,5 +100,3 @@ trait Character {
   def horizontalWhitespace =
     elem(c => c.isWhitespace && c != '\r' && c != '\n', "horizontalWhitespace")
 }
-
-

@@ -1,8 +1,10 @@
 package atto
 package parser
 
+import cats.implicits._
 import java.lang.String
 import atto.syntax.parser._
+import scala.{ Char, Boolean, Option, Unit }
 import scala.Predef.{ charWrapper, augmentString }
 
 /** Parsers for various kinds of characters. */
@@ -29,7 +31,7 @@ trait Character {
 
   /** Parser that matches and returns only `c`. */
   def char(c: Char): Parser[Char] =
-    elem(_ == c, "'" + c + "'")
+    elem(_ === c, "'" + c.toString + "'")
 
   /** Parser that matches any character. */
   lazy val anyChar: Parser[Char] =
@@ -37,7 +39,7 @@ trait Character {
 
   /** Parser that matches any character other than `c`. */
   def notChar(c: Char): Parser[Char] =
-    satisfy(_ != c) named ("not '" + c + "'")
+    satisfy(_ =!= c) named ("not '" + c.toString + "'")
 
   /** Decimal digit, 0-9. */
   def digit: Parser[Char] =
@@ -79,7 +81,7 @@ trait Character {
 
   type CharRange = scala.collection.immutable.NumericRange[Char]
 
-  def charRange(rs: CharRange*) =
+  def charRange(rs: CharRange*): Parser[Char] =
     elem(c => rs.exists(_.contains(c)))
 
   /** `elem` + `map` in a single operation. */
@@ -93,9 +95,10 @@ trait Character {
     elem(p).void named "skip(...)"
 
   /** Horizontal or vertical whitespace character */
-  def whitespace = elem(c => c.isWhitespace, "whitespace")
+  def whitespace: Parser[Char] =
+    elem(c => c.isWhitespace, "whitespace")
 
   /** Whitespace that is not a line break */
-  def horizontalWhitespace =
-    elem(c => c.isWhitespace && c != '\r' && c != '\n', "horizontalWhitespace")
+  def horizontalWhitespace: Parser[Char] =
+    elem(c => c.isWhitespace && c =!= '\r' && c =!= '\n', "horizontalWhitespace")
 }

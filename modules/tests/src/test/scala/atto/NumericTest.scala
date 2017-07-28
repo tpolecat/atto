@@ -1,13 +1,15 @@
 package atto
 import Atto._
 
+import cats.implicits._
 import org.scalacheck._
 
+@SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements", "org.wartremover.warts.Any", "org.wartremover.warts.Equals"))
 object NumericTest extends Properties("Numeric") {
   import Prop._
 
   property("bigDecimal") = forAll { (b: BigInt) =>
-    bigInt.parseOnly(b.toString).option == Some(b)
+    bigInt.parseOnly(b.toString).option === Some(b)
   }
 
   property("long") = forAll { (b: BigInt) =>
@@ -35,22 +37,22 @@ object NumericTest extends Properties("Numeric") {
   }
 
   // property("bigDecimal") = forAll { (b: BigDecimal) =>
-  //   bigDecimal.parseOnly(b.toString).option == Some(b)
+  //   bigDecimal.parseOnly(b.toString).option === Some(b)
   // }
 
   // property("double") = forAll { (b: BigDecimal) =>
-  //   double.parseOnly(b.toString).option == Some(b.toDouble)
+  //   double.parseOnly(b.toString).option === Some(b.toDouble)
   // }
 
   // property("float") = forAll { (b: BigDecimal) =>
-  //   float.parseOnly(b.toString).option == Some(b.toFloat)
+  //   float.parseOnly(b.toString).option === Some(b.toFloat)
   // }
 
   property("signum") = forAll { (s: String) =>
     !(s.startsWith("-") || s.startsWith("+")) ==> {
-      signum.parseOnly("+" + s) == ParseResult.Done(s,  1) &&
-      signum.parseOnly("-" + s) == ParseResult.Done(s, -1) &&
-      signum.parseOnly(s)       == ParseResult.Done(s,  1)
+      (signum.parseOnly("+" + s) sameAs ParseResult.Done(s,  1)) &&
+      (signum.parseOnly("-" + s) sameAs ParseResult.Done(s, -1)) &&
+      (signum.parseOnly(s)       sameAs ParseResult.Done(s,  1))
     }
   }
 

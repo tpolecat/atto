@@ -5,7 +5,9 @@ import cats.{ Eval, Foldable }
 import cats.data.NonEmptyList
 import cats.implicits._
 
-import java.lang.String
+import java.lang.{ String, SuppressWarnings }
+import scala.{ Array, Nil, Int, Unit, List, Boolean, Either, Left, Right, StringContext, PartialFunction, Option, Some }
+import scala.Predef.augmentString
 import scala.language.higherKinds
 
 import atto.syntax.all._
@@ -18,9 +20,10 @@ trait Combinator0 {
   import atto.syntax.all._
 
   /** Parser that consumes no data and produces the specified value. */
+  @SuppressWarnings(Array("org.wartremover.warts.ToString"))
   def ok[A](a: A): Parser[A] =
     new Parser[A] {
-      override def toString = "ok(" + a + ")"
+      override def toString = "ok(" + a.toString + ")"
       def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R] =
         Eval.defer(ks(st0,a))
     }
@@ -68,9 +71,10 @@ trait Combinator0 {
           Eval.now(prompt(st0, st => kf(st,List(),"not enough bytes"), a => ks(a,())))
     }
 
+  @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
   private def ensureSuspended(n: Int): Parser[String] =
     new Parser[String] {
-      override def toString = "ensureSuspended(" + n + ")"
+      override def toString = "ensureSuspended(" + n.toString + ")"
       def apply[R](st0: State, kf: Failure[R], ks: Success[String,R]): TResult[R] =
         if (st0.input.length >= st0.pos + n)
           Eval.defer(ks(st0,st0.input.substring(st0.pos, st0.pos + n)))
@@ -80,7 +84,7 @@ trait Combinator0 {
 
   def ensure(n: Int): Parser[String] =
     new Parser[String] {
-      override def toString = "ensure(" + n + ")"
+      override def toString = "ensure(" + n.toString + ")"
       def apply[R](st0: State, kf: Failure[R], ks: Success[String,R]): TResult[R] =
         if (st0.input.length >= st0.pos + n)
           Eval.defer(ks(st0,st0.input.substring(st0.pos, st0.pos + n)))
@@ -119,7 +123,7 @@ trait Combinator0 {
     new Parser[Boolean] {
       override def toString = "endOfChunk"
       def apply[R](st0: State, kf: Failure[R], ks: Success[Boolean,R]): TResult[R] =
-        Eval.defer(ks(st0,st0.pos == st0.input.length))
+        Eval.defer(ks(st0,st0.pos === st0.input.length))
     }
 
   //////
@@ -151,7 +155,7 @@ trait Combinator0 {
   def discardLeft[A,B](m: Parser[A], b: => Parser[B]): Parser[B] = {
     lazy val n = b
     new Parser[B] {
-      override def toString = m infix ("~> " + n)
+      override def toString = m infix ("~> " + n.toString)
       def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): TResult[R] =
         Eval.defer(m(st0,kf,(s:State, a: A) => n(s, kf, ks)))
     }
@@ -160,7 +164,7 @@ trait Combinator0 {
   def discardRight[A, B](m: Parser[A], b: => Parser[B]): Parser[A] = {
     lazy val n = b
     new Parser[A] {
-      override def toString = m infix ("<~ " + n)
+      override def toString = m infix ("<~ " + n.toString)
       def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R] =
         Eval.defer(m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, a))))
     }
@@ -169,7 +173,7 @@ trait Combinator0 {
   def andThen[A, B](m: Parser[A], b: => Parser[B]): Parser[(A,B)] = {
     lazy val n = b
     new Parser[(A,B)] {
-      override def toString = m infix ("~ " + n)
+      override def toString = m infix ("~ " + n.toString)
       def apply[R](st0: State, kf: Failure[R], ks: Success[(A,B),R]): TResult[R] =
         Eval.defer(m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, (a, b)))))
     }
@@ -187,7 +191,7 @@ trait Combinator0 {
   def either[A, B](m: Parser[A], b: => Parser[B]): Parser[Either[A,B]] = {
     lazy val n = b
     new Parser[Either[A,B]] {
-      override def toString = m infix ("|| " + n)
+      override def toString = m infix ("|| " + n.toString)
       def apply[R](st0: State, kf: Failure[R], ks: Success[Either[A, B], R]): TResult[R] =
         Eval.defer(m(
           st0,
@@ -229,13 +233,13 @@ trait Combinator extends Combinator0 {
 
   /** Parser that matches `p` only if there is no remaining input */
   def phrase[A](p: Parser[A]): Parser[A] =
-    p <~ endOfInput named ("phrase" + p)
+    p <~ endOfInput named ("phrase" + p.toString)
 
   // TODO: return a parser of a reducer of A
   /** Parser that matches zero or more `p`. */
   def many[A](p: => Parser[A]): Parser[List[A]] = {
     lazy val many_p : Parser[List[A]] = cons(p, many_p).map(_.toList) | ok(Nil)
-    many_p named ("many(" + p + ")")
+    many_p named ("many(" + p.toString + ")")
   }
 
   /** Parser that matches one or more `p`. */
@@ -243,11 +247,11 @@ trait Combinator extends Combinator0 {
     cons(p, many(p))
 
   def manyN[A](n: Int, a: Parser[A]): Parser[List[A]] =
-    ((1 to n) :\ ok(List[A]()))((_, p) => cons(a, p).map(_.toList)) named "ManyN(" + n + ", " + a + ")"
+    ((1 to n) :\ ok(List[A]()))((_, p) => cons(a, p).map(_.toList)) named "ManyN(" + n.toString + ", " + a.toString + ")"
 
   def manyUntil[A](p: Parser[A], q: Parser[_]): Parser[List[A]] = {
     lazy val scan: Parser[List[A]] = (q ~> ok(Nil)) | cons(p, scan).map(_.toList)
-    scan named ("manyUntil(" + p + "," + q + ")")
+    scan named ("manyUntil(" + p.toString + "," + q.toString + ")")
   }
 
   def skipMany(p: Parser[_]): Parser[Unit] =
@@ -260,20 +264,22 @@ trait Combinator extends Combinator0 {
     manyN(n, p).void named s"skipManyN($n, $p)"
 
   def sepBy[A](p: Parser[A], s: Parser[_]): Parser[List[A]] =
-    cons(p, ((s ~> sepBy1(p,s)).map(_.toList) | ok(List.empty[A]))).map(_.toList) | ok(List.empty[A]) named ("sepBy(" + p + "," + s + ")")
+    cons(p, ((s ~> sepBy1(p,s)).map(_.toList) | ok(List.empty[A]))).map(_.toList) | ok(List.empty[A]) named ("sepBy(" + p.toString + "," + s.toString + ")")
 
   def sepBy1[A](p: Parser[A], s: Parser[_]): Parser[NonEmptyList[A]] = {
     lazy val scan: Parser[NonEmptyList[A]] = cons(p, s ~> scan.map(_.toList) | ok(Nil))
-    scan named ("sepBy1(" + p + "," + s + ")")
+    scan named ("sepBy1(" + p.toString + "," + s.toString + ")")
   }
 
   // Delimited pair
   def pairBy[A,B](a: Parser[A], delim: Parser[_], b: Parser[B]): Parser[(A,B)] =
     (a <~ delim) ~ b
 
+  @SuppressWarnings(Array("org.wartremover.warts.Overloading"))
   def choice[A](xs: Parser[A]*) : Parser[A] =
     xs.foldRight[Parser[A]](err("choice: no match"))(_ | _) named s"choice(${xs.mkString(", ")})"
 
+  @SuppressWarnings(Array("org.wartremover.warts.Overloading"))
   def choice[F[_]: Foldable, A](fpa: F[Parser[A]]): Parser[A] =
     choice(fpa.toList: _*)
 

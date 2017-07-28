@@ -3,12 +3,13 @@ import Atto._
 
 import org.scalacheck._
 
+@SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements", "org.wartremover.warts.Any"))
 object IncrementalTest extends Properties("Incremental") {
   import Prop._
 
   // list of ints chunked arbitrarily
   property("incremental/1") = forAll { (n: Int, ns0: List[Int], c: Char, s: String) =>
-    val sep = s + s + s + c
+    val sep = s + s + s + c.toString
     !sep.exists(_.isDigit) ==> {
       val ns = n :: ns0 ++ ns0 ++ ns0
       val p = sepBy(int, string(sep))

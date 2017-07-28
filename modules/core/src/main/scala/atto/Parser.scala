@@ -1,8 +1,9 @@
 package atto
 
 import cats.{ Eval, Monad, SemigroupK, Monoid }
-import java.lang.String
-import scala.{ Boolean, List }
+import java.lang.{ String, SuppressWarnings }
+import scala.{ Array, Boolean, List, Unit, Int, Either, Left, Right }
+import scala.Predef.augmentString
 
 // Operators not needed for use in `for` comprehensions are provided via added syntax.
 trait Parser[A] { m =>
@@ -34,6 +35,8 @@ trait Parser[A] { m =>
   def void: Parser[Unit] =
     this.map(_ => ())
 
+  override def toString = "Parser(...)"
+
 }
 
 object Parser extends ParserFunctions with ParserInstances {
@@ -45,21 +48,23 @@ object Parser extends ParserFunctions with ParserInstances {
   }
 
   object State {
-    def apply(s: String, done: Boolean) = new State(s, 0, done)
+    @SuppressWarnings(Array("org.wartremover.warts.Overloading"))
+    def apply(s: String, done: Boolean): State =
+      new State(s, 0, done)
   }
 
   object Internal {
     sealed abstract class Result[T] {
       def translate: ParseResult[T]
     }
-    case class Fail[T](input: State, stack: List[String], message: String) extends Result[T] {
+    final case class Fail[T](input: State, stack: List[String], message: String) extends Result[T] {
       def translate = ParseResult.Fail(input.input, stack, message)
-      def push(s: String) = Fail(input, stack = s :: stack, message)
+      def push(s: String): Fail[T] = Fail(input, stack = s :: stack, message)
     }
-    case class Partial[T](k: String => Eval[Result[T]]) extends Result[T] {
+    final case class Partial[T](k: String => Eval[Result[T]]) extends Result[T] {
       def translate = ParseResult.Partial(a => k(a).value.translate)
     }
-    case class Done[T](input: State, result: T) extends Result[T] {
+    final case class Done[T](input: State, result: T) extends Result[T] {
       def translate = ParseResult.Done(input.input, result)
     }
   }
@@ -82,7 +87,7 @@ trait ParserFunctions {
   def parse[A](m: Parser[A], b: String): ParseResult[A] = {
     def kf(a:State, b: List[String], c: String) = Eval.now[Result[A]](Fail(a.copy(input = a.input.drop(a.pos)), b, c))
     def ks(a:State, b: A) = Eval.now[Result[A]](Done(a.copy(input = a.input.drop(a.pos)), b))
-    m(State(b, false), kf, ks).value.translate
+    m(State.apply(b, false), kf, ks).value.translate
   }
 
   /**
@@ -94,7 +99,7 @@ trait ParserFunctions {
   def parseOnly[A](m: Parser[A], b: String): ParseResult[A] = {
     def kf(a:State, b: List[String], c: String) = Eval.now[Result[A]](Fail(a.copy(input = a.input.drop(a.pos)), b, c))
     def ks(a:State, b: A) = Eval.now[Result[A]](Done(a.copy(input = a.input.drop(a.pos)), b))
-    m(State(b, true), kf, ks).value.translate
+    m(State.apply(b, true), kf, ks).value.translate
   }
 
 }
@@ -107,6 +112,7 @@ trait ParserInstances {
       def pure[A](a: A): Parser[A] = ok(a)
       def flatMap[A,B](ma: Parser[A])(f: A => Parser[B]) = ma flatMap f
       override def map[A,B](ma: Parser[A])(f: A => B) = ma map f
+      @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
       def tailRecM[A, B](a: A)(f: A => Parser[Either[A, B]]): Parser[B] =
         f(a).flatMap {
           case Left(a)  => tailRecM(a)(f)

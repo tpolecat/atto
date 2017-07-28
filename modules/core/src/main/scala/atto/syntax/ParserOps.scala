@@ -3,6 +3,7 @@ package syntax
 
 import cats.data.NonEmptyList
 import java.lang.String
+import scala.{ Either, PartialFunction, List, Unit, Int }
 import scala.language.implicitConversions
 import atto.parser._
 
@@ -96,7 +97,7 @@ trait ToParserOps {
 
   implicit def toParserOps[A](p: Parser[A]): ParserOps[A] =
     new ParserOps[A] {
-      val self = p
+      val self: Parser[A] = p
     }
 
 }

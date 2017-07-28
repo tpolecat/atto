@@ -2,7 +2,7 @@ package atto
 package syntax
 
 import java.lang.String
-import scala.{ StringContext, PartialFunction }
+import scala.{ List, PartialFunction, Unit, Int }
 import scala.language.implicitConversions
 import scala.language.higherKinds
 import atto.compat._

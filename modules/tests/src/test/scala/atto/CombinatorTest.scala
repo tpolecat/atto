@@ -53,7 +53,7 @@ object CombinatorTest extends Properties("Combinator") {
   property("advance") = forAll { (s: String, x: Int) =>
     (x >= 0) ==> {
       advance(x).parseOnly(s) match {
-        case ParseResult.Done(s, ()) => true
+        case ParseResult.Done(_, ()) => true
         case _ => false
       }
     }
@@ -259,4 +259,3 @@ object CombinatorTest extends Properties("Combinator") {
   }
 
 }
-

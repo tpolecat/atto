@@ -1,5 +1,6 @@
 package atto.compat
 
+import scala.List
 import scala.language.higherKinds
 
 trait Foldy[F[_]] {

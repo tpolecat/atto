@@ -7,7 +7,6 @@ import atto.compat.scalaz._
 
 object TextTest extends Properties("Text") {
   import Prop._
-  import Parser._
 
   property("stringOf") = forAll { (s: String) =>
     stringOf(elem(c => s.exists(_ == c))).parseOnly(s).option == Some(s)

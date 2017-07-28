@@ -1,3 +1,6 @@
+import java.lang.String
+import scala.{ App, Int }
+import scala.Predef.println
 import scalaz._, Scalaz.{ char => _, _ }
 import atto._, Atto._, compat.scalaz._
 import scala.language.higherKinds
@@ -52,7 +55,7 @@ object Example extends App {
   val m = e.cata[String \/ Int] {
     case Lit(a)    => a.right
     case Mul(a, b) => (a |@| b)(_ * _)
-    case Div(a, \/-(0)) => "Division by Zero".left
+    case Div(_, \/-(0)) => "Division by Zero".left
     case Div(a, b) => (a |@| b)(_ / _)
     case Add(a, b) => (a |@| b)(_ + _)
     case Sub(a, b) => (a |@| b)(_ - _)

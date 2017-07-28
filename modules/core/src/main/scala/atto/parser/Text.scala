@@ -7,7 +7,6 @@ import atto.syntax.parser._
 import java.lang.{ String, Integer }
 import scala.{ Char, List, Int, StringContext, Boolean, Nil, Nothing, Unit, Option, Some, None }
 import scala.Predef.{ augmentString, charWrapper }
-import scala.language.higherKinds
 
 /** Text parsers. */
 trait Text {

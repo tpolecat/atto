@@ -1,5 +1,6 @@
 language: scala
 scala:
+  - 2.12.3
   - 2.11.11
   - 2.10.6
 install:
@@ -8,6 +9,5 @@ install:
   - nvm use stable
 jdk:
   - oraclejdk8
-  - oraclejdk7
 
 script: sbt ++$TRAVIS_SCALA_VERSION test docs/tut

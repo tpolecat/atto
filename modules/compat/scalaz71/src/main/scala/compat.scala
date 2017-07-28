@@ -4,6 +4,7 @@ import atto._
 import atto.parser.combinator._
 import atto.syntax.parser._
 
+import scala.List
 import scala.language.higherKinds
 
 import _root_.scalaz._, Scalaz._

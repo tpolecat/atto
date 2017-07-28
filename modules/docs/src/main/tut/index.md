@@ -18,7 +18,7 @@ int.sepBy1(spaceChar).parseOnly("1 20 300").option
 
 ### What's New?
 
-Starting with **0.5.2** atto supports Scala-JS! Thanks Pepe García!
+Starting with **0.5.2** atto supports Scala-JS! Thanks Pepe García and Carlos Quiroz!
 
 The **0.5.x** series is a **breaking** change from 0.4.x, but for most users the impact will be minor. The important changes are:
 

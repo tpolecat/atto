@@ -1,8 +1,6 @@
 import java.lang.String
-import scala.{ Boolean, Char, Double, List }
-
-import scalaz.syntax.functor._
-import scalaz.std.list._
+import scala.{ Boolean, Char, Double, List, App }
+import scala.Predef.charWrapper
 
 import atto._
 import Atto._

@@ -60,4 +60,3 @@ object CharacterTest extends Properties("Character") {
   }
 
 }
-

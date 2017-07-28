@@ -2,7 +2,7 @@ package atto
 
 import atto.compat.Eithery
 import java.lang.String
-import scala.{ Option, Some, None, Nothing, List }
+import scala.{ Option, Some, None, List }
 import scala.language.higherKinds
 
 sealed abstract class ParseResult[A] {
@@ -39,4 +39,3 @@ object ParseResult {
   }
 
 }
-

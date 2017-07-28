@@ -1,5 +1,6 @@
 package atto.compat
 
+import scala.{ Either, List, Left, Right, Traversable }
 import scala.language.higherKinds
 
 object stdlib extends StdlibModes

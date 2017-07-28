@@ -1,17 +1,14 @@
 package atto
 
-import scala.language.implicitConversions
-import scala.language.higherKinds
-
 import java.lang.String
-import scala.{ Boolean, List, Nothing }
+import scala.{ Boolean, List, Unit, Int }
+import scala.Predef.augmentString
 
 import Trambopoline._
 
 // Operators not needed for use in `for` comprehensions are provided via added syntax.
 trait Parser[A] { m =>
   import Parser._
-  import Parser.Internal._
 
   def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R]
 
@@ -103,7 +100,3 @@ trait ParserFunctions {
   }
 
 }
-
-
-
-

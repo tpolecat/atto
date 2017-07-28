@@ -1,5 +1,6 @@
 package atto
 
+import scala.{ Any, List, ::, Nil }
 import scala.annotation.tailrec
 
 // trampoline derived without shame or permission from cats.Eval

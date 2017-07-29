@@ -1,10 +1,5 @@
 language: scala
 
-scala:
-  - 2.10.6
-  - 2.11.11
-  - 2.12.2
-
 install:
   - . $HOME/.nvm/nvm.sh
   - nvm install stable
@@ -13,7 +8,10 @@ install:
 jdk:
   - oraclejdk8
 
-script: sbt ++$TRAVIS_SCALA_VERSION coverage test docs/tut coverageReport
+script:
+  - sbt ++2.10.6  test
+  - sbt ++2.11.11 test
+  - sbt ++2.12.3  coverage test docs/tut coverageReport
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

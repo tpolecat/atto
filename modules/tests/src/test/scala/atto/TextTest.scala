@@ -1,24 +1,26 @@
 package atto
 import Atto._
 
+import cats.implicits._
 import org.scalacheck._
 
+@SuppressWarnings(Array("org.wartremover.warts.NonUnitStatements", "org.wartremover.warts.Any"))
 object TextTest extends Properties("Text") {
   import Prop._
 
   property("stringOf") = forAll { (s: String) =>
-    stringOf(elem(c => s.exists(_ == c))).parseOnly(s).option == Some(s)
+    stringOf(elem(c => s.exists(_ === c))).parseOnly(s).option === Some(s)
   }
 
   property("stringOf1") = forAll { (s: String) =>
-    stringOf1(elem(c => s.exists(_ == c))).parseOnly(s).option ==
+    stringOf1(elem(c => s.exists(_ === c))).parseOnly(s).option ===
       Some(s).filterNot(_.isEmpty)
   }
 
   property("take") = forAll { (s: String, n: Int) =>
     n > 1 ==> {
       take(n).parseOnly(s) match {
-        case ParseResult.Done(h, t) => (h, t) == s.splitAt(n)
+        case ParseResult.Done(h, t) => (h, t) === s.splitAt(n)
         case ParseResult.Fail(`s`, _, _) if n > s.length => true
         case _ => false
       }
@@ -26,7 +28,7 @@ object TextTest extends Properties("Text") {
   }
 
   property("string") = forAll { (s: String, t: String) =>
-    string(s).parse(s ++ t).option == Some(s)
+    string(s).parse(s ++ t).option === Some(s)
   }
 
   property("takeCount") = forAll { (k: Int, s: String) => (k >= 0) ==> {
@@ -37,11 +39,11 @@ object TextTest extends Properties("Text") {
   }}
 
   property("takeWhile") = forAll { (w: Char, s: String) =>
-    val (h, t) = s.span(_ == w)
+    val (h, t) = s.span(_ === w)
     (for {
-      hp <- takeWhile(_ == w)
+      hp <- takeWhile(_ === w)
       tp <- takeText
-    } yield (hp, tp)).parseOnly(s).either == Right((h, t))
+    } yield (hp, tp)).parseOnly(s).either === Right((h, t))
   }
 
   property("takeWhile1") = forAll { (w: Char, s: String) =>
@@ -50,19 +52,19 @@ object TextTest extends Properties("Text") {
     (for {
       hp <- takeWhile1(_ <= w)
       tp <- takeText
-    } yield (hp, tp)).parseOnly(sp).either == Right((h, t))
+    } yield (hp, tp)).parseOnly(sp).either === Right((h, t))
   }
 
   property("takeWhile1/empty") =
-    takeWhile1(_ => true).parse("").option == None
+    takeWhile1(_ => true).parse("").option === None
 
   // scan
 
   property("stringLiteral") = forAll { (s: String, t: String) =>
-    stringLiteral.parseOnly(quote(s) + t) == ParseResult.Done(t, s)
+    stringLiteral.parseOnly(quote(s) + t) sameAs ParseResult.Done(t, s)
   }
 
-  def quote(s: String) = s.map {
+  def quote(s: String): String = s.map {
       case '"' => "\\\""
       case '\\' => "\\\\"
       case '/' => "\\/"
@@ -75,10 +77,10 @@ object TextTest extends Properties("Text") {
       case c => c
     }.mkString("\"", "", "\"")
 
-  val whitespaces = Gen.listOf(Generators.whitespace).map(_.mkString)
+  val whitespaces: Gen[String] = Gen.listOf(Generators.whitespace).map(_.mkString)
 
   property("parens") = forAll(whitespaces, Gen.alphaStr, whitespaces) { (ws1, s, ws2) =>
-    parens(string(s)).parse(s"($ws1$s$ws2)").option == Some(s)
+    parens(string(s)).parse(s"($ws1$s$ws2)").option === Some(s)
   }
 
 }

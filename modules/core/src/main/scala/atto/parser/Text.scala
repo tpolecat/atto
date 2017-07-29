@@ -3,8 +3,10 @@ package parser
 
 import atto.syntax.parser._
 
-import java.lang.{ String, Integer }
-import scala.{ Char, List, Int, StringContext, Boolean, Nil, Nothing, Unit, Option, Some, None }
+import cats.implicits._
+import java.lang.{ String, Integer, SuppressWarnings }
+import scala.{ Array, Char, List, Int, StringContext, Boolean, Nil, Nothing, Unit, Option, Some, None }
+import scala.annotation.tailrec
 import scala.Predef.{ augmentString, charWrapper }
 
 /** Text parsers. */
@@ -14,11 +16,11 @@ trait Text {
 
   /** Parser that returns a string of characters matched by `p`. */
   def stringOf(p: Parser[Char]): Parser[String] =
-    many(p).map(cs => new String(cs.toArray)) named "stringOf(" + p + ")"
+    many(p).map(cs => new String(cs.toArray)) named "stringOf(" + p.toString + ")"
 
   /** Parser that returns a non-empty string of characters matched by `p`. */
   def stringOf1(p: Parser[Char]): Parser[String] = {
-    many1(p).map(cs => new String(cs.toList.toArray)) named "stringOf1(" + p + ")"
+    many1(p).map(cs => new String(cs.toList.toArray)) named "stringOf1(" + p.toString + ")"
   }
 
   def takeWith(n: Int, p: String => Boolean, what: => String = "takeWith(...)"): Parser[String] =
@@ -29,11 +31,11 @@ trait Text {
 
   /** Parser that returns the next `n` characters as a `String`. */
   def take(n: Int): Parser[String] =
-    takeWith(n, _ => true, "take(" + n + ")")
+    takeWith(n, _ => true, "take(" + n.toString + ")")
 
   /** Parser that matches and returns only `s`. */
   def string(s: String): Parser[String] =
-    takeWith(s.length, _ == s, "string(\"" + s + "\")")
+    takeWith(s.length, _ === s, "string(\"" + s + "\")")
 
   /** Like `string` but case-insensitive `s`. */
   def stringCI(s: String): Parser[String] =
@@ -44,6 +46,7 @@ trait Text {
    * more efficient than `stringOf(elem(p))`.
    */
   def takeWhile(p: Char => Boolean): Parser[String] = {
+    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
     def go(acc: List[String]): Parser[List[String]] = for {
       x <- get map (_.takeWhile(p))
       _ <- advance(x.length)
@@ -65,7 +68,7 @@ trait Text {
     _ <- endOfChunk.flatMap(b => if (b) demandInput else ok(()))
     x <- get map (_.takeWhile(p))
     len = x.length
-    r <- if (len == 0) err("takeWhile1")
+    r <- if (len === 0) err("takeWhile1")
       else for {
         _ <- advance(len)
         eoc <- endOfChunk
@@ -76,6 +79,7 @@ trait Text {
 
   /** Parser that consumes and returns all remaining chunks of input. */
   lazy val takeRest: Parser[List[String]] = {
+    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
     def go(acc: List[String]): Parser[List[String]] = for {
       input <- wantInput
       r <- if (input) for {
@@ -99,10 +103,10 @@ trait Text {
   def scan[S](s: S)(p: (S, Char) => Option[S]): Parser[String] = {
 
     sealed trait Scan[+T]
-    case class Continue[T](s: S) extends Scan[T]
-    case class Finished(n: Int, s: String) extends Scan[Nothing]
+    final case class Continue[T](s: S) extends Scan[T]
+    final case class Finished(n: Int, s: String) extends Scan[Nothing]
 
-    def scanner(s: S, n: Int, t: String): Scan[S] = {
+    @tailrec def scanner(s: S, n: Int, t: String): Scan[S] = {
       if (t.isEmpty) Continue(s)
       else p(s, t.head) match {
         case Some(s) => scanner(s, n + 1, t.tail)
@@ -110,6 +114,7 @@ trait Text {
       }
     }
 
+    @SuppressWarnings(Array("org.wartremover.warts.Recursion"))
     def go(acc: List[String], s: S): Parser[List[String]] = for {
       input <- get
       r <- scanner(s, 0, input) match {
@@ -135,7 +140,7 @@ trait Text {
 
     // Unescaped characters
     val nesc: Parser[Char] =
-      elem(c => c != '\\' && c != '"' && !c.isControl)
+      elem(c => c =!= '\\' && c =!= '"' && !c.isControl)
 
     // Escaped characters
     val esc: Parser[Char] =
@@ -158,14 +163,14 @@ trait Text {
   } named "stringLiteral"
 
   /** Turns a parser into one that skips trailing whitespace */
-  def token[A](p: Parser[A]) =
+  def token[A](p: Parser[A]): Parser[A] =
     p <~ text.skipWhitespace
 
   /**
    * Consumes `left` and `right`, including the trailing and preceding whitespace,
    * respectively, and returns the value of `p`.
    */
-  def bracket[A,B,C](left: Parser[B], p: => Parser[A], right: => Parser[C]) =
+  def bracket[A,B,C](left: Parser[B], p: => Parser[A], right: => Parser[C]): Parser[A] =
     token(left) ~> token(p) <~ right
 
   /** Parser that consumes horizontal and vertical whitespace */
@@ -173,28 +178,29 @@ trait Text {
     takeWhile(c => c.isWhitespace).void named "whitespace"
 
   /** Turns a parser into one that consumes surrounding parentheses `()` */
-  def parens[A](p: => Parser[A]) = bracket(char('('), p, char(')')).named(s"parens(${p.toString})")
+  def parens[A](p: => Parser[A]): Parser[A] =
+    bracket(char('('), p, char(')')).named(s"parens(${p.toString})")
 
   /** Turns a parser into one that consumes surrounding square brackets `[]` */
-  def squareBrackets[A](p: => Parser[A]) = {
+  def squareBrackets[A](p: => Parser[A]): Parser[A] = {
     lazy val q = p
     bracket(char('['), q, char(']')).named(s"squareBrackets(${q.toString})")
   }
 
   /** Turns a parser into one that consumes surrounding curly braces `{}` */
-  def braces[A](p: => Parser[A]) = {
+  def braces[A](p: => Parser[A]): Parser[A] = {
     lazy val q = p
     bracket(char('{'), q, char('}')).named(s"braces(${q.toString})")
   }
 
   /** Turns a parser into one that consumes surrounding envelope brackets `[||]` */
-  def envelopes[A](p: => Parser[A]) = {
+  def envelopes[A](p: => Parser[A]): Parser[A] = {
     lazy val q = p
     bracket(string("[|"), q, string("|]")).named(s"envelope(${q.toString})")
   }
 
   /** Turns a parser into one that consumes surrounding banana brackets `(||)` */
-  def bananas[A](p: => Parser[A]) = {
+  def bananas[A](p: => Parser[A]): Parser[A] = {
     lazy val q = p
     bracket(string("(|"), q, string("|)")).named(s"banana(${q.toString})")
   }

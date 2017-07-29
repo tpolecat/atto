@@ -1,17 +1,19 @@
 import atto._, Atto._
+import cats.implicits._
 import java.lang.String
-import scala.{ Boolean, Char, Double, List }
+import scala.{ Boolean, Char, Double, List, App }
+import scala.Predef.charWrapper
 
 object JsonExample extends Whitespace {
 
   // Json AST
   sealed trait JValue
   case object JNull extends JValue
-  case class JBoolean(value: Boolean) extends JValue
-  case class JString(value: String) extends JValue
-  case class JNumber(value: Double) extends JValue
-  case class JArray(values: List[JValue]) extends JValue
-  case class JObject(values: List[(String, JValue)]) extends JValue
+  final case class JBoolean(value: Boolean) extends JValue
+  final case class JString(value: String) extends JValue
+  final case class JNumber(value: Double) extends JValue
+  final case class JArray(values: List[JValue]) extends JValue
+  final case class JObject(values: List[(String, JValue)]) extends JValue
 
   // Invariant constructors
   def jNull: JValue = JNull
@@ -49,7 +51,7 @@ trait Whitespace {
   // Syntax for turning a parser into one that consumes trailing whitespace
   implicit class TokenOps[A](self: Parser[A]) {
     def t: Parser[A] =
-      self <~ takeWhile(c => c.isSpaceChar || c == '\n')
+      self <~ takeWhile(c => c.isSpaceChar || c === '\n')
   }
 
   // Delimited list

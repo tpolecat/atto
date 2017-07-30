@@ -5,7 +5,7 @@ def attoWarts(sv: String) =
   sv match {
     case "2.10.6"  |
          "2.11.11" => Nil
-    case "2.12.3"  =>
+    case "2.12.3" | "2.13.0-M1"  =>
       Warts.allBut(
         Wart.Nothing,            // false positives
         Wart.DefaultArguments,   // used for labels in a bunch of places
@@ -29,7 +29,7 @@ lazy val compilerFlags = Seq(
           "-Yno-imports",
           "-Ywarn-numeric-widen"
         )
-      case "2.12.3" =>
+      case "2.12.3" | "2.13.0-M1" =>
         Seq(
           "-deprecation",                      // Emit warning and location for usages of deprecated APIs.
           "-encoding", "utf-8",                // Specify character encoding used by source files.
@@ -105,7 +105,7 @@ lazy val buildSettings = Seq(
 	),
 	scalaVersion := "2.12.3",
 	crossScalaVersions := Seq("2.10.6", "2.11.11", scalaVersion.value),
-  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.3" cross CrossVersion.binary)
+  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.4" cross CrossVersion.binary)
 )
 
 lazy val commonSettings =

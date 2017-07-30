@@ -9,9 +9,10 @@ jdk:
   - oraclejdk8
 
 script:
-  - sbt ++2.10.6  test
-  - sbt ++2.11.11 test
-  - sbt ++2.12.3  coverage test docs/tut coverageReport
+  - sbt ++2.10.6    test
+  - sbt ++2.11.11   test
+  - sbt ++2.12.3    coverage test docs/tut coverageReport
+  - sbt ++2.13.0-M1 test
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

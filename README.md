@@ -7,7 +7,7 @@
 
 ```scala
 scala> int.sepBy1(spaceChar).parseOnly("1 20 300").option
-res0: Option[cats.NonEmptyList[Int]] = Some(NonEmptyList(1, 20, 300))
+res0: Option[NonEmptyList[Int]] = Some(NonEmptyList(1, 20, 300))
 ```
 
 Current version is **0.6.0** and is available for Scala 2.10 (JVM only), 2.11, and 2.12 (JVM and Scala-JS) with **cats 0.9**.

@@ -7,7 +7,7 @@
 
 ```scala
 scala> int.sepBy1(spaceChar).parseOnly("1 20 300").option
-res0: Option[scalaz.NonEmptyList[Int]] = Some(NonEmptyList(1, 20, 300))
+res0: Option[cats.NonEmptyList[Int]] = Some(NonEmptyList(1, 20, 300))
 ```
 
 Current version is **0.6.0** and is available for Scala 2.10 (JVM only), 2.11, and 2.12 (JVM and Scala-JS) with **cats 0.9**.
@@ -32,7 +32,7 @@ libraryDependencies += "org.tpolecat" %% "atto-core"  % "0.6.0"
 
 - You don't have to extend a trait or implement any methods.
 - There is no tokenizer; the input type is always `Char`.
-- Abstractions are better defined, which leads to simpler, more general code. `Parser` is a scalaz `Monad` for example, which gives us a lot of helpful operations for free.
+- Abstractions are better defined, which leads to simpler, more general code. `Parser` is a cats `Monad` for example, which gives us a lot of helpful operations for free.
 - Parsers are *incremental* which means you can evaluate whether a prefix of your input is "ok so far." This can be helpful when working with streams or interactive UIs.
 
 It's not a big deal to construct and use **atto** parsers; use them in any situation where you might otherwise reach for regular expressions or raw string manipulation.

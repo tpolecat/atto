@@ -8,10 +8,31 @@ install:
 jdk:
   - oraclejdk8
 
+branches:
+  only:
+  - series/0.6.x
+
+before_script:
+  - "if [ $TRAVIS_PULL_REQUEST = 'false' ]; then git checkout -qf $TRAVIS_BRANCH; fi"
+
 script:
   - sbt ++2.10.6  test
   - sbt ++2.11.11 test
   - sbt ++2.12.3  coverage test docs/tut coverageReport
+
+script:
+  - |
+    if [ $TRAVIS_PULL_REQUEST = 'false' ]; then
+      sbt ++2.10.6  'release with-defaults'
+      sbt ++2.11.11 'release with-defaults'
+      sbt ++2.12.3  'release with-defaults'
+    else
+      sbt ++2.10.6  test
+      sbt ++2.11.11 test
+      sbt ++2.12.3  test
+    fi
+  - find $HOME/.sbt -name "*.lock" | xargs rm
+  - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

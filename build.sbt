@@ -2,10 +2,9 @@ import ReleaseTransformations._
 
 // Only run WartRemover on 2.12
 def attoWarts(sv: String) =
-  sv match {
-    case "2.10.6"  |
-         "2.11.11" => Nil
-    case "2.12.3"  =>
+  CrossVersion.partialVersion(sv) match {
+    case Some((2, n)) if n <= 11 => Nil
+    case _  =>
       Warts.allBut(
         Wart.Nothing,            // false positives
         Wart.DefaultArguments,   // used for labels in a bunch of places

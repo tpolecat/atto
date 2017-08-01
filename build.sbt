@@ -2,10 +2,9 @@ import ReleaseTransformations._
 
 // Only run WartRemover on 2.12
 def attoWarts(sv: String) =
-  sv match {
-    case "2.10.6"  |
-         "2.11.11" => Nil
-    case "2.12.3"  =>
+  CrossVersion.partialVersion(sv) match {
+    case Some((2, n)) if n <= 11 => Nil
+    case _  =>
       Warts.allBut(
         Wart.Nothing,            // false positives
         Wart.DefaultArguments,   // used for labels in a bunch of places
@@ -15,9 +14,8 @@ def attoWarts(sv: String) =
 
 lazy val compilerFlags = Seq(
   scalacOptions ++= (
-    scalaVersion.value match {
-      case "2.10.6"  |
-           "2.11.11" =>
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, n)) if n <= 11 =>
         Seq(
           "-feature",
           "-deprecation",
@@ -29,7 +27,7 @@ lazy val compilerFlags = Seq(
           "-Yno-imports",
           "-Ywarn-numeric-widen"
         )
-      case "2.12.3" =>
+      case _ =>
         Seq(
           "-deprecation",                      // Emit warning and location for usages of deprecated APIs.
           "-encoding", "utf-8",                // Specify character encoding used by source files.
@@ -81,10 +79,10 @@ lazy val compilerFlags = Seq(
     }
   ),
   scalacOptions in (Test, compile) --= (
-    scalaVersion.value match {
-      case "2.10.6"  |
-           "2.11.11" => Seq("-Yno-imports")
-      case "2.12.3"  =>
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, n)) if n <= 11 =>
+        Seq("-Yno-imports")
+      case _ =>
         Seq(
           "-Ywarn-unused:privates",
           "-Ywarn-unused:locals",

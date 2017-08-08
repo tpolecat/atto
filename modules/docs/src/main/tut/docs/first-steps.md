@@ -90,7 +90,7 @@ Destructuring the pair in `map` is a pain, and it gets worse with nested pairs.
 But have no fear, `Parser` is an *applicative* functor.
 
 ```tut
-(many(letter) |@| many(digit)).map(_ ++ _).parse("aaa").feed("bcd123").done
+(many(letter), many(digit)).mapN(_ ++ _).parse("aaa").feed("bcd123").done
 ```
 
 In fact, it's a monad. This allows the result of one parser to influence the behavior of subsequent parsers. Here we build a parser that parses an integer followed by an arbitrary string of that length.

@@ -12,6 +12,8 @@ res0: Option[NonEmptyList[Int]] = Some(NonEmptyList(1, 20, 300))
 
 Current version is **0.6.0** and is available for Scala 2.10 (JVM only), 2.11, and 2.12 (JVM and Scala-JS) with **cats 0.9**.
 
+Also available is **0.6.1-M1** for **cats 1.0.0-MF**.
+
 ### What's New?
 
 **atto** has standardized on [Cats](https://github.com/typelevel/cats). The 0.5.x compatibility layers have been removed.

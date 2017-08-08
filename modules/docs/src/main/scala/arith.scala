@@ -58,11 +58,11 @@ object Example extends App {
   val m: Either[String, Int] =
     e.cata[Either[String, Int]] {
       case Lit(a)    => Right(a)
-      case Mul(a, b) => (a |@| b).map(_ * _)
+      case Mul(a, b) => (a, b).mapN(_ * _)
       case Div(_, Right(0)) => Left("Division by Zero")
-      case Div(a, b) => (a |@| b).map(_ / _)
-      case Add(a, b) => (a |@| b).map(_ + _)
-      case Sub(a, b) => (a |@| b).map(_ - _)
+      case Div(a, b) => (a, b).mapN(_ / _)
+      case Add(a, b) => (a, b).mapN(_ + _)
+      case Sub(a, b) => (a, b).mapN(_ - _)
     }
 
   println(n)

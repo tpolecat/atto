@@ -116,7 +116,7 @@ don't actually need a monad; we can use applicative syntax here.
 
 ```tut:silent
 val ubyteDot = ubyte <~ dot // why not?
-val ip4 = (ubyteDot |@| ubyteDot |@| ubyteDot |@| ubyte).map(IP.apply) named "ip-address"
+val ip4 = (ubyteDot, ubyteDot, ubyteDot, ubyte).mapN(IP.apply) named "ip-address"
 ```
 
 And it still works.
@@ -172,13 +172,13 @@ Now we have what we need to put the log parser together.
 
 ```tut:silent
 val date: Parser[Date] =
-  (fixed(4) <~ char('-') |@| fixed(2) <~ char('-') |@| fixed(2)).map(Date.apply)
+  (fixed(4) <~ char('-'), fixed(2) <~ char('-'), fixed(2)).mapN(Date.apply)
 
 val time: Parser[Time] =
-  (fixed(2) <~ char(':') |@| fixed(2) <~ char(':') |@| fixed(2)).map(Time.apply)
+  (fixed(2) <~ char(':'), fixed(2) <~ char(':'), fixed(2)).mapN(Time.apply)
 
 val dateTime: Parser[DateTime] =
-  (date <~ char(' ') |@| time).map(DateTime.apply)
+  (date <~ char(' '), time).mapN(DateTime.apply)
 
 val product: Parser[Product] = {
   string("keyboard").map(_ => Keyboard : Product) |
@@ -188,7 +188,7 @@ val product: Parser[Product] = {
 }
 
 val logEntry: Parser[LogEntry] =
-  (dateTime <~ char(' ') |@| ip <~ char(' ') |@| product).map(LogEntry.apply)
+  (dateTime <~ char(' '), ip <~ char(' '), product).mapN(LogEntry.apply)
 
 val log: Parser[Log] =
   sepBy(logEntry, char('\n'))

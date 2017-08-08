@@ -170,7 +170,7 @@ lazy val atto = project.in(file("."))
 lazy val core = crossProject.crossType(CrossType.Pure).in(file("modules/core"))
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-core")
-	.settings(libraryDependencies += "org.typelevel" %%% "cats-core" % "0.9.0")
+	.settings(libraryDependencies += "org.typelevel" %%% "cats-core" % "1.0.0-MF")
 
 lazy val coreJVM = core.jvm
 lazy val coreJS = core.js
@@ -178,7 +178,7 @@ lazy val coreJS = core.js
 lazy val tests = crossProject.crossType(CrossType.Pure).in(file("modules/tests"))
 	.dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
-	.settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.13.4" % "test")
+	.settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.13.5" % "test")
   .settings(name := "atto-tests")
 
 lazy val testsJVM = tests.jvm

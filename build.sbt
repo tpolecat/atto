@@ -111,19 +111,19 @@ lazy val commonSettings =
 	compilerFlags ++ Seq(
     wartremoverErrors in (Compile, compile) := attoWarts(scalaVersion.value),
     wartremoverErrors in (Test,    compile) := attoWarts(scalaVersion.value),
-		parallelExecution in Test := false
+		parallelExecution in Test := false,
+    publishTo := {
+      val nexus = "https://oss.sonatype.org/"
+      if (isSnapshot.value)
+        Some("snapshots" at nexus + "content/repositories/snapshots")
+      else
+        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+    }
 	)
 
 lazy val publishSettings = Seq(
   useGpg := false,
   publishMavenStyle := true,
-  publishTo := {
-    val nexus = "https://oss.sonatype.org/"
-    if (isSnapshot.value)
-      Some("snapshots" at nexus + "content/repositories/snapshots")
-    else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-  },
   publishArtifact in Test := false,
   homepage := Some(url("https://github.com/tpolecat/atto")),
   pomIncludeRepository := Function.const(false),

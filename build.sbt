@@ -8,7 +8,8 @@ def attoWarts(sv: String) =
       Warts.allBut(
         Wart.Nothing,            // false positives
         Wart.DefaultArguments,   // used for labels in a bunch of places
-        Wart.ImplicitConversion  // we know what we're doing
+        Wart.ImplicitConversion, // we know what we're doing
+        Wart.PublicInference     // doesn't work in 2.2.0
       )
   }
 
@@ -110,26 +111,24 @@ lazy val commonSettings =
 	compilerFlags ++ Seq(
     wartremoverErrors in (Compile, compile) := attoWarts(scalaVersion.value),
     wartremoverErrors in (Test,    compile) := attoWarts(scalaVersion.value),
-		parallelExecution in Test := false
+		parallelExecution in Test := false,
+    publishTo := {
+      val nexus = "https://oss.sonatype.org/"
+      if (isSnapshot.value)
+        Some("snapshots" at nexus + "content/repositories/snapshots")
+      else
+        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+    },
+    releaseProcess := Nil
 	)
 
 lazy val publishSettings = Seq(
+  useGpg := false,
   publishMavenStyle := true,
-  publishTo := {
-    val nexus = "https://oss.sonatype.org/"
-    if (isSnapshot.value)
-      Some("snapshots" at nexus + "content/repositories/snapshots")
-    else
-      Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-  },
   publishArtifact in Test := false,
   homepage := Some(url("https://github.com/tpolecat/atto")),
   pomIncludeRepository := Function.const(false),
   pomExtra := (
-    <scm>
-      <url>git@github.com:tpolecat/atto.git</url>
-      <connection>scm:git:git@github.com:tpolecat/atto.git</connection>
-    </scm>
     <developers>
       <developer>
         <id>tpolecat</id>
@@ -138,27 +137,11 @@ lazy val publishSettings = Seq(
       </developer>
     </developers>
   ),
-  releaseCrossBuild := true,
-  releasePublishArtifactsAction := PgpKeys.publishSigned.value,
-  releaseProcess := Seq[ReleaseStep](
-    checkSnapshotDependencies,
-    inquireVersions,
-    runClean,
-    ReleaseStep(action = Command.process("package", _)),
-    setReleaseVersion,
-    commitReleaseVersion,
-    tagRelease,
-    ReleaseStep(action = Command.process("publishSigned", _)),
-    setNextVersion,
-    commitNextVersion,
-    ReleaseStep(action = Command.process("sonatypeReleaseAll", _)),
-    pushChanges)
+  releasePublishArtifactsAction := PgpKeys.publishSigned.value
 )
 
 lazy val noPublishSettings = Seq(
-  publish := (),
-  publishLocal := (),
-  publishArtifact := false
+  skip in publish := true
 )
 
 lazy val atto = project.in(file("."))
@@ -166,6 +149,25 @@ lazy val atto = project.in(file("."))
   .settings(noPublishSettings)
   .dependsOn(coreJVM, coreJS, testsJVM, testsJS)
   .aggregate(coreJVM, coreJS, testsJVM, testsJS)
+  .settings(
+    releaseCrossBuild := true,
+    releaseProcess := Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      runTest,
+      releaseStepCommand("docs/tut"), // annoying that we have to do this twice
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      publishArtifacts,
+      releaseStepCommand("sonatypeReleaseAll"),
+      releaseStepCommand("docs/publishMicrosite"),
+      setNextVersion,
+      commitNextVersion,
+      pushChanges
+    )
+  )
 
 lazy val core = crossProject.crossType(CrossType.Pure).in(file("modules/core"))
   .settings(buildSettings ++ commonSettings ++ publishSettings)
@@ -200,14 +202,4 @@ lazy val docs = project.in(file("modules/docs")).dependsOn(coreJVM)
     micrositeBaseUrl          := "/atto",
     micrositeDocumentationUrl := "/atto/docs/",
     micrositeHighlightTheme   := "color-brewer"
-    // micrositePalette := Map(
-    //   "brand-primary"     -> "#0B6E0B",
-    //   "brand-secondary"   -> "#084D08",
-    //   "brand-tertiary"    -> "#053605",
-    //   "gray-dark"         -> "#453E46",
-    //   "gray"              -> "#837F84",
-    //   "gray-light"        -> "#E3E2E3",
-    //   "gray-lighter"      -> "#F4F3F4",
-    //   "white-color"       -> "#FFFFFF"
-    // )
   )

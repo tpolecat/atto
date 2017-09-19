@@ -162,8 +162,7 @@ lazy val atto = project.in(file("."))
       tagRelease,
       publishArtifacts,
       releaseStepCommand("sonatypeReleaseAll"),
-      // Doesn't work, rats. See https://github.com/47deg/sbt-microsites/issues/210
-      // releaseStepCommand("docs/publishMicrosite"),
+      releaseStepCommand("docs/publishMicrosite"),
       setNextVersion,
       commitNextVersion,
       pushChanges

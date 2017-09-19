@@ -129,10 +129,6 @@ lazy val publishSettings = Seq(
   homepage := Some(url("https://github.com/tpolecat/atto")),
   pomIncludeRepository := Function.const(false),
   pomExtra := (
-    // <scm>
-    //   <url>git@github.com:tpolecat/atto.git</url>
-    //   <connection>scm:git:git@github.com:tpolecat/atto.git</connection>
-    // </scm>
     <developers>
       <developer>
         <id>tpolecat</id>
@@ -145,9 +141,6 @@ lazy val publishSettings = Seq(
 )
 
 lazy val noPublishSettings = Seq(
-  // publish := { () },
-  // publishLocal := { () },
-  // publishArtifact := false,
   skip in publish := true
 )
 
@@ -210,14 +203,4 @@ lazy val docs = project.in(file("modules/docs")).dependsOn(coreJVM)
     micrositeBaseUrl          := "/atto",
     micrositeDocumentationUrl := "/atto/docs/",
     micrositeHighlightTheme   := "color-brewer"
-    // micrositePalette := Map(
-    //   "brand-primary"     -> "#0B6E0B",
-    //   "brand-secondary"   -> "#084D08",
-    //   "brand-tertiary"    -> "#053605",
-    //   "gray-dark"         -> "#453E46",
-    //   "gray"              -> "#837F84",
-    //   "gray-light"        -> "#E3E2E3",
-    //   "gray-lighter"      -> "#F4F3F4",
-    //   "white-color"       -> "#FFFFFF"
-    // )
   )

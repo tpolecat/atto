@@ -102,7 +102,7 @@ lazy val buildSettings = Seq(
 		("MIT", url("http://opensource.org/licenses/MIT")),
 		("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
 	),
-	scalaVersion := "2.12.3",
+	scalaVersion := "2.12.4",
 	crossScalaVersions := Seq("2.10.6", "2.11.11", scalaVersion.value),
   addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.3" cross CrossVersion.binary)
 )
@@ -172,7 +172,7 @@ lazy val atto = project.in(file("."))
 lazy val core = crossProject.crossType(CrossType.Pure).in(file("modules/core"))
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-core")
-	.settings(libraryDependencies += "org.typelevel" %%% "cats-core" % "1.0.0-MF")
+	.settings(libraryDependencies += "org.typelevel" %%% "cats-core" % "1.0.0-RC1")
 
 lazy val coreJVM = core.jvm
 lazy val coreJS = core.js

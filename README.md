@@ -12,7 +12,7 @@ res0: Option[NonEmptyList[Int]] = Some(NonEmptyList(1, 20, 300))
 
 Current version is **0.6.0** and is available for Scala 2.10 (JVM only), 2.11, and 2.12 (JVM and Scala-JS) with **cats 0.9**.
 
-Also available is **0.6.1-M1** for **cats 1.0.0-MF**.
+Also available is **0.6.1-M7** for **cats 1.0.0-RC1**.
 
 ### What's New?
 

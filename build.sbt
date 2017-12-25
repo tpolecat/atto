@@ -190,7 +190,10 @@ lazy val docs = project.in(file("modules/docs")).dependsOn(coreJVM)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
   .settings(
 		name := "atto-docs",
-		scalacOptions -= "-Xlint"
+		scalacOptions in Tut --= Seq(
+      "-Ywarn-unused:imports",
+      "-Yno-imports"
+    )
 	)
   .enablePlugins(MicrositesPlugin)
   .settings(

@@ -172,7 +172,7 @@ lazy val atto = project.in(file("."))
 lazy val core = crossProject.crossType(CrossType.Pure).in(file("modules/core"))
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-core")
-	.settings(libraryDependencies += "org.typelevel" %%% "cats-core" % "1.0.0-RC1")
+	.settings(libraryDependencies += "org.typelevel" %%% "cats-core" % "1.0.0")
 
 lazy val coreJVM = core.jvm
 lazy val coreJS = core.js

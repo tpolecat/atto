@@ -1,4 +1,7 @@
 import ReleaseTransformations._
+import microsites._
+
+lazy val catsVersion = "1.0.0"
 
 // Only run WartRemover on 2.12
 def attoWarts(sv: String) =
@@ -172,7 +175,7 @@ lazy val atto = project.in(file("."))
 lazy val core = crossProject.crossType(CrossType.Pure).in(file("modules/core"))
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-core")
-	.settings(libraryDependencies += "org.typelevel" %%% "cats-core" % "1.0.0")
+	.settings(libraryDependencies += "org.typelevel" %%% "cats-core" % catsVersion)
 
 lazy val coreJVM = core.jvm
 lazy val coreJS = core.js
@@ -202,7 +205,15 @@ lazy val docs = project.in(file("modules/docs")).dependsOn(coreJVM)
     micrositeAuthor           := "Rob Norris",
     micrositeGithubOwner      := "tpolecat",
     micrositeGithubRepo       := "atto",
+    micrositeGitterChannel    := false, // no me gusta
     micrositeBaseUrl          := "/atto",
-    micrositeDocumentationUrl := "/atto/docs/",
-    micrositeHighlightTheme   := "color-brewer"
+    micrositeDocumentationUrl := "/atto/docs/first-steps.html",
+    micrositeHighlightTheme   := "color-brewer",
+    micrositeConfigYaml := ConfigYml(
+      yamlCustomProperties = Map(
+        "attoVersion"    -> version.value,
+        "catsVersion"    -> catsVersion,
+        "scalaVersions"  -> crossScalaVersions.value.map(CrossVersion.partialVersion).flatten.map(_._2).mkString("2.", "/", "") // 2.11/12
+      )
+    )
   )

@@ -1,8 +1,5 @@
 options:
 
-  - title: Getting Started
-    url: docs/index.html
-
   - title: Basic Parsers
     url: docs/first-steps.html
 

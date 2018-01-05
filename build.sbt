@@ -2,6 +2,7 @@ import ReleaseTransformations._
 import microsites._
 
 lazy val catsVersion = "1.0.0"
+lazy val refinedVersion = "0.8.5"
 
 // Only run WartRemover on 2.12
 def attoWarts(sv: String) =
@@ -150,8 +151,8 @@ lazy val noPublishSettings = Seq(
 lazy val atto = project.in(file("."))
   .settings(buildSettings ++ commonSettings)
   .settings(noPublishSettings)
-  .dependsOn(coreJVM, coreJS, testsJVM, testsJS)
-  .aggregate(coreJVM, coreJS, testsJVM, testsJS)
+  .dependsOn(coreJVM, coreJS, refinedJVM, refinedJS, testsJVM, testsJS)
+  .aggregate(coreJVM, coreJS, refinedJVM, refinedJS, testsJVM, testsJS)
   .settings(
     releaseCrossBuild := true,
     releaseProcess := Seq[ReleaseStep](
@@ -180,8 +181,17 @@ lazy val core = crossProject.crossType(CrossType.Pure).in(file("modules/core"))
 lazy val coreJVM = core.jvm
 lazy val coreJS = core.js
 
+lazy val refined = crossProject.crossType(CrossType.Pure).in(file("modules/refined"))
+  .dependsOn(core)
+  .settings(buildSettings ++ commonSettings ++ publishSettings)
+  .settings(name := "atto-refined")
+	.settings(libraryDependencies += "eu.timepit" %%% "refined" % refinedVersion)
+
+lazy val refinedJVM = refined.jvm
+lazy val refinedJS = refined.js
+
 lazy val tests = crossProject.crossType(CrossType.Pure).in(file("modules/tests"))
-	.dependsOn(core)
+	.dependsOn(core, refined)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
 	.settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.13.5" % "test")
   .settings(name := "atto-tests")
@@ -189,7 +199,7 @@ lazy val tests = crossProject.crossType(CrossType.Pure).in(file("modules/tests")
 lazy val testsJVM = tests.jvm
 lazy val testsJS = tests.js
 
-lazy val docs = project.in(file("modules/docs")).dependsOn(coreJVM)
+lazy val docs = project.in(file("modules/docs")).dependsOn(coreJVM, refinedJVM)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
   .settings(
 		name := "atto-docs",
@@ -213,6 +223,7 @@ lazy val docs = project.in(file("modules/docs")).dependsOn(coreJVM)
       yamlCustomProperties = Map(
         "attoVersion"    -> version.value,
         "catsVersion"    -> catsVersion,
+        "refinedVersion" -> refinedVersion,
         "scalaVersions"  -> crossScalaVersions.value.map(CrossVersion.partialVersion).flatten.map(_._2).mkString("2.", "/", "") // 2.11/12
       )
     )

@@ -19,7 +19,13 @@ trait Numeric {
     for {
       a <- signum
       b <- takeWhile1(_.isDigit)
-    } yield BigInt(a) * BigInt(b)
+      n <- try ok(BigInt(a) * BigInt(b))
+           catch {
+             // scala-js can't parse non-alpha digits so we just fail in that case.
+             case _: java.lang.NumberFormatException =>
+               err[BigInt]("https://github.com/scala-js/scala-js/issues/2935")
+           }
+    } yield n
   } namedOpaque "bigInt"
 
   /** Parser for a Long (range-checked). */

@@ -8,6 +8,11 @@ import org.scalacheck._
 object NumericTest extends Properties("Numeric") {
   import Prop._
 
+  property("international characters") = forAll { (c: Char) =>
+    bigInt.parseOnly(c.toString) // may fail on JS but should never throw
+    true
+  }
+
   property("bigDecimal") = forAll { (b: BigInt) =>
     bigInt.parseOnly(b.toString).option === Some(b)
   }

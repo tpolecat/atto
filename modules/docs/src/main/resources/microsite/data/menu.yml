@@ -5,3 +5,6 @@ options:
 
   - title: Parsing Log Entries
     url: docs/next-steps.html
+
+  - title: Refined integration
+    url: docs/refined-integration.html

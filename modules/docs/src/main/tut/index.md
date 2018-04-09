@@ -19,8 +19,12 @@ int.sepBy(spaceChar).parseOnly("1 20 300").option
 The current version is **{{site.attoVersion}}** for **Scala {{site.scalaVersions}}** and **Scala-JS** (2.11+) with **[cats](http://typelevel.org/cats/) {{site.catsVersion}}**. Add it to your `build.sbt` thus:
 
 ```scala
-libraryDependencies += "org.tpolecat" %% "atto-core"  % "{{site.attoVersion}}"
+libraryDependencies += "org.tpolecat" %% "atto-core"    % "{{site.attoVersion}}"
+libraryDependencies += "org.tpolecat" %% "atto-refined" % "{{site.attoVersion}}"
 ```
+
+More information on `atto-refined` in [the dedicated guide](https://tpolecat.github.com/atto/docs/refined-integration.html)
+which provides an integration with **[refined](https://github.com/fthomas/refined) {{site.refinedVersion}}**.
 
 ## Documentation and Support
 

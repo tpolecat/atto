@@ -2,7 +2,7 @@ import ReleaseTransformations._
 import microsites._
 
 lazy val catsVersion = "1.1.0"
-lazy val refinedVersion = "0.8.7"
+lazy val refinedVersion = "0.9.0"
 
 // Only run WartRemover on 2.12
 def attoWarts(sv: String) =

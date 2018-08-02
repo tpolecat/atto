@@ -1,30 +1,50 @@
 import ReleaseTransformations._
 import microsites._
+import sbtcrossproject.{crossProject, CrossType}
 
-lazy val catsVersion = "1.1.0"
-lazy val refinedVersion = "0.9.0"
+lazy val catsVersion = "1.2.0"
+lazy val refinedVersion = "0.9.2"
 
 // Only run WartRemover on 2.12
 def attoWarts(sv: String) =
   CrossVersion.partialVersion(sv) match {
-    case Some((2, n)) if n <= 11 => Nil
-    case _  =>
+    case Some((2, 12)) =>
       Warts.allBut(
         Wart.Nothing,            // false positives
         Wart.DefaultArguments,   // used for labels in a bunch of places
         Wart.ImplicitConversion, // we know what we're doing
         Wart.PublicInference     // doesn't work in 2.2.0
       )
+    case _ => Nil
   }
 
 lazy val compilerFlags = Seq(
+  scalacOptions ++= (
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, 12)) =>
+        Seq(
+          "-Ypartial-unification"
+        )
+      case _ =>
+        Nil
+    }
+  ),
+  scalacOptions ++= (
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, n)) if n <= 12 =>
+        Seq(
+          "-Yno-adapted-args"
+        )
+      case _ =>
+        Nil
+    }
+  ),
   scalacOptions ++= (
     CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, n)) if n <= 11 =>
         Seq(
           "-feature",
           "-deprecation",
-          "-Yno-adapted-args",
           "-Ywarn-value-discard",
           "-Xlint",
           "-Xfatal-warnings",
@@ -63,9 +83,7 @@ lazy val compilerFlags = Seq(
           "-Xlint:stars-align",                // Pattern sequence wildcard must align with sequence component.
           "-Xlint:type-parameter-shadow",      // A local type parameter shadows a type already in scope.
           "-Xlint:unsound-match",              // Pattern match may not be typesafe.
-          "-Yno-adapted-args",                 // Do not adapt an argument list (either by inserting () or creating a tuple) to match the receiver.
           "-Yno-imports",                      // No predef or default imports
-          "-Ypartial-unification",             // Enable partial unification in type constructor inference
           "-Ywarn-dead-code",                  // Warn when dead code is identified.
           "-Ywarn-extra-implicit",             // Warn when more than one implicit parameter section is defined.
           "-Ywarn-inaccessible",               // Warn about inaccessible types in method signatures.
@@ -107,8 +125,8 @@ lazy val buildSettings = Seq(
 		("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
 	),
 	scalaVersion := "2.12.5",
-	crossScalaVersions := Seq("2.10.6", "2.11.12", scalaVersion.value),
-  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.3" cross CrossVersion.binary)
+	crossScalaVersions := Seq("2.10.6", "2.11.12", scalaVersion.value, "2.13.0-M4"),
+  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.7" cross CrossVersion.binary)
 )
 
 lazy val commonSettings =
@@ -173,7 +191,7 @@ lazy val atto = project.in(file("."))
     )
   )
 
-lazy val core = crossProject.crossType(CrossType.Pure).in(file("modules/core"))
+lazy val core = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).in(file("modules/core"))
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-core")
 	.settings(libraryDependencies += "org.typelevel" %%% "cats-core" % catsVersion)
@@ -181,7 +199,7 @@ lazy val core = crossProject.crossType(CrossType.Pure).in(file("modules/core"))
 lazy val coreJVM = core.jvm
 lazy val coreJS = core.js
 
-lazy val refined = crossProject.crossType(CrossType.Pure).in(file("modules/refined"))
+lazy val refined = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).in(file("modules/refined"))
   .dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-refined")
@@ -190,10 +208,10 @@ lazy val refined = crossProject.crossType(CrossType.Pure).in(file("modules/refin
 lazy val refinedJVM = refined.jvm
 lazy val refinedJS = refined.js
 
-lazy val tests = crossProject.crossType(CrossType.Pure).in(file("modules/tests"))
+lazy val tests = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).in(file("modules/tests"))
 	.dependsOn(core, refined)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
-	.settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.13.5" % "test")
+	.settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.14.0" % "test")
   .settings(name := "atto-tests")
 
 lazy val testsJVM = tests.jvm

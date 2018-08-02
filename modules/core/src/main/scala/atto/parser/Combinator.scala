@@ -247,7 +247,7 @@ trait Combinator extends Combinator0 {
     cons(p, many(p))
 
   def manyN[A](n: Int, a: Parser[A]): Parser[List[A]] =
-    ((1 to n) :\ ok(List[A]()))((_, p) => cons(a, p).map(_.toList)) named "ManyN(" + n.toString + ", " + a.toString + ")"
+    (1 to n).foldRight(ok(List[A]()))((_, p) => cons(a, p).map(_.toList)) named "ManyN(" + n.toString + ", " + a.toString + ")"
 
   def manyUntil[A](p: Parser[A], q: Parser[_]): Parser[List[A]] = {
     lazy val scan: Parser[List[A]] = (q ~> ok(Nil)) | cons(p, scan).map(_.toList)
@@ -292,6 +292,6 @@ trait Combinator extends Combinator0 {
     } named "filter(...)"
 
   def count[A](n: Int, p: Parser[A]): Parser[List[A]] =
-    ((1 to n) :\ ok(List[A]()))((_, a) => cons(p, a).map(_.toList))
+    (1 to n).foldRight(ok(List[A]()))((_, a) => cons(p, a).map(_.toList))
 
 }

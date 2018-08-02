@@ -11,6 +11,7 @@ jdk:
 script:
   - sbt ++2.10.6  test
   - sbt ++2.11.11 test
+  - sbt ++2.13.0-M4 test
   - sbt ++2.12.4  coverage test docs/tut coverageReport
 
 after_success:

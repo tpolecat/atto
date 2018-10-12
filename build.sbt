@@ -2,8 +2,9 @@ import ReleaseTransformations._
 import microsites._
 import sbtcrossproject.{crossProject, CrossType}
 
-lazy val catsVersion = "1.2.0"
+lazy val catsVersion = "1.4.0"
 lazy val refinedVersion = "0.9.2"
+lazy val fs2Version = "1.0.0"
 
 // Only run WartRemover on 2.12
 def attoWarts(sv: String) =
@@ -169,8 +170,8 @@ lazy val noPublishSettings = Seq(
 lazy val atto = project.in(file("."))
   .settings(buildSettings ++ commonSettings)
   .settings(noPublishSettings)
-  .dependsOn(coreJVM, coreJS, refinedJVM, refinedJS, testsJVM, testsJS)
-  .aggregate(coreJVM, coreJS, refinedJVM, refinedJS, testsJVM, testsJS)
+  .dependsOn(coreJVM, coreJS, fs2JVM, fs2JS, refinedJVM, refinedJS, testsJVM, testsJS)
+  .aggregate(coreJVM, coreJS, fs2JVM, fs2JS, refinedJVM, refinedJS, testsJVM, testsJS)
   .settings(
     releaseCrossBuild := true,
     releaseProcess := Seq[ReleaseStep](
@@ -198,6 +199,14 @@ lazy val core = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).
 
 lazy val coreJVM = core.jvm
 lazy val coreJS = core.js
+
+lazy val fs2 = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).in(file("modules/fs2"))
+  .settings(buildSettings ++ commonSettings ++ publishSettings)
+  .settings(name := "atto-fs2")
+	.settings(libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version)
+
+lazy val fs2JVM = fs2.jvm
+lazy val fs2JS = fs2.js
 
 lazy val refined = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).in(file("modules/refined"))
   .dependsOn(core)

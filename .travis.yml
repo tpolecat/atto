@@ -10,7 +10,7 @@ jdk:
 
 script:
   - sbt ++2.11.12 test
-  - sbt ++2.13.0-M4 tests/test
+  - sbt ++2.13.0-M4 testsJVM/test testsJS/test
   - sbt ++2.12.7  coverage test docs/tut coverageReport
 
 after_success:

@@ -85,6 +85,7 @@ lazy val compilerFlags = Seq(
           "-Xlint:type-parameter-shadow",      // A local type parameter shadows a type already in scope.
           "-Xlint:unsound-match",              // Pattern match may not be typesafe.
           "-Yno-imports",                      // No predef or default imports
+          "-Yrangepos",                        // Report Range Position of Errors to Language Server
           "-Ywarn-dead-code",                  // Warn when dead code is identified.
           "-Ywarn-extra-implicit",             // Warn when more than one implicit parameter section is defined.
           "-Ywarn-inaccessible",               // Warn about inaccessible types in method signatures.
@@ -99,6 +100,7 @@ lazy val compilerFlags = Seq(
           "-Ywarn-unused:patvars",             // Warn if a variable bound in a pattern is unused.
           "-Ywarn-unused:privates",            // Warn if a private member is unused.
           "-Ywarn-value-discard"               // Warn when non-Unit expression results are unused.
+
         )
     }
   ),
@@ -202,6 +204,7 @@ lazy val coreJS = core.js
 
 lazy val fs2 = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).in(file("modules/fs2"))
   .settings(buildSettings ++ commonSettings ++ publishSettings)
+  .dependsOn(core)
   .settings(name := "atto-fs2")
 	.settings(libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version)
 

@@ -128,7 +128,7 @@ lazy val buildSettings = Seq(
 		("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
 	),
 	scalaVersion := "2.12.7",
-	crossScalaVersions := Seq("2.10.6", "2.11.12", scalaVersion.value, "2.13.0-M4"),
+	crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0-M4"),
   addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.7" cross CrossVersion.binary)
 )
 
@@ -207,7 +207,7 @@ lazy val fs2 = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).i
   .dependsOn(core)
   .settings(name := "atto-fs2")
 	.settings(libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version)
-  .settings(crossScalaVersions := Seq("2.10.6", "2.11.12", scalaVersion.value))
+  .settings(crossScalaVersions := Seq("2.11.12", scalaVersion.value))
 
 lazy val fs2JVM = fs2.jvm
 lazy val fs2JS = fs2.js

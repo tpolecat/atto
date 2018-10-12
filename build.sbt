@@ -127,7 +127,7 @@ lazy val buildSettings = Seq(
 		("MIT", url("http://opensource.org/licenses/MIT")),
 		("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
 	),
-	scalaVersion := "2.12.7",
+	scalaVersion := "2.12.6",
 	crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0-M4"),
   addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.7" cross CrossVersion.binary)
 )

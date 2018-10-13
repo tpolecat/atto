@@ -5,6 +5,7 @@ import sbtcrossproject.{crossProject, CrossType}
 lazy val catsVersion = "1.4.0"
 lazy val refinedVersion = "0.9.2"
 lazy val fs2Version = "1.0.0"
+lazy val scalacheckVersion = "1.14.0"
 
 // Only run WartRemover on 2.12
 def attoWarts(sv: String) =
@@ -207,6 +208,7 @@ lazy val fs2 = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).i
   .dependsOn(core)
   .settings(name := "atto-fs2")
 	.settings(libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version)
+  .settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalacheckVersion % Test)
   .settings(crossScalaVersions := Seq("2.11.12", scalaVersion.value))
 
 lazy val fs2JVM = fs2.jvm
@@ -224,7 +226,7 @@ lazy val refinedJS = refined.js
 lazy val tests = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).in(file("modules/tests"))
 	.dependsOn(core, refined)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
-	.settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.14.0" % "test")
+	.settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalacheckVersion % Test)
   .settings(name := "atto-tests")
 
 lazy val testsJVM = tests.jvm

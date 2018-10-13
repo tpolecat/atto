@@ -24,7 +24,9 @@ object Pipes {
             // Add String To Result If Stream Has More Values
             case Some((s, rest)) => go(r.feed(s))(rest)
             // Reached Stream Termination and Still Partial - Return the partial
-            case None => Pull.output1(r)
+            // If we do not call done here, if this can still accept input it will
+            // be a partial rather than a done.
+            case None => Pull.output1(r.done)
           }
         case _ => Pull.output1(r)
       }

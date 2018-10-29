@@ -2,8 +2,10 @@ import ReleaseTransformations._
 import microsites._
 import sbtcrossproject.{crossProject, CrossType}
 
-lazy val catsVersion = "1.2.0"
+lazy val catsVersion = "1.4.0"
 lazy val refinedVersion = "0.9.2"
+lazy val fs2Version = "1.0.0"
+lazy val scalacheckVersion = "1.14.0"
 
 // Only run WartRemover on 2.12
 def attoWarts(sv: String) =
@@ -84,6 +86,7 @@ lazy val compilerFlags = Seq(
           "-Xlint:type-parameter-shadow",      // A local type parameter shadows a type already in scope.
           "-Xlint:unsound-match",              // Pattern match may not be typesafe.
           "-Yno-imports",                      // No predef or default imports
+          "-Yrangepos",                        // Report Range Position of Errors to Language Server
           "-Ywarn-dead-code",                  // Warn when dead code is identified.
           "-Ywarn-extra-implicit",             // Warn when more than one implicit parameter section is defined.
           "-Ywarn-inaccessible",               // Warn about inaccessible types in method signatures.
@@ -98,6 +101,7 @@ lazy val compilerFlags = Seq(
           "-Ywarn-unused:patvars",             // Warn if a variable bound in a pattern is unused.
           "-Ywarn-unused:privates",            // Warn if a private member is unused.
           "-Ywarn-value-discard"               // Warn when non-Unit expression results are unused.
+
         )
     }
   ),
@@ -124,8 +128,8 @@ lazy val buildSettings = Seq(
 		("MIT", url("http://opensource.org/licenses/MIT")),
 		("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
 	),
-	scalaVersion := "2.12.5",
-	crossScalaVersions := Seq("2.10.6", "2.11.12", scalaVersion.value, "2.13.0-M4"),
+	scalaVersion := "2.12.6",
+	crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0-M4"),
   addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.7" cross CrossVersion.binary)
 )
 
@@ -169,8 +173,8 @@ lazy val noPublishSettings = Seq(
 lazy val atto = project.in(file("."))
   .settings(buildSettings ++ commonSettings)
   .settings(noPublishSettings)
-  .dependsOn(coreJVM, coreJS, refinedJVM, refinedJS, testsJVM, testsJS)
-  .aggregate(coreJVM, coreJS, refinedJVM, refinedJS, testsJVM, testsJS)
+  .dependsOn(coreJVM, coreJS, fs2JVM, fs2JS, refinedJVM, refinedJS, testsJVM, testsJS)
+  .aggregate(coreJVM, coreJS, fs2JVM, fs2JS, refinedJVM, refinedJS, testsJVM, testsJS)
   .settings(
     releaseCrossBuild := true,
     releaseProcess := Seq[ReleaseStep](
@@ -199,6 +203,17 @@ lazy val core = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).
 lazy val coreJVM = core.jvm
 lazy val coreJS = core.js
 
+lazy val fs2 = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).in(file("modules/fs2"))
+  .settings(buildSettings ++ commonSettings ++ publishSettings)
+  .dependsOn(core)
+  .settings(name := "atto-fs2")
+	.settings(libraryDependencies += "co.fs2" %%% "fs2-core" % fs2Version)
+  .settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalacheckVersion % Test)
+  .settings(crossScalaVersions := Seq("2.11.12", scalaVersion.value))
+
+lazy val fs2JVM = fs2.jvm
+lazy val fs2JS = fs2.js
+
 lazy val refined = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).in(file("modules/refined"))
   .dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
@@ -211,7 +226,7 @@ lazy val refinedJS = refined.js
 lazy val tests = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).in(file("modules/tests"))
 	.dependsOn(core, refined)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
-	.settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % "1.14.0" % "test")
+	.settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalacheckVersion % Test)
   .settings(name := "atto-tests")
 
 lazy val testsJVM = tests.jvm

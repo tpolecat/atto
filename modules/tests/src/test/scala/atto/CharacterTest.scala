@@ -19,7 +19,7 @@ object CharacterTest extends Properties("Character") {
     oneOf(s).parse(randomChar.toString).option === Some(randomChar)
   }}
 
-  property("noneOf") = forAll { (s: String, c: Char) => s.nonEmpty ==> {
+  property("noneOf") = forAll { (s: String) => s.nonEmpty ==> {
     val randomChar = s(Random.nextInt(s.size))
     noneOf(s).parse(randomChar.toString).option === None
   }}

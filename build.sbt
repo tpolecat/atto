@@ -2,10 +2,11 @@ import ReleaseTransformations._
 import microsites._
 import sbtcrossproject.{crossProject, CrossType}
 
-lazy val catsVersion = "1.4.0"
-lazy val refinedVersion = "0.9.2"
-lazy val fs2Version = "1.0.0"
+lazy val catsVersion       = "1.4.0"
+lazy val refinedVersion    = "0.9.2"
+lazy val fs2Version        = "1.0.0"
 lazy val scalacheckVersion = "1.14.0"
+lazy val kpVersion         = "0.9.7"
 
 // Only run WartRemover on 2.12
 def attoWarts(sv: String) =
@@ -128,9 +129,9 @@ lazy val buildSettings = Seq(
 		("MIT", url("http://opensource.org/licenses/MIT")),
 		("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
 	),
-	scalaVersion := "2.12.6",
+	scalaVersion := "2.12.7",
 	crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0-M4"),
-  addCompilerPlugin("org.spire-math" % "kind-projector" % "0.9.7" cross CrossVersion.binary)
+  addCompilerPlugin("org.spire-math" % "kind-projector" % kpVersion cross CrossVersion.binary)
 )
 
 lazy val commonSettings =
@@ -176,6 +177,7 @@ lazy val atto = project.in(file("."))
   .dependsOn(coreJVM, coreJS, fs2JVM, fs2JS, refinedJVM, refinedJS, testsJVM, testsJS)
   .aggregate(coreJVM, coreJS, fs2JVM, fs2JS, refinedJVM, refinedJS, testsJVM, testsJS)
   .settings(
+    crossScalaVersions := Seq(scalaVersion.value), // root project doesn't care
     releaseCrossBuild := true,
     releaseProcess := Seq[ReleaseStep](
       checkSnapshotDependencies,

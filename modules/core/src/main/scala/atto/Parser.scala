@@ -6,7 +6,7 @@ import scala.{ Array, Boolean, List, Unit, Int, Either, Left, Right }
 import scala.Predef.augmentString
 
 // Operators not needed for use in `for` comprehensions are provided via added syntax.
-trait Parser[A] { m =>
+trait Parser[+A] { m =>
   import Parser._
 
   def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R]

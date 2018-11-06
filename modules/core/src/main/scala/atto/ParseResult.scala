@@ -4,7 +4,7 @@ import cats.Functor
 import java.lang.String
 import scala.{ Option, Some, None, List, Either, Left, Right }
 
-sealed abstract class ParseResult[A] {
+sealed abstract class ParseResult[+A] {
   def map[B](f: A => B): ParseResult[B]
   def feed(s: String): ParseResult[A]
   def option: Option[A]

@@ -6,7 +6,7 @@ lazy val catsVersion       = "1.4.0"
 lazy val refinedVersion    = "0.9.2"
 lazy val fs2Version        = "1.0.0"
 lazy val scalacheckVersion = "1.14.0"
-lazy val kpVersion         = "0.9.7"
+lazy val kpVersion         = "0.9.8"
 
 // Only run WartRemover on 2.12
 def attoWarts(sv: String) =

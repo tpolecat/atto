@@ -2,9 +2,9 @@ import ReleaseTransformations._
 import microsites._
 import sbtcrossproject.{crossProject, CrossType}
 
-lazy val catsVersion = "1.4.0"
+lazy val catsVersion = "1.5.0"
 lazy val refinedVersion = "0.9.2"
-lazy val fs2Version = "1.0.0"
+lazy val fs2Version = "1.0.2"
 lazy val scalacheckVersion = "1.14.0"
 
 // Only run WartRemover on 2.12

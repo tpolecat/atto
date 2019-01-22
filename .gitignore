@@ -29,3 +29,7 @@ tags
 # ensime
 .ensime
 .ensime_cache/
+
+# metals
+.bloop/
+.metals/

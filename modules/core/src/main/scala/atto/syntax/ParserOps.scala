@@ -4,7 +4,6 @@ package syntax
 import cats.data.NonEmptyList
 import java.lang.String
 import scala.{ Either, PartialFunction, List, Unit, Int }
-import scala.language.implicitConversions
 import atto.parser._
 
 trait ParserOps[A] {

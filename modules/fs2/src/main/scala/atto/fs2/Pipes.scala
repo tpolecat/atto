@@ -8,7 +8,6 @@ import java.lang.{String, SuppressWarnings}
 import scala.{Some, None, Unit}
 import scala.{ List, Nil, Array }
 import scala.Predef.{ augmentString }
-import scala.language._
 
 import _root_.fs2._
 
@@ -19,7 +18,7 @@ object Pipes {
   def parse1[F[_], A](p: Parser[A]): Pipe[F, String, ParseResult[A]] = s => {
     def go(r: ParseResult[A])(s: Stream[F, String]): Pull[F, ParseResult[A], Unit] = {
       r match {
-        case Partial(_) => 
+        case Partial(_) =>
           s.pull.uncons1.flatMap{
             // Add String To Result If Stream Has More Values
             case Some((s, rest)) => go(r.feed(s))(rest)
@@ -39,7 +38,7 @@ object Pipes {
   def parseN[F[_], A](p: Parser[A]): Pipe[F, String, A] = s => {
     def exhaust(r: ParseResult[A], acc: List[A]): (ParseResult[A], List[A]) =
       r match {
-        case Done(in, a) => exhaust(p.parse(in), a :: acc) 
+        case Done(in, a) => exhaust(p.parse(in), a :: acc)
         case _           => (r, acc)
       }
 
@@ -47,7 +46,7 @@ object Pipes {
       s.pull.uncons1.flatMap{
         case Some((s, rest)) =>
           val (r0, acc) = r match {
-            case Done(in, a)    => (p.parse(in + s), List(a)) 
+            case Done(in, a)    => (p.parse(in + s), List(a))
             case Fail(_, _, _) => (r, Nil)
             case Partial(_)     => (r.feed(s), Nil)
           }
@@ -65,7 +64,7 @@ object Pipes {
   def parseLenient[F[_], A](p: Parser[A]): Pipe[F, String, A] = s => {
     def exhaust(r: ParseResult[A], acc: List[A]): (ParseResult[A], List[A]) =
       r match {
-        case Done(in, a)    => exhaust(p.parse(in), a :: acc) 
+        case Done(in, a)    => exhaust(p.parse(in), a :: acc)
         case Fail(in, _, _) => exhaust(p.parse(in.drop(1)), acc)
         case Partial(_)     => (r, acc)
       }
@@ -74,7 +73,7 @@ object Pipes {
       s.pull.uncons1.flatMap{
         case Some((s, rest)) =>
           val (r0, acc) = r match {
-            case Done(in, a)    => (p.parse(in + s), List(a)) 
+            case Done(in, a)    => (p.parse(in + s), List(a))
             case Fail(in, _, _) => (p.parse(in.drop(1) + s), Nil)
             case Partial(_)     => (r.feed(s), Nil)
           }

@@ -8,7 +8,6 @@ import cats.implicits._
 import java.lang.{ String, SuppressWarnings }
 import scala.{ Array, Nil, Int, Unit, List, Boolean, Either, Left, Right, StringContext, PartialFunction, Option, Some }
 import scala.Predef.augmentString
-import scala.language.higherKinds
 
 import atto.syntax.all._
 
@@ -145,8 +144,8 @@ trait Combinator0 {
           else
             demandInput(
               st0,
-              (st1: State, stack: List[String], msg: String) => ks(st1,()),
-              (st1: State, u: Unit) => kf(st1, Nil, "endOfInput")
+              (st1: State, _: List[String], _: String) => ks(st1,()),
+              (st1: State, _: Unit) => kf(st1, Nil, "endOfInput")
             )
         } else kf(st0,Nil,"endOfInput"))
     }
@@ -157,7 +156,7 @@ trait Combinator0 {
     new Parser[B] {
       override def toString = m infix ("~> " + n.toString)
       def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): TResult[R] =
-        Eval.defer(m(st0,kf,(s:State, a: A) => n(s, kf, ks)))
+        Eval.defer(m(st0,kf,(s:State, _: A) => n(s, kf, ks)))
     }
   }
 
@@ -166,7 +165,7 @@ trait Combinator0 {
     new Parser[A] {
       override def toString = m infix ("<~ " + n.toString)
       def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R] =
-        Eval.defer(m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, b: B) => ks(st2, a))))
+        Eval.defer(m(st0,kf,(st1:State, a: A) => n(st1, kf, (st2: State, _: B) => ks(st2, a))))
     }
   }
 
@@ -184,7 +183,7 @@ trait Combinator0 {
     new Parser[B] {
       override def toString = m infix ("| ...")
       def apply[R](st0: State, kf: Failure[R], ks: Success[B,R]): TResult[R] =
-        Eval.defer(m(st0, (st1: State, stack: List[String], msg: String) => n(st1.copy(pos = st0.pos), kf, ks), ks))
+        Eval.defer(m(st0, (st1: State, _: List[String], _: String) => n(st1.copy(pos = st0.pos), kf, ks), ks))
     }
   }
 
@@ -195,7 +194,7 @@ trait Combinator0 {
       def apply[R](st0: State, kf: Failure[R], ks: Success[Either[A, B], R]): TResult[R] =
         Eval.defer(m(
           st0,
-          (st1: State, stack: List[String], msg: String) => n (st1.copy(pos = st0.pos), kf, (st1: State, b: B) => ks(st1, Right(b))),
+          (st1: State, _: List[String], _: String) => n (st1.copy(pos = st0.pos), kf, (st1: State, b: B) => ks(st1, Right(b))),
           (st1: State, a: A) => ks(st1, Left(a))
         ))
     }
@@ -215,7 +214,7 @@ trait Combinator0 {
     new Parser[A] {
       override def toString = s
       def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R] =
-        Eval.defer(m(st0, (st1: State, stack: List[String], msg: String) => kf(st1, Nil, "Failure reading:" + s), ks))
+        Eval.defer(m(st0, (st1: State, _: List[String], _: String) => kf(st1, Nil, "Failure reading:" + s), ks))
     }
 
 }

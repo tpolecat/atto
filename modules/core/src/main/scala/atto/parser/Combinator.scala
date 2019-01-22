@@ -8,7 +8,6 @@ import cats.implicits._
 import java.lang.{ String, SuppressWarnings }
 import scala.{ Array, Nil, Int, Unit, List, Boolean, Either, Left, Right, StringContext, PartialFunction, Option, Some }
 import scala.Predef.augmentString
-import scala.language.higherKinds
 
 import atto.syntax.all._
 

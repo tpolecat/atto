@@ -10,8 +10,8 @@ jdk:
 
 script:
   - sbt ++2.11.12 test
-  - sbt ++2.13.0-M4 testsJVM/test testsJS/test
-  - sbt ++2.12.7  coverage test docs/tut coverageReport
+  - sbt ++2.13.0-M5 testsJVM/test testsJS/test
+  - sbt ++2.12.8  coverage test docs/tut coverageReport
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)

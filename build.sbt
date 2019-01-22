@@ -218,7 +218,6 @@ lazy val atto = project.in(file("."))
   .dependsOn(coreJVM, coreJS, fs2JVM, fs2JS, refinedJVM, refinedJS, testsJVM, testsJS)
   .aggregate(coreJVM, coreJS, fs2JVM, fs2JS, refinedJVM, refinedJS, testsJVM, testsJS)
   .settings(
-    crossScalaVersions := Seq(scalaVersion.value), // root project doesn't care
     releaseCrossBuild := true,
     releaseProcess := Seq[ReleaseStep](
       checkSnapshotDependencies,

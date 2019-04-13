@@ -7,6 +7,7 @@ install:
 
 jdk:
   - oraclejdk8
+  - openjdk11
 
 script:
   - sbt ++2.11.12 test

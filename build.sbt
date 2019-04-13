@@ -11,7 +11,13 @@ def fs2CoreVersion(scalaVersion: String) = CrossVersion.partialVersion(scalaVers
 }
 
 lazy val scalacheckVersion = "1.14.0"
-lazy val kpVersion         = "0.9.9"
+
+// TODO standardize on 0.10.0 once we drop M5 for RC1
+def kindProjector(scalaVersion: String) =
+  if (scalaVersion == "2.13.0-M5")
+    "org.spire-math" % "kind-projector" % "0.9.9"
+  else
+    "org.typelevel" % "kind-projector" % "0.10.0"
 
 resolvers in Global += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
@@ -172,7 +178,7 @@ lazy val buildSettings = Seq(
   ),
   scalaVersion := "2.12.8",
   crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0-M5"),
-  addCompilerPlugin("org.spire-math" % "kind-projector" % kpVersion cross CrossVersion.binary)
+  libraryDependencies += compilerPlugin(kindProjector(scalaVersion.value) cross CrossVersion.binary)
 )
 
 lazy val commonSettings =

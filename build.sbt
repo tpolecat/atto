@@ -165,21 +165,21 @@ lazy val compilerFlags = Seq(
 )
 
 lazy val buildSettings = Seq(
-	organization := "org.tpolecat",
-	licenses ++= Seq(
-		("MIT", url("http://opensource.org/licenses/MIT")),
-		("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
-	),
-	scalaVersion := "2.12.8",
-	crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0-M5"),
+  organization := "org.tpolecat",
+  licenses ++= Seq(
+    ("MIT", url("http://opensource.org/licenses/MIT")),
+    ("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
+  ),
+  scalaVersion := "2.12.8",
+  crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0-M5"),
   addCompilerPlugin("org.spire-math" % "kind-projector" % kpVersion cross CrossVersion.binary)
 )
 
 lazy val commonSettings =
-	compilerFlags ++ Seq(
+  compilerFlags ++ Seq(
     wartremoverErrors in (Compile, compile) := attoWarts(scalaVersion.value),
     wartremoverErrors in (Test,    compile) := attoWarts(scalaVersion.value),
-		parallelExecution in Test := false,
+    parallelExecution in Test := false,
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
       if (isSnapshot.value)
@@ -188,7 +188,7 @@ lazy val commonSettings =
         Some("releases"  at nexus + "service/local/staging/deploy/maven2")
     },
     releaseProcess := Nil
-	)
+  )
 
 lazy val publishSettings = Seq(
   useGpg := false,
@@ -240,7 +240,7 @@ lazy val atto = project.in(file("."))
 lazy val core = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).in(file("modules/core"))
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-core")
-	.settings(libraryDependencies += "org.typelevel" %%% "cats-core" % catsVersion)
+  .settings(libraryDependencies += "org.typelevel" %%% "cats-core" % catsVersion)
 
 lazy val coreJVM = core.jvm
 lazy val coreJS = core.js
@@ -249,7 +249,7 @@ lazy val fs2 = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).i
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .dependsOn(core)
   .settings(name := "atto-fs2")
-	.settings(libraryDependencies += "co.fs2" %%% "fs2-core" % fs2CoreVersion(scalaVersion.value))
+  .settings(libraryDependencies += "co.fs2" %%% "fs2-core" % fs2CoreVersion(scalaVersion.value))
   .settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalacheckVersion % Test)
 
 lazy val fs2JVM = fs2.jvm
@@ -259,15 +259,15 @@ lazy val refined = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pur
   .dependsOn(core)
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .settings(name := "atto-refined")
-	.settings(libraryDependencies += "eu.timepit" %%% "refined" % refinedVersion)
+  .settings(libraryDependencies += "eu.timepit" %%% "refined" % refinedVersion)
 
 lazy val refinedJVM = refined.jvm
 lazy val refinedJS = refined.js
 
 lazy val tests = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).in(file("modules/tests"))
-	.dependsOn(core, refined)
+  .dependsOn(core, refined)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
-	.settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalacheckVersion % Test)
+  .settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalacheckVersion % Test)
   .settings(name := "atto-tests")
 
 lazy val testsJVM = tests.jvm
@@ -276,12 +276,12 @@ lazy val testsJS = tests.js
 lazy val docs = project.in(file("modules/docs")).dependsOn(coreJVM, refinedJVM)
   .settings(buildSettings ++ commonSettings ++ noPublishSettings)
   .settings(
-		name := "atto-docs",
-		scalacOptions in Tut --= Seq(
+    name := "atto-docs",
+    scalacOptions in Tut --= Seq(
       "-Ywarn-unused:imports",
       "-Yno-imports"
     )
-	)
+  )
   .enablePlugins(MicrositesPlugin)
   .settings(
     micrositeName             := "atto",

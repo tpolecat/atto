@@ -7,7 +7,7 @@ lazy val refinedVersion    = "0.9.4"
 
 def fs2CoreVersion(scalaVersion: String) = CrossVersion.partialVersion(scalaVersion) match {
   case Some((2, v)) if v >= 13 => "1.0.3-SNAPSHOT"
-  case _                       => "1.0.2"
+  case _                       => "1.0.4"
 }
 
 lazy val scalacheckVersion = "1.14.0"

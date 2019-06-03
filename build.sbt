@@ -2,7 +2,7 @@ import ReleaseTransformations._
 import microsites._
 import sbtcrossproject.{crossProject, CrossType}
 
-lazy val catsVersion       = "1.5.0"
+lazy val catsVersion       = "1.6.1"
 lazy val refinedVersion    = "0.9.4"
 
 def fs2CoreVersion(scalaVersion: String) = CrossVersion.partialVersion(scalaVersion) match {

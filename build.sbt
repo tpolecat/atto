@@ -2,22 +2,12 @@ import ReleaseTransformations._
 import microsites._
 import sbtcrossproject.{crossProject, CrossType}
 
-lazy val catsVersion       = "1.5.0"
-lazy val refinedVersion    = "0.9.4"
-
-def fs2CoreVersion(scalaVersion: String) = CrossVersion.partialVersion(scalaVersion) match {
-  case Some((2, v)) if v >= 13 => "1.0.3-SNAPSHOT"
-  case _                       => "1.0.4"
-}
-
+lazy val catsVersion       = "2.0.0-M4"
+lazy val refinedVersion    = "0.9.8"
+lazy val fs2CoreVersion    = "1.1.0-M1"
 lazy val scalacheckVersion = "1.14.0"
 
-// TODO standardize on 0.10.0 once we drop M5 for RC1
-def kindProjector(scalaVersion: String) =
-  if (scalaVersion == "2.13.0-M5")
-    "org.spire-math" % "kind-projector" % "0.9.9"
-  else
-    "org.typelevel" % "kind-projector" % "0.10.0"
+lazy val kindProjector = "org.typelevel" % "kind-projector" % "0.10.3"
 
 resolvers in Global += "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 
@@ -113,7 +103,7 @@ lazy val compilerFlags = Seq(
           "-unchecked",                        // Enable additional warnings where generated code depends on assumptions.
           "-Xcheckinit",                       // Wrap field accessors to throw an exception on uninitialized access.
           "-Xfatal-warnings",                  // Fail the compilation if there are any warnings.
-          "-Xfuture",                          // Turn on future language features.
+          //"-Xfuture",                          // Turn on future language features.
           "-Xlint:adapted-args",               // Warn if an argument list is modified to match the receiver.
           // "-Xlint:by-name-right-associative",  // By-name parameter of right associative operator.
           "-Xlint:constant",                   // Evaluation of a constant arithmetic expression results in an error.
@@ -177,8 +167,8 @@ lazy val buildSettings = Seq(
     ("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
   ),
   scalaVersion := "2.12.8",
-  crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0-M5"),
-  libraryDependencies += compilerPlugin(kindProjector(scalaVersion.value) cross CrossVersion.binary)
+  crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0"),
+  libraryDependencies += compilerPlugin(kindProjector cross CrossVersion.binary)
 )
 
 lazy val commonSettings =
@@ -255,7 +245,7 @@ lazy val fs2 = crossProject(JSPlatform, JVMPlatform).crossType(CrossType.Pure).i
   .settings(buildSettings ++ commonSettings ++ publishSettings)
   .dependsOn(core)
   .settings(name := "atto-fs2")
-  .settings(libraryDependencies += "co.fs2" %%% "fs2-core" % fs2CoreVersion(scalaVersion.value))
+  .settings(libraryDependencies += "co.fs2" %%% "fs2-core" % fs2CoreVersion)
   .settings(libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalacheckVersion % Test)
 
 lazy val fs2JVM = fs2.jvm

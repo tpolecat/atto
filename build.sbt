@@ -3,7 +3,7 @@ import microsites._
 import sbtcrossproject.{crossProject, CrossType}
 
 lazy val catsVersion       = "2.0.0-M4"
-lazy val refinedVersion    = "0.9.8"
+lazy val refinedVersion    = "0.9.9"
 
 lazy val fs2CoreVersion: String = "1.1.0-M1"
 

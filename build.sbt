@@ -228,7 +228,7 @@ lazy val atto = project.in(file("."))
       tagRelease,
       publishArtifacts,
       releaseStepCommand("sonatypeReleaseAll"),
-      releaseStepCommand("docs/publishMicrosite"),
+      // releaseStepCommand("docs/publishMicrosite"),
       setNextVersion,
       commitNextVersion,
       pushChanges

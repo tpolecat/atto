@@ -2,7 +2,7 @@ import ReleaseTransformations._
 import microsites._
 import sbtcrossproject.{crossProject, CrossType}
 
-lazy val catsVersion       = "2.0.0-M4"
+lazy val catsVersion       = "2.0.0-RC1"
 lazy val refinedVersion    = "0.9.9"
 lazy val fs2CoreVersion    = "1.1.0-M1"
 lazy val scalacheckVersion = "1.14.0"
@@ -166,7 +166,7 @@ lazy val buildSettings = Seq(
     ("MIT", url("http://opensource.org/licenses/MIT")),
     ("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
   ),
-  scalaVersion := "2.12.8",
+  scalaVersion := "2.12.9",
   crossScalaVersions := Seq("2.11.12", scalaVersion.value, "2.13.0"),
   libraryDependencies += compilerPlugin(kindProjector cross CrossVersion.binary)
 )

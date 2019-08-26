@@ -2,7 +2,7 @@ import ReleaseTransformations._
 import microsites._
 import sbtcrossproject.{crossProject, CrossType}
 
-lazy val catsVersion       = "2.0.0-RC1"
+lazy val catsVersion       = "2.0.0-RC2"
 lazy val refinedVersion    = "0.9.9"
 lazy val fs2CoreVersion    = "1.1.0-M1"
 lazy val scalacheckVersion = "1.14.0"

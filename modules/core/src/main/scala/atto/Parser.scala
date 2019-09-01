@@ -32,6 +32,8 @@ trait Parser[+A] { m =>
   def filter(p: A => Boolean): Parser[A] =
     parser.combinator.filter(this)(p)
 
+  def withFilter(p: A => Boolean): Parser[A] = filter(p)
+
   def void: Parser[Unit] =
     this.map(_ => ())
 

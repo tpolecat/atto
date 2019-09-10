@@ -247,6 +247,12 @@ object CombinatorTest extends Properties("Combinator") {
       Some(c).filter(_.isLetterOrDigit)
   }
 
+  property("for-comprehension/guard") = forAll { (c: Char) =>
+    (for {
+      c <- anyChar if c.isLetterOrDigit
+    } yield c).parseOnly(c.toString).option === Some(c).filter(_.isLetterOrDigit)
+  }
+
   property("count") = forAll { (c: Char, n0: Int) =>
     val n = (n0.abs % 10) + 1
     val s = c.toString * 20

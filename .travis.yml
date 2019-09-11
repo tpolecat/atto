@@ -1,18 +1,38 @@
 language: scala
 
+jdk:
+  - openjdk8
+
+before_install:
+  - git fetch --tags
+
 install:
   - . $HOME/.nvm/nvm.sh
   - nvm install stable
   - nvm use stable
 
-jdk:
-  - openjdk8
-  - openjdk11
+stages:
+  - name: test
+  - name: release
+    if: ((branch = master AND type = push) OR (tag IS present)) AND NOT fork
 
-script:
-  - sbt ++2.11.12 test
-  - sbt ++2.13.0 testsJVM/test testsJS/test
-  - sbt ++2.12.9  coverage test docs/tut coverageReport
+jobs:
+  include:
+    # stage="test" if no stage is specified
+    - env: TEST="build"
+      script: sbt +compile +test docs/tut coverageReport
+    # run ci-release only if previous stages passed
+    - stage: release
+      script: sbt ci-release
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
+before_cache:
+  - find $HOME/.ivy2 -name "ivydata-*.properties" -delete
+  - find $HOME/.sbt -name "*.lock" -delete
+
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot/

@@ -7,29 +7,28 @@ lazy val fs2CoreVersion       = "2.0.0"
 lazy val scalacheckVersion    = "1.14.0"
 lazy val kindProjectorVersion = "0.10.3"
 
-inThisBuild(
-  Seq(
-    organization := "org.tpolecat",
-    homepage     := Some(url("https://github.com/tpolecat/atto")),
-    developers   := List(
-      Developer("tpolecat", "Rob Norris", "rob_norris@mac.com", url("http://www.tpolecat.org"))
-    ),
-    licenses ++= Seq(
-      ("MIT",     url("http://opensource.org/licenses/MIT")),
-      ("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
-    ),
-    scalaVersion        := "2.12.9",
-    crossScalaVersions  := Seq("2.11.12", scalaVersion.value, "2.13.0"),
-    libraryDependencies += compilerPlugin("org.typelevel" % "kind-projector" % kindProjectorVersion cross CrossVersion.binary),
-    resolvers in Global += ("tpolecat" at "http://dl.bintray.com/tpolecat/maven").withAllowInsecureProtocol(true),
-  )
-)
+inThisBuild(Seq(
+  organization := "org.tpolecat",
+  homepage     := Some(url("https://github.com/tpolecat/atto")),
+  developers   := List(
+    Developer("tpolecat", "Rob Norris", "rob_norris@mac.com", url("http://www.tpolecat.org"))
+  ),
+  licenses ++= Seq(
+    ("MIT",     url("http://opensource.org/licenses/MIT")),
+    ("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
+  ),
+  scalaVersion        := "2.12.9",
+  crossScalaVersions  := Seq("2.11.12", scalaVersion.value, "2.13.0"),
+  libraryDependencies += compilerPlugin("org.typelevel" % "kind-projector" % kindProjectorVersion cross CrossVersion.binary),
+  resolvers in Global += ("tpolecat" at "http://dl.bintray.com/tpolecat/maven").withAllowInsecureProtocol(true),
+))
 
 lazy val atto = // defined so we can exclude docs from aggregate
   project
     .in(file("."))
     .dependsOn(core.jvm, core.js, fs2.jvm, fs2.js, refined.jvm, refined.js, tests.jvm, tests.js)
     .aggregate(core.jvm, core.js, fs2.jvm, fs2.js, refined.jvm, refined.js, tests.jvm, tests.js)
+    .settings(publish / skip := true)
 
 lazy val core =
   crossProject(JSPlatform, JVMPlatform)

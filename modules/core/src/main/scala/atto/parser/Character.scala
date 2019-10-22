@@ -42,12 +42,8 @@ trait Character {
     satisfy(_ =!= c) named ("not '" + c.toString + "'")
 
   /** Decimal digit, 0-9. */
-  def digit: Parser[Char] =
-    elem(_.isDigit, "digit")
-
-  /** Decimal digit, 0-9. */
   def decimalDigit: Parser[Char] =
-    digit
+    charRange('0' to '9') named "decimalDigit"
 
   /** Hex digit, 0-9, A-F, a-f */
   def hexDigit: Parser[Char] =
@@ -64,6 +60,13 @@ trait Character {
   def octalDigit: Parser[Char] =
     charRange('0' to '7')
 
+  /** The following parsers have been derived from Character.java.
+   *  Note that they also handle non-Western unicode characters.
+   *  See Java documentation for details. */
+
+  def digit: Parser[Char] =
+    elem(_.isDigit, "digit")
+
   def letter: Parser[Char] =
     elem(_.isLetter, "letter")
 
@@ -78,6 +81,9 @@ trait Character {
 
   def upper: Parser[Char] =
     elem(_.isUpper, "upper")
+
+  def whitespace: Parser[Char] =
+    elem(c => c.isWhitespace, "whitespace")
 
   type CharRange = scala.collection.immutable.NumericRange[Char]
 
@@ -94,11 +100,7 @@ trait Character {
   def skip(p: Char => Boolean): Parser[Unit] =
     elem(p).void named "skip(...)"
 
-  /** Horizontal or vertical whitespace character */
-  def whitespace: Parser[Char] =
-    elem(c => c.isWhitespace, "whitespace")
-
   /** Whitespace that is not a line break */
   def horizontalWhitespace: Parser[Char] =
-    elem(c => c.isWhitespace && c =!= '\r' && c =!= '\n', "horizontalWhitespace")
+    oneOf(" \t") named "horizontalWhitespace"
 }

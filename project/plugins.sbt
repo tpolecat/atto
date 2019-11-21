@@ -3,5 +3,5 @@ addSbtPlugin("com.geirsson"              % "sbt-ci-release"           % "1.4.31"
 addSbtPlugin("com.timushev.sbt"          % "sbt-updates"              % "0.4.3")
 addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat"             % "0.1.8")
 addSbtPlugin("org.portable-scala"        % "sbt-scalajs-crossproject" % "0.6.1")
-addSbtPlugin("org.scala-js"              % "sbt-scalajs"              % "0.6.29")
+addSbtPlugin("org.scala-js"              % "sbt-scalajs"              % "0.6.31")
 addSbtPlugin("org.scoverage"             % "sbt-scoverage"            % "1.6.1")

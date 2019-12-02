@@ -58,4 +58,44 @@ object CharacterTest extends Properties("Character") {
     p.parseOnly(s).option === Some(s.toList.takeWhile(_ < c))
   }
 
+  property("decimalDigit") = forAll { (c: Char) =>
+    decimalDigit.parseOnly(c.toString).option ===
+      (if("0123456789".contains(c)) Some(c) else None)
+  }
+
+  property("binaryDigit") = forAll { (c: Char) =>
+    binaryDigit.parseOnly(c.toString).option ===
+      (if(c == '0' || c == '1') Some(c) else None)
+  }
+
+  property("octalDigit") = forAll { (c: Char) =>
+    octalDigit.parseOnly(c.toString).option ===
+      (if("01234567".contains(c)) Some(c) else None)
+  }
+
+  property("Character.java derivatives") = forAll { (c: Char) =>
+    List[(Parser[Char], Function[Char, Boolean])](
+      (digit, _.isDigit),
+      (letter, _.isLetter),
+      (letterOrDigit, _.isLetterOrDigit),
+      (lower, _.isLower),
+      (spaceChar, _.isSpaceChar),
+      (upper, _.isUpper),
+      (whitespace, _.isWhitespace)).map {
+      case (parser, predicate) =>
+        parser.parseOnly(c.toString).option ===
+          (if (predicate(c)) Some(c) else None)
+    }.forall(_ == true)
+  }
+
+  property("skip") = forAll { (c: Char, b: Boolean) =>
+    val predicate = (cc: Char) => if(b) c == cc else c != cc
+    skip(predicate).parseOnly(c.toString).option ===
+      (if (predicate(c)) Some(()) else None)
+  }
+
+  property("horizontalWhitespace") = forAll { (c: Char) =>
+    horizontalWhitespace.parseOnly(c.toString).option ===
+      (if (c == ' ' || c == '\t') Some(c) else None)
+  }
 }

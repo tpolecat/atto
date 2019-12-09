@@ -1,6 +1,6 @@
 package atto
 
-import cats.{ Eval, Monad, SemigroupK, Monoid }
+import cats.{ Eval, Alternative, Monad, Monoid }
 import java.lang.{ String, SuppressWarnings }
 import scala.{ Array, Boolean, List, Unit, Int, Either, Left, Right }
 import scala.Predef.augmentString
@@ -109,8 +109,8 @@ trait ParserFunctions {
 trait ParserInstances {
   import Atto._
 
-  implicit val ParserMonad: Monad[Parser] =
-    new Monad[Parser] {
+  implicit val ParserMonad: Alternative[Parser] with Monad[Parser] =
+    new Alternative[Parser] with Monad[Parser] {
       def pure[A](a: A): Parser[A] = ok(a)
       def flatMap[A,B](ma: Parser[A])(f: A => Parser[B]) = ma flatMap f
       override def map[A,B](ma: Parser[A])(f: A => B) = ma map f
@@ -120,17 +120,10 @@ trait ParserInstances {
           case Left(a)  => tailRecM(a)(f)
           case Right(b) => pure(b)
         }
-    }
-
-  implicit val ParserSemigroupK: SemigroupK[Parser] =
-    new SemigroupK[Parser] {
       def combineK[A](a: Parser[A], b: Parser[A]): Parser[A] = a | b
+      def empty[A]: Parser[A] = err("zero")
     }
 
-  implicit def ParserMonoid[A]: Monoid[Parser[A]] =
-    new Monoid[Parser[A]] {
-      def combine(s1: Parser[A], s2: Parser[A]): Parser[A] = s1 | s2
-      val empty: Parser[A] = err("zero")
-    }
+  implicit def ParserMonoid[A]: Monoid[Parser[A]] = ParserMonad.algebra[A]
 
 }

@@ -1,5 +1,5 @@
 addSbtPlugin("com.47deg"                 % "sbt-microsites"           % "1.0.2")
-addSbtPlugin("com.geirsson"              % "sbt-ci-release"           % "1.4.31")
+addSbtPlugin("com.geirsson"              % "sbt-ci-release"           % "1.5.0")
 addSbtPlugin("com.timushev.sbt"          % "sbt-updates"              % "0.5.0")
 addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat"             % "0.1.10")
 addSbtPlugin("org.portable-scala"        % "sbt-scalajs-crossproject" % "0.6.1")

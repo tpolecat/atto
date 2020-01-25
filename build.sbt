@@ -17,8 +17,8 @@ inThisBuild(Seq(
     ("MIT",     url("http://opensource.org/licenses/MIT")),
     ("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
   ),
-  scalaVersion        := "2.12.9",
-  crossScalaVersions  := Seq("2.11.12", scalaVersion.value, "2.13.0"),
+  scalaVersion        := "2.13.1",
+  crossScalaVersions  := Seq("2.11.12", "2.12.9", scalaVersion.value),
   libraryDependencies += compilerPlugin("org.typelevel" % "kind-projector" % kindProjectorVersion cross CrossVersion.binary),
   resolvers in Global += ("tpolecat" at "http://dl.bintray.com/tpolecat/maven").withAllowInsecureProtocol(true),
 ))

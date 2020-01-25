@@ -2,7 +2,7 @@ import microsites._
 import sbtcrossproject.{ crossProject, CrossType }
 
 lazy val catsVersion          = "2.0.0"
-lazy val refinedVersion       = "0.9.10"
+lazy val refinedVersion       = "0.9.12"
 lazy val fs2CoreVersion       = "2.1.0"
 lazy val scalacheckVersion    = "1.14.3"
 lazy val kindProjectorVersion = "0.10.3"

@@ -12,7 +12,7 @@ trait Parser[+A] { m =>
   def apply[R](st0: State, kf: Failure[R], ks: Success[A,R]): TResult[R]
 
   // TODO: get rid of this
-  def infix(s: String): String =
+  def infix(s: => String): String =
     "(" + m.toString + ") " + s
 
   def flatMap[B](f: A => Parser[B]): Parser[B] =

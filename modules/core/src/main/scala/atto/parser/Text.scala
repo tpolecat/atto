@@ -20,7 +20,7 @@ trait Text {
 
   /** Parser that returns a non-empty string of characters matched by `p`. */
   def stringOf1(p: Parser[Char]): Parser[String] = {
-    many1(p).map(cs => new String(cs.toList.toArray)) named "stringOf1(" + p.toString + ")"
+    many1(p).map(cs => new String(cs.toList.toArray)) named ("stringOf1(" + p.toString + ")")
   }
 
   def takeWith(n: Int, p: String => Boolean, what: => String = "takeWith(...)"): Parser[String] =

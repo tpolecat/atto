@@ -232,7 +232,7 @@ trait Combinator extends Combinator0 {
 
   /** Parser that matches `p` only if there is no remaining input */
   def phrase[A](p: Parser[A]): Parser[A] =
-    p <~ endOfInput named ("phrase" + p.toString)
+    p <~ endOfInput named ("phrase(" + p.toString + ")")
 
   // TODO: return a parser of a reducer of A
   /** Parser that matches zero or more `p`. */

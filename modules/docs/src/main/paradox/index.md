@@ -1,30 +1,29 @@
----
-layout: home
-title:  "Home"
-section: "home"
----
+
 
 # atto
+
+@@@index
+
+* [First Steps](docs/first-steps.md)
+* [A Larger Example](docs/next-steps.md)
+* [Refined Integration](docs/refined-integration.md)
+
+@@@
 
 [![Join the chat at https://gitter.im/tpolecat/atto](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tpolecat/atto?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Travis CI](https://travis-ci.org/tpolecat/atto.svg?branch=master)](https://travis-ci.org/tpolecat/atto)
 
 **atto** is a compact, pure-functional, incremental text parsing library for Scala. The API is non-invasive (nothing to extend!) and uses sensible and familiar abstractions. **atto** parsers are a fun and principled tool for everyday parsing.
 
-```tut
-import atto._, Atto._
-int.sepBy(spaceChar).parseOnly("1 20 300").option
-```
+@@snip [index.scala](/modules/docs/src/main/scala/index.scala) { #sample }
 
-The current version is **{{site.attoVersion}}** for **Scala {{site.scalaVersions}}** and **Scala-JS** (2.11+) with **[cats](http://typelevel.org/cats/) {{site.catsVersion}}**. Add it to your `build.sbt` thus:
+Skunk is published for Scala/ScalaJS $scala-versions$ and can be included in your project thus:
 
-```scala
-libraryDependencies += "org.tpolecat" %% "atto-core"    % "{{site.attoVersion}}"
-libraryDependencies += "org.tpolecat" %% "atto-refined" % "{{site.attoVersion}}"
-```
-
-More information on `atto-refined` in [the dedicated guide](https://tpolecat.github.com/atto/docs/refined-integration.html)
-which provides an integration with **[refined](https://github.com/fthomas/refined) {{site.refinedVersion}}**.
+@@dependency[sbt,Maven,Gradle] {
+  group="$org$"
+  artifact="$core-dep$"
+  version="$version$"
+}
 
 ## Documentation and Support
 
@@ -51,4 +50,4 @@ The core of **atto** originated in Edward Kmett's Scala port of [Attoparsec](htt
 
 ## License
 
-**Attoparsec**, a Haskell library, is licensed under BSD-3 as specified [here](https://github.com/bos/attoparsec); the derivative work **atto** is provided under the MIT licence [here](LICENSE). Both licenses appear in project metadata.
+**Attoparsec**, a Haskell library, is licensed under BSD-3 as specified [here](https://github.com/bos/attoparsec); the derivative work **atto** is provided under the MIT licence [here](https://github.com/tpolecat/atto/LICENSE). Both licenses appear in project metadata.

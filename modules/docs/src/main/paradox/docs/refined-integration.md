@@ -1,9 +1,5 @@
----
-layout: docs
-title: Refined integration
----
 
-### {{page.title}}
+## Refined Integration
 
 Atto benefits from an integration with the excellent [refined](https://github.com/fthomas/refined)
 library.
@@ -12,9 +8,11 @@ library.
 
 The refined integration lives in the `atto-refined` module:
 
-```scala
-libraryDependencies += "org.tpolecat" %% "atto-refined" % "{{site.attoVersion}}"
-```
+@@dependency[sbt,Maven,Gradle] {
+  group="$org$"
+  artifact="$refined-dep$"
+  version="$version$"
+}
 
 #### Usage
 

@@ -72,7 +72,7 @@ lazy val tests =
 
 lazy val docs = project
   .in(file("modules/docs"))
-  .dependsOn(core.jvm)
+  .dependsOn(core.jvm, refined.jvm)
   .enablePlugins(ParadoxPlugin)
   .enablePlugins(ParadoxSitePlugin)
   .enablePlugins(GhpagesPlugin)

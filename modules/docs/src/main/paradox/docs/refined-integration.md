@@ -18,29 +18,21 @@ The refined integration lives in the `atto-refined` module:
 
 We'll need the usual imports as well as a specific `atto-refined` import:
 
-```tut:silent
-import atto._, Atto._, syntax.refined._
-import eu.timepit.refined.numeric._
-```
+@@snip [refined-integration.scala](/modules/docs/src/main/scala/refined-integration.scala) { #imports }
 
 We can refine any `Parser[T]` with a predicate `P` to obtain a `Parser[T Refined P]`, for example
 if we pick up our `int` parser and refine it to parse only positive integers:
 
-```tut
-val positiveInt = int.refined[Positive]
-```
+@@snip [refined-integration.scala](/modules/docs/src/main/scala/refined-integration.scala) { #positiveInt }
 
 It will be able to parse positive integers:
 
-```tut
-positiveInt parseOnly "123"
-```
+@@snip [refined-integration.scala](/modules/docs/src/main/scala/refined-integration.scala) { #positiveInt-parse-1 }
 
 And will fail on negative integers:
 
-```tut
-positiveInt parseOnly "-123"
-```
+@@snip [refined-integration.scala](/modules/docs/src/main/scala/refined-integration.scala) { #positiveInt-parse-2 }
+
 
 Check out [the refined's library README](https://github.com/fthomas/refined#provided-predicates) to
 see a list of all the provided predicates.

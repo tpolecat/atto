@@ -13,11 +13,11 @@
 [![Join the chat at https://gitter.im/tpolecat/atto](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/tpolecat/atto?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Travis CI](https://travis-ci.org/tpolecat/atto.svg?branch=master)](https://travis-ci.org/tpolecat/atto)
 
-**atto** is a compact, pure-functional, incremental text parsing library for Scala. The API is non-invasive (nothing to extend!) and uses sensible and familiar abstractions. **atto** parsers are a fun and principled tool for everyday parsing.
+**atto** is a compact, pure-functional, incremental text parsing library for Scala. The API is non-invasive (nothing to extend!) and uses sensible and familiar abstractions. **atto** parsers are a fun and simple tool for everyday parsing.
 
 @@snip [index.scala](/modules/docs/src/main/scala/index.scala) { #sample }
 
-Skunk is published for Scala/ScalaJS $scala-versions$ and can be included in your project thus:
+Atto is published for Scala/ScalaJS $scala-versions$ and can be included in your project thus:
 
 @@dependency[sbt,Maven,Gradle] {
   group="$org$"
@@ -28,7 +28,7 @@ Skunk is published for Scala/ScalaJS $scala-versions$ and can be included in you
 ## Documentation and Support
 
 - Chat it up on [Gitter](https://gitter.im/tpolecat/atto).
-- Check the [tutorial](https://tpolecat.github.com/atto/docs/first-steps.html).
+- Check the @ref:[Tutorial](docs/first-steps.md)
 - Check the [Scaladoc](https://www.javadoc.io/doc/org.tpolecat/atto-core_2.12/{{site.attoVersion}}).
 
 ## Why atto?

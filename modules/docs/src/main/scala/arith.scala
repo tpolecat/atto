@@ -3,7 +3,6 @@ import cats._, cats.implicits._
 import java.lang.{ String, SuppressWarnings }
 import scala.{ Array, Int, App, Either, Left, Right, sys }
 import scala.Predef.println
-import scala.language.higherKinds
 
 sealed trait Expr[A] {
   def map[B](f: A => B): Expr[B] =

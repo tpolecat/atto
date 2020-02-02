@@ -1,4 +1,3 @@
-import microsites._
 import sbtcrossproject.{ crossProject, CrossType }
 
 lazy val catsVersion          = "2.0.0"
@@ -17,8 +16,8 @@ inThisBuild(Seq(
     ("MIT",     url("http://opensource.org/licenses/MIT")),
     ("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
   ),
-  scalaVersion        := "2.12.9",
-  crossScalaVersions  := Seq("2.11.12", scalaVersion.value, "2.13.0"),
+  scalaVersion        := "2.13.1",
+  crossScalaVersions  := Seq("2.11.12", "2.12.9", scalaVersion.value),
   libraryDependencies += compilerPlugin("org.typelevel" % "kind-projector" % kindProjectorVersion cross CrossVersion.binary),
   resolvers in Global += ("tpolecat" at "http://dl.bintray.com/tpolecat/maven").withAllowInsecureProtocol(true),
 ))
@@ -71,33 +70,26 @@ lazy val tests =
       libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalacheckVersion % Test
     )
 
-lazy val docs =
-  project
-    .in(file("modules/docs"))
-    .dependsOn(core.jvm, refined.jvm)
-    .enablePlugins(MicrositesPlugin)
-    .settings(
-      publish / skip := true,
-      name := "atto-docs",
-      scalacOptions in Tut --= Seq(
-        "-Ywarn-unused:imports",
-        "-Yno-imports"
-      ),
-      micrositeName             := "atto",
-      micrositeDescription      := "Everyday parsers.",
-      micrositeAuthor           := "Rob Norris",
-      micrositeGithubOwner      := "tpolecat",
-      micrositeGithubRepo       := "atto",
-      micrositeGitterChannel    := false, // no me gusta
-      micrositeBaseUrl          := "/atto",
-      micrositeDocumentationUrl := "/atto/docs/first-steps.html",
-      micrositeHighlightTheme   := "color-brewer",
-      micrositeConfigYaml := ConfigYml(
-        yamlCustomProperties = Map(
-          "attoVersion"    -> version.value,
-          "catsVersion"    -> catsVersion,
-          "refinedVersion" -> refinedVersion,
-          "scalaVersions"  -> crossScalaVersions.value.map(CrossVersion.partialVersion).flatten.map(_._2).mkString("2.", "/", "") // 2.11/12
-        )
-      )
+lazy val docs = project
+  .in(file("modules/docs"))
+  .dependsOn(core.jvm, refined.jvm)
+  .enablePlugins(ParadoxPlugin)
+  .enablePlugins(ParadoxSitePlugin)
+  .enablePlugins(GhpagesPlugin)
+  .settings(
+    scalacOptions      := Nil,
+    git.remoteRepo     := "git@github.com:tpolecat/atto.git",
+    ghpagesNoJekyll    := true,
+    publish / skip     := true,
+    paradoxTheme       := Some(builtinParadoxTheme("generic")),
+    version            := version.value.takeWhile(_ != '+'), // strip off the +3-f22dca22+20191110-1520-SNAPSHOT business
+    paradoxProperties ++= Map(
+      "scala-versions"          -> (crossScalaVersions in core.jvm).value.map(CrossVersion.partialVersion).flatten.map(_._2).mkString("2.", "/", ""),
+      "org"                     -> organization.value,
+      "scala.binary.version"    -> s"2.${CrossVersion.partialVersion(scalaVersion.value).get._2}",
+      "core-dep"                -> s"${(core.jvm / name).value}_2.${CrossVersion.partialVersion(scalaVersion.value).get._2}",
+      "refined-dep"             -> s"${(refined.jvm / name).value}_2.${CrossVersion.partialVersion(scalaVersion.value).get._2}",
+      "version"                 -> version.value,
+      "scaladoc.atto.base_url" -> s"https://static.javadoc.io/org.tpolecat/atto-core_2.12/${version.value}",
     )
+  )

@@ -1,6 +1,6 @@
 ## A Larger Example
 
-Our goal for this chapter is to parse the following log data into structured values. This is taken from a nice tutorial over at [FP Complete](https://www.fpcomplete.com/school/text-manipulation/attoparsec).
+Our goal for this chapter is to parse the following log data into structured values. This is taken from a nice tutorial over at [the School of Haskell](https://www.schoolofhaskell.com/school/starting-with-haskell/libraries-and-frameworks/text-manipulation/attoparsec).
 
 @@snip [next-steps.scala](/modules/docs/src/main/scala/next-steps.scala) { #logdata }
 

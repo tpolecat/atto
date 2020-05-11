@@ -1,8 +1,8 @@
 import sbtcrossproject.{ crossProject, CrossType }
 
-lazy val catsVersion          = "2.0.0"
-lazy val refinedVersion       = "0.9.12"
-lazy val fs2CoreVersion       = "2.1.0"
+lazy val catsVersion          = "2.1.1"
+lazy val refinedVersion       = "0.9.14"
+lazy val fs2CoreVersion       = "2.3.0"
 lazy val scalacheckVersion    = "1.14.3"
 lazy val kindProjectorVersion = "0.10.3"
 
@@ -16,8 +16,8 @@ inThisBuild(Seq(
     ("MIT",     url("http://opensource.org/licenses/MIT")),
     ("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
   ),
-  scalaVersion        := "2.13.1",
-  crossScalaVersions  := Seq("2.11.12", "2.12.9", scalaVersion.value),
+  scalaVersion        := "2.13.2",
+  crossScalaVersions  := Seq("2.12.11", scalaVersion.value),
   libraryDependencies += compilerPlugin("org.typelevel" % "kind-projector" % kindProjectorVersion cross CrossVersion.binary),
   resolvers in Global += ("tpolecat" at "http://dl.bintray.com/tpolecat/maven").withAllowInsecureProtocol(true),
 ))

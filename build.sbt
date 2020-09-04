@@ -1,6 +1,6 @@
 import sbtcrossproject.{ crossProject, CrossType }
 
-lazy val catsVersion          = "2.1.1"
+lazy val catsVersion          = "2.2.0"
 lazy val refinedVersion       = "0.9.14"
 lazy val fs2CoreVersion       = "2.3.0"
 lazy val scalacheckVersion    = "1.14.3"

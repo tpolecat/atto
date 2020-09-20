@@ -57,7 +57,7 @@ trait Combinator0 {
   private def prompt[R](st0: State, kf: State => TResult[R], ks: State => TResult[R]): Result[R] =
     Partial[R](s =>
       if (s.isEmpty) Eval.defer(kf(st0 copy (complete = true)))
-      else Eval.defer(ks(st0 copy (input = st0.input + s, complete = false)))
+      else Eval.defer(ks(st0.copy(input = st0.input + s, complete = false)))
     )
 
   def demandInput: Parser[Unit] =

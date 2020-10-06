@@ -34,3 +34,7 @@ tags
 .bloop/
 .metals/
 metals.sbt
+
+# intellij
+.idea
+.idea/*

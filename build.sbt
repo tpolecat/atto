@@ -1,10 +1,7 @@
-import sbtcrossproject.{ crossProject, CrossType }
-
 lazy val catsVersion          = "2.2.0"
 lazy val refinedVersion       = "0.9.17"
 lazy val fs2CoreVersion       = "2.4.4"
 lazy val scalacheckVersion    = "1.14.3"
-lazy val kindProjectorVersion = "0.10.3"
 
 inThisBuild(Seq(
   organization := "org.tpolecat",
@@ -18,7 +15,6 @@ inThisBuild(Seq(
   ),
   scalaVersion        := "2.13.3",
   crossScalaVersions  := Seq("2.12.12", scalaVersion.value),
-  libraryDependencies += compilerPlugin("org.typelevel" % "kind-projector" % kindProjectorVersion cross CrossVersion.binary),
   resolvers in Global += ("tpolecat" at "http://dl.bintray.com/tpolecat/maven").withAllowInsecureProtocol(true),
 ))
 
@@ -84,7 +80,7 @@ lazy val docs = project
     paradoxTheme       := Some(builtinParadoxTheme("generic")),
     version            := version.value.takeWhile(_ != '+'), // strip off the +3-f22dca22+20191110-1520-SNAPSHOT business
     paradoxProperties ++= Map(
-      "scala-versions"          -> (crossScalaVersions in core.jvm).value.map(CrossVersion.partialVersion).flatten.map(_._2).mkString("2.", "/", ""),
+      "scala-versions"          -> (crossScalaVersions in core.jvm).value.flatMap(CrossVersion.partialVersion).map(_._2).mkString("2.", "/", ""),
       "org"                     -> organization.value,
       "scala.binary.version"    -> s"2.${CrossVersion.partialVersion(scalaVersion.value).get._2}",
       "core-dep"                -> s"${(core.jvm / name).value}_2.${CrossVersion.partialVersion(scalaVersion.value).get._2}",

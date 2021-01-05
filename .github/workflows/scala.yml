@@ -9,9 +9,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: coursier/cache-action@v3
-      - name: Set up JDK 1.8
-        uses: olafurpg/setup-scala@v7
+      - name: Set up JDK
+        uses: olafurpg/setup-scala@v10
         with:
-          java-version: adoptjdk@14
+          java-version: 8
       - name: Run compile
         run: csbt +compile +test

@@ -45,7 +45,7 @@ object Parser extends ParserFunctions with ParserInstances {
 
   type Pos = Int
 
-  final case class State private (input: String, pos: Pos, complete: Boolean) {
+  final case class State private[atto] (input: String, pos: Pos, complete: Boolean) {
     def completed: State = copy(complete = true)
   }
 

@@ -11,6 +11,8 @@ jobs:
       - uses: olafurpg/setup-scala@v10
       - uses: olafurpg/setup-gpg@v3
       - uses: coursier/cache-action@v3
+        with:
+          java-version: 8
       - name: Publish
         run: csbt ci-release
         env:

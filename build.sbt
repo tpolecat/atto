@@ -26,6 +26,27 @@ lazy val commonSettings = Seq(
     compilerPlugin("org.typelevel" %% "kind-projector" % "0.11.2" cross CrossVersion.full),
   ).filterNot(_ => isDotty.value),
   resolvers in Global += ("tpolecat" at "http://dl.bintray.com/tpolecat/maven").withAllowInsecureProtocol(true),
+
+  // Add some more source directories
+  unmanagedSourceDirectories in Compile ++= {
+    val sourceDir = (sourceDirectory in Compile).value
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _))  => Seq(sourceDir / "scala-3")
+      case Some((2, _))  => Seq(sourceDir / "scala-2")
+      case _             => Seq()
+    }
+  },
+
+  // Also for test
+  unmanagedSourceDirectories in Test ++= {
+    val sourceDir = (sourceDirectory in Test).value
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((3, _))  => Seq(sourceDir / "scala-3")
+      case Some((2, _))  => Seq(sourceDir / "scala-2")
+      case _             => Seq()
+    }
+  },
+
   // dottydoc really doesn't work at all right now
   Compile / doc / sources := {
     val old = (Compile / doc / sources).value
@@ -34,6 +55,7 @@ lazy val commonSettings = Seq(
     else
       old
   },
+
 )
 
 lazy val atto = // defined so we can exclude docs from aggregate

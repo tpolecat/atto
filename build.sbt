@@ -1,12 +1,16 @@
 import sbtcrossproject.{ crossProject, CrossType }
 
-lazy val catsVersion          = "2.2.0"
-lazy val refinedVersion       = "0.9.17"
-lazy val fs2CoreVersion       = "2.4.4"
-lazy val scalacheckVersion    = "1.14.3"
+lazy val catsVersion          = "2.3.1"
+lazy val fs2CoreVersion       = "2.5.0"
+lazy val scalacheckVersion    = "1.15.2"
 lazy val kindProjectorVersion = "0.10.3"
 
-inThisBuild(Seq(
+lazy val scala212    = "2.12.12"
+lazy val scala213    = "2.13.4"
+lazy val scala30prev = "3.0.0-M2"
+lazy val scala30     = "3.0.0-M3"
+
+lazy val commonSettings = Seq(
   organization := "org.tpolecat",
   homepage     := Some(url("https://github.com/tpolecat/atto")),
   developers   := List(
@@ -16,23 +20,35 @@ inThisBuild(Seq(
     ("MIT",     url("http://opensource.org/licenses/MIT")),
     ("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
   ),
-  scalaVersion        := "2.13.3",
-  crossScalaVersions  := Seq("2.12.12", scalaVersion.value),
-  libraryDependencies += compilerPlugin("org.typelevel" % "kind-projector" % kindProjectorVersion cross CrossVersion.binary),
+  scalaVersion        := scala213,
+  crossScalaVersions  := Seq(scala212, scala213, scala30prev, scala30),
+  libraryDependencies ++= Seq(
+    compilerPlugin("org.typelevel" %% "kind-projector" % "0.11.2" cross CrossVersion.full),
+  ).filterNot(_ => isDotty.value),
   resolvers in Global += ("tpolecat" at "http://dl.bintray.com/tpolecat/maven").withAllowInsecureProtocol(true),
-))
+  // dottydoc really doesn't work at all right now
+  Compile / doc / sources := {
+    val old = (Compile / doc / sources).value
+    if (isDotty.value)
+      Seq()
+    else
+      old
+  },
+)
 
 lazy val atto = // defined so we can exclude docs from aggregate
   project
     .in(file("."))
     .dependsOn(core.jvm, core.js, fs2.jvm, fs2.js, refined.jvm, refined.js, tests.jvm, tests.js)
     .aggregate(core.jvm, core.js, fs2.jvm, fs2.js, refined.jvm, refined.js, tests.jvm, tests.js)
+    .settings(commonSettings)
     .settings(publish / skip := true)
 
 lazy val core =
   crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Pure)
     .in(file("modules/core"))
+    .settings(commonSettings)
     .settings(name := "atto-core")
     .settings(libraryDependencies += "org.typelevel" %%% "cats-core" % catsVersion)
 
@@ -41,6 +57,7 @@ lazy val fs2 =
     .crossType(CrossType.Pure)
     .in(file("modules/fs2"))
     .dependsOn(core)
+    .settings(commonSettings)
     .settings(
       name := "atto-fs2",
       libraryDependencies ++= Seq(
@@ -54,9 +71,10 @@ lazy val refined =
     .crossType(CrossType.Pure)
     .in(file("modules/refined"))
     .dependsOn(core)
+    .settings(commonSettings)
     .settings(
       name := "atto-refined",
-      libraryDependencies += "eu.timepit" %%% "refined" % refinedVersion
+      libraryDependencies += "eu.timepit" %%% "refined" % (if (scalaVersion.value == scala30prev) "0.9.19" else "0.9.20")
     )
 
 lazy val tests =
@@ -64,6 +82,7 @@ lazy val tests =
     .crossType(CrossType.Pure)
     .in(file("modules/tests"))
     .dependsOn(core, refined)
+    .settings(commonSettings)
     .settings(
       name := "atto-tests",
       publish / skip := true,
@@ -76,6 +95,7 @@ lazy val docs = project
   .enablePlugins(ParadoxPlugin)
   .enablePlugins(ParadoxSitePlugin)
   .enablePlugins(GhpagesPlugin)
+  .settings(commonSettings)
   .settings(
     scalacOptions      := Nil,
     git.remoteRepo     := "git@github.com:tpolecat/atto.git",

@@ -96,7 +96,7 @@ lazy val refined =
     .settings(commonSettings)
     .settings(
       name := "atto-refined",
-      libraryDependencies += "eu.timepit" %%% "refined" % (if (scalaVersion.value == scala30prev) "0.9.19" else "0.9.20")
+      libraryDependencies += "eu.timepit" %%% "refined" % (if (scalaVersion.value == scala30prev) "0.9.19" else "0.9.21")
     )
 
 lazy val tests =

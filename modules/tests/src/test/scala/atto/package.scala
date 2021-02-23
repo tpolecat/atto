@@ -7,7 +7,7 @@ package object atto {
     def sameAs(b: ParseResult[A]) =
       (a, b) match {
         case (Fail(a, b, c), Fail(d, e, f)) => (a, b, c).===((d, e, f))
-        case (Done(a, b), Done(d, e)) => (a, b).===((d, e)   )
+        case (Done(a, b), Done(d, e)) => (a, b: A).===((d, e)   )
         case (Partial(_), Partial(_)) => sys.error("undefined")
         case _ => false
       }

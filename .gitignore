@@ -33,4 +33,7 @@ tags
 # metals
 .bloop/
 .metals/
-project/metals.sbt
+metals.sbt
+
+# sbt
+.bsp/

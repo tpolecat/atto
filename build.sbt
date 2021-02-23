@@ -22,10 +22,6 @@ lazy val commonSettings = Seq(
   ),
   scalaVersion        := scala213,
   crossScalaVersions  := Seq(scala212, scala213, scala30prev, scala30),
-  libraryDependencies ++= Seq(
-    compilerPlugin("org.typelevel" %% "kind-projector" % "0.11.3" cross CrossVersion.full),
-  ).filterNot(_ => isDotty.value),
-  resolvers in Global += ("tpolecat" at "http://dl.bintray.com/tpolecat/maven").withAllowInsecureProtocol(true),
 
   // Add some more source directories
   unmanagedSourceDirectories in Compile ++= {

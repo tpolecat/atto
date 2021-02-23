@@ -1,14 +1,14 @@
 import sbtcrossproject.{ crossProject, CrossType }
 
-lazy val catsVersion          = "2.3.1"
-lazy val fs2CoreVersion       = "2.5.0"
-lazy val scalacheckVersion    = "1.15.2"
+lazy val catsVersion          = "2.4.2"
+lazy val fs2CoreVersion       = "2.5.3"
+lazy val scalacheckVersion    = "1.15.3"
 lazy val kindProjectorVersion = "0.10.3"
 
 lazy val scala212    = "2.12.12"
-lazy val scala213    = "2.13.4"
-lazy val scala30prev = "3.0.0-M2"
-lazy val scala30     = "3.0.0-M3"
+lazy val scala213    = "2.13.5"
+lazy val scala30prev = "3.0.0-M3"
+lazy val scala30     = "3.0.0-RC1"
 
 lazy val commonSettings = Seq(
   organization := "org.tpolecat",
@@ -22,10 +22,6 @@ lazy val commonSettings = Seq(
   ),
   scalaVersion        := scala213,
   crossScalaVersions  := Seq(scala212, scala213, scala30prev, scala30),
-  libraryDependencies ++= Seq(
-    compilerPlugin("org.typelevel" %% "kind-projector" % "0.11.3" cross CrossVersion.full),
-  ).filterNot(_ => isDotty.value),
-  resolvers in Global += ("tpolecat" at "http://dl.bintray.com/tpolecat/maven").withAllowInsecureProtocol(true),
 
   // Add some more source directories
   unmanagedSourceDirectories in Compile ++= {
@@ -96,7 +92,7 @@ lazy val refined =
     .settings(commonSettings)
     .settings(
       name := "atto-refined",
-      libraryDependencies += "eu.timepit" %%% "refined" % (if (scalaVersion.value == scala30prev) "0.9.19" else "0.9.20")
+      libraryDependencies += "eu.timepit" %%% "refined" % (if (scalaVersion.value == scala30prev) "0.9.20" else "0.9.21")
     )
 
 lazy val tests =

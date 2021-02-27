@@ -5,7 +5,7 @@ lazy val fs2CoreVersion       = "2.5.3"
 lazy val scalacheckVersion    = "1.15.3"
 lazy val kindProjectorVersion = "0.10.3"
 
-lazy val scala212    = "2.12.12"
+lazy val scala212    = "2.12.13"
 lazy val scala213    = "2.13.5"
 lazy val scala30prev = "3.0.0-M3"
 lazy val scala30     = "3.0.0-RC1"

@@ -7,4 +7,3 @@ addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat"             % "0.1.17"
 addSbtPlugin("org.portable-scala"        % "sbt-scalajs-crossproject" % "1.0.0")
 addSbtPlugin("org.scala-js"              % "sbt-scalajs"              % "1.5.1")
 addSbtPlugin("org.scoverage"             % "sbt-scoverage"            % "1.6.1")
-addSbtPlugin("ch.epfl.lamp"              % "sbt-dotty"                % "0.5.5")

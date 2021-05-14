@@ -1,14 +1,12 @@
 import sbtcrossproject.{ crossProject, CrossType }
 
-lazy val catsVersion          = "2.4.2"
-lazy val fs2CoreVersion       = "2.5.3"
-lazy val scalacheckVersion    = "1.15.3"
-lazy val kindProjectorVersion = "0.10.3"
+lazy val catsVersion       = "2.6.1"
+lazy val fs2CoreVersion    = "2.5.6"
+lazy val scalacheckVersion = "1.15.4"
 
-lazy val scala212    = "2.12.13"
-lazy val scala213    = "2.13.5"
-lazy val scala30prev = "3.0.0-M3"
-lazy val scala30     = "3.0.0-RC1"
+lazy val scala212 = "2.12.12"
+lazy val scala213 = "2.13.5"
+lazy val scala30  = "3.0.0"
 
 lazy val commonSettings = Seq(
   organization := "org.tpolecat",
@@ -21,32 +19,12 @@ lazy val commonSettings = Seq(
     ("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
   ),
   scalaVersion        := scala213,
-  crossScalaVersions  := Seq(scala212, scala213, scala30prev, scala30),
-
-  // Add some more source directories
-  unmanagedSourceDirectories in Compile ++= {
-    val sourceDir = (sourceDirectory in Compile).value
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, _))  => Seq(sourceDir / "scala-3")
-      case Some((2, _))  => Seq(sourceDir / "scala-2")
-      case _             => Seq()
-    }
-  },
-
-  // Also for test
-  unmanagedSourceDirectories in Test ++= {
-    val sourceDir = (sourceDirectory in Test).value
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((3, _))  => Seq(sourceDir / "scala-3")
-      case Some((2, _))  => Seq(sourceDir / "scala-2")
-      case _             => Seq()
-    }
-  },
+  crossScalaVersions  := Seq(scala212, scala213, scala30),
 
   // dottydoc really doesn't work at all right now
   Compile / doc / sources := {
     val old = (Compile / doc / sources).value
-    if (isDotty.value)
+    if (scalaVersion.value.startsWith("3."))
       Seq()
     else
       old
@@ -92,7 +70,7 @@ lazy val refined =
     .settings(commonSettings)
     .settings(
       name := "atto-refined",
-      libraryDependencies += "eu.timepit" %%% "refined" % (if (scalaVersion.value == scala30prev) "0.9.20" else "0.9.21")
+      libraryDependencies += "eu.timepit" %%% "refined" % "0.9.25",
     )
 
 lazy val tests =
@@ -122,7 +100,7 @@ lazy val docs = project
     paradoxTheme       := Some(builtinParadoxTheme("generic")),
     version            := version.value.takeWhile(_ != '+'), // strip off the +3-f22dca22+20191110-1520-SNAPSHOT business
     paradoxProperties ++= Map(
-      "scala-versions"          -> (crossScalaVersions in core.jvm).value.map(CrossVersion.partialVersion).flatten.map(_._2).mkString("2.", "/", ""),
+      "scala-versions"          -> (core.jvm/crossScalaVersions).value.map(CrossVersion.partialVersion).flatten.map(_._2).mkString("2.", "/", ""),
       "org"                     -> organization.value,
       "scala.binary.version"    -> s"2.${CrossVersion.partialVersion(scalaVersion.value).get._2}",
       "core-dep"                -> s"${(core.jvm / name).value}_2.${CrossVersion.partialVersion(scalaVersion.value).get._2}",

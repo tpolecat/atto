@@ -14,7 +14,7 @@ jobs:
         with:
           java-version: 8
       - name: Publish
-        run: csbt ci-release
+        run: sbt ci-release
         env:
           PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
           PGP_SECRET: ${{ secrets.PGP_SECRET }}

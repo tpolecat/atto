@@ -14,4 +14,4 @@ jobs:
         with:
           java-version: 8
       - name: Run compile
-        run: csbt +compile +test
+        run: sbt +compile +test

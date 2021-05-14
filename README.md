@@ -3,4 +3,4 @@
 
 **atto** is a compact, pure-functional, incremental text parsing library for Scala
 
-Please proceed to the **[microsite](https://tpolecat.github.com/atto/)** for more information.
+Please proceed to the **[microsite](https://tpolecat.github.io/atto/)** for more information.

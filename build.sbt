@@ -5,7 +5,7 @@ lazy val fs2CoreVersion    = "2.5.6"
 lazy val scalacheckVersion = "1.15.4"
 
 lazy val scala212 = "2.12.12"
-lazy val scala213 = "2.13.5"
+lazy val scala213 = "2.13.6"
 lazy val scala30  = "3.0.0"
 
 lazy val commonSettings = Seq(

@@ -70,7 +70,7 @@ lazy val refined =
     .settings(commonSettings)
     .settings(
       name := "atto-refined",
-      libraryDependencies += "eu.timepit" %%% "refined" % "0.9.25",
+      libraryDependencies += "eu.timepit" %%% "refined" % "0.9.26",
     )
 
 lazy val tests =

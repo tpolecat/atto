@@ -1,12 +1,13 @@
 import sbtcrossproject.{ crossProject, CrossType }
 
-lazy val catsVersion       = "2.6.1"
-lazy val fs2CoreVersion    = "2.5.6"
+lazy val catsVersion       = "2.7.0"
+lazy val fs2CoreVersion    = "2.5.10"
 lazy val scalacheckVersion = "1.15.4"
 
-lazy val scala212 = "2.12.14"
-lazy val scala213 = "2.13.6"
+lazy val scala212 = "2.12.15"
+lazy val scala213 = "2.13.8"
 lazy val scala30  = "3.0.2"
+lazy val scala31  = "3.1.1"
 
 lazy val commonSettings = Seq(
   organization := "org.tpolecat",
@@ -19,7 +20,7 @@ lazy val commonSettings = Seq(
     ("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
   ),
   scalaVersion        := scala213,
-  crossScalaVersions  := Seq(scala212, scala213, scala30),
+  crossScalaVersions  := Seq(scala212, scala213, scala30, scala31),
 
   // dottydoc really doesn't work at all right now
   Compile / doc / sources := {

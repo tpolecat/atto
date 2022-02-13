@@ -94,8 +94,14 @@ object CharacterTest extends Properties("Character") {
       (if (predicate(c)) Some(()) else None)
   }
 
-  property("horizontalWhitespace") = forAll { (c: Char) =>
-    horizontalWhitespace.parseOnly(c.toString).option ===
-      (if (c == ' ' || c == '\t') Some(c) else None)
+  property("horizontalWhitespace") = forAll(Gen.oneOf(Generators.horizontalWhitespace, Arbitrary.arbitrary[Char])) { (c: Char) =>
+    //println(f"CHK(${c.toInt}%04x) TEST(${CharClass.horizontalWhitespace.unapplySeq(c).flatMap(_.headOption)}) PARSE(${horizontalWhitespace.parseOnly(c.toString).option})")
+    horizontalWhitespace.parseOnly(c.toString).option === CharClass.horizontalWhitespace.unapplySeq(c).flatMap(_.headOption)
   }
+}
+
+private object CharClass {
+  val horizontalWhitespace = raw"(\h)".r    // " \t\xA0\u1680\u180e\u2000-\u200a\u202f\u205f\u3000"
+  val horizontalWhitespaceChars =
+    " \u0009\u00A0\u1680\u180e\u202f\u205f\u3000".toVector ++ ('\u2000' to '\u200a').toVector
 }

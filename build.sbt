@@ -1,12 +1,10 @@
-import sbtcrossproject.{ crossProject, CrossType }
-
-lazy val catsVersion       = "2.6.1"
-lazy val fs2CoreVersion    = "2.5.6"
-lazy val scalacheckVersion = "1.15.4"
+lazy val catsVersion       = "2.8.0"
+lazy val fs2CoreVersion    = "3.3.0"
+lazy val scalacheckVersion = "1.17.0"
 
 lazy val scala212 = "2.12.16"
 lazy val scala213 = "2.13.6"
-lazy val scala30  = "3.0.2"
+lazy val scala30  = "3.1.2"
 
 lazy val commonSettings = Seq(
   organization := "org.tpolecat",
@@ -35,13 +33,23 @@ lazy val commonSettings = Seq(
 lazy val atto = // defined so we can exclude docs from aggregate
   project
     .in(file("."))
-    .dependsOn(core.jvm, core.js, fs2.jvm, fs2.js, refined.jvm, refined.js, tests.jvm, tests.js)
-    .aggregate(core.jvm, core.js, fs2.jvm, fs2.js, refined.jvm, refined.js, tests.jvm, tests.js)
+    .dependsOn(
+      core.jvm, core.js, core.native,
+      fs2.jvm, fs2.js, fs2.native,
+      refined.jvm, refined.js, refined.native,
+      tests.jvm, tests.js, tests.native
+    )
+    .aggregate(
+      core.jvm, core.js, core.native,
+      fs2.jvm, fs2.js, fs2.native,
+      refined.jvm, refined.js, refined.native,
+      tests.jvm, tests.js, tests.native
+    )
     .settings(commonSettings)
     .settings(publish / skip := true)
 
 lazy val core =
-  crossProject(JSPlatform, JVMPlatform)
+  crossProject(JSPlatform, JVMPlatform, NativePlatform)
     .crossType(CrossType.Pure)
     .in(file("modules/core"))
     .settings(commonSettings)
@@ -49,7 +57,7 @@ lazy val core =
     .settings(libraryDependencies += "org.typelevel" %%% "cats-core" % catsVersion)
 
 lazy val fs2 =
-  crossProject(JSPlatform, JVMPlatform)
+  crossProject(JSPlatform, JVMPlatform, NativePlatform)
     .crossType(CrossType.Pure)
     .in(file("modules/fs2"))
     .dependsOn(core)
@@ -63,18 +71,18 @@ lazy val fs2 =
     )
 
 lazy val refined =
-  crossProject(JSPlatform, JVMPlatform)
+  crossProject(JSPlatform, JVMPlatform, NativePlatform)
     .crossType(CrossType.Pure)
     .in(file("modules/refined"))
     .dependsOn(core)
     .settings(commonSettings)
     .settings(
       name := "atto-refined",
-      libraryDependencies += "eu.timepit" %%% "refined" % "0.9.26",
+      libraryDependencies += "eu.timepit" %%% "refined" % "0.10.1",
     )
 
 lazy val tests =
-  crossProject(JSPlatform, JVMPlatform)
+  crossProject(JSPlatform, JVMPlatform, NativePlatform)
     .crossType(CrossType.Pure)
     .in(file("modules/tests"))
     .dependsOn(core, refined)

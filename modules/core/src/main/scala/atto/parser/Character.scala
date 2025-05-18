@@ -5,7 +5,7 @@ import cats.implicits._
 import java.lang.String
 import atto.syntax.parser._
 import scala.{ Char, Boolean, Option, Unit }
-import scala.Predef.{ charWrapper, augmentString }
+import scala.Predef.{ charWrapper, intWrapper, augmentString }
 
 /** Parsers for various kinds of characters. */
 trait Character {
@@ -102,5 +102,5 @@ trait Character {
 
   /** Whitespace that is not a line break */
   def horizontalWhitespace: Parser[Char] =
-    oneOf(" \t") named "horizontalWhitespace"
+    oneOf(s" \t\u00A0\u1680\u180e${(0x2000 to 0x200a).map(_.toChar).mkString}\u202f\u205f\u3000").named("horizontalWhitespace")
 }

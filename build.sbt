@@ -1,12 +1,14 @@
 import sbtcrossproject.{ crossProject, CrossType }
+import org.typelevel.scalacoptions.ScalacOptions
 
-lazy val catsVersion       = "2.6.1"
-lazy val fs2CoreVersion    = "2.5.6"
-lazy val scalacheckVersion = "1.15.4"
+lazy val catsVersion       = "2.13.0"
+lazy val fs2CoreVersion    = "3.12.2"
+lazy val scalacheckVersion = "1.19.0"
+lazy val refinedVersion = "0.11.3"
 
-lazy val scala212 = "2.12.16"
-lazy val scala213 = "2.13.6"
-lazy val scala30  = "3.0.2"
+lazy val scala212 = "2.12.21"
+lazy val scala213 = "2.13.18"
+lazy val scala3  = "3.3.6"
 
 lazy val commonSettings = Seq(
   organization := "org.tpolecat",
@@ -19,7 +21,7 @@ lazy val commonSettings = Seq(
     ("BSD New", url("http://opensource.org/licenses/BSD-3-Clause"))
   ),
   scalaVersion        := scala213,
-  crossScalaVersions  := Seq(scala212, scala213, scala30),
+  crossScalaVersions  := Seq(scala212, scala213, scala3),
 
   // dottydoc really doesn't work at all right now
   Compile / doc / sources := {
@@ -59,7 +61,8 @@ lazy val fs2 =
       libraryDependencies ++= Seq(
         "co.fs2"         %%% "fs2-core" % fs2CoreVersion,
         "org.scalacheck" %%% "scalacheck" % scalacheckVersion % Test
-      )
+      ),
+      Test / tpolecatExcludeOptions ++= ScalacOptions.warnUnusedOptions ++ Seq(ScalacOptions.warnNonUnitStatement)
     )
 
 lazy val refined =
@@ -70,7 +73,7 @@ lazy val refined =
     .settings(commonSettings)
     .settings(
       name := "atto-refined",
-      libraryDependencies += "eu.timepit" %%% "refined" % "0.9.26",
+      libraryDependencies += "eu.timepit" %%% "refined" % refinedVersion,
     )
 
 lazy val tests =
@@ -82,7 +85,8 @@ lazy val tests =
     .settings(
       name := "atto-tests",
       publish / skip := true,
-      libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalacheckVersion % Test
+      libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalacheckVersion % Test,
+      Test / tpolecatExcludeOptions ++= ScalacOptions.warnUnusedOptions ++ Seq(ScalacOptions.warnNonUnitStatement)
     )
 
 lazy val docs = project

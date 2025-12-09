@@ -2,13 +2,13 @@ import sbtcrossproject.{ crossProject, CrossType }
 import org.typelevel.scalacoptions.ScalacOptions
 
 lazy val catsVersion       = "2.13.0"
-lazy val fs2CoreVersion    = "3.12.2"
+lazy val fs2CoreVersion    = "3.13.0-M7"
 lazy val scalacheckVersion = "1.19.0"
-lazy val refinedVersion = "0.11.3"
+lazy val refinedVersion     = "0.11.3"
 
 lazy val scala212 = "2.12.21"
 lazy val scala213 = "2.13.18"
-lazy val scala3  = "3.3.6"
+lazy val scala3   = "3.3.6"
 
 lazy val commonSettings = Seq(
   organization := "org.tpolecat",
@@ -37,13 +37,13 @@ lazy val commonSettings = Seq(
 lazy val atto = // defined so we can exclude docs from aggregate
   project
     .in(file("."))
-    .dependsOn(core.jvm, core.js, fs2.jvm, fs2.js, refined.jvm, refined.js, tests.jvm, tests.js)
-    .aggregate(core.jvm, core.js, fs2.jvm, fs2.js, refined.jvm, refined.js, tests.jvm, tests.js)
+    .dependsOn(core.jvm, core.js, core.native, fs2.jvm, fs2.js, fs2.native, refined.jvm, refined.js, refined.native, tests.jvm, tests.js, tests.native)
+    .aggregate(core.jvm, core.js, core.native, fs2.jvm, fs2.js, fs2.native, refined.jvm, refined.js, refined.native, tests.jvm, tests.js, tests.native)
     .settings(commonSettings)
     .settings(publish / skip := true)
 
 lazy val core =
-  crossProject(JSPlatform, JVMPlatform)
+  crossProject(JSPlatform, JVMPlatform, NativePlatform)
     .crossType(CrossType.Pure)
     .in(file("modules/core"))
     .settings(commonSettings)
@@ -51,7 +51,7 @@ lazy val core =
     .settings(libraryDependencies += "org.typelevel" %%% "cats-core" % catsVersion)
 
 lazy val fs2 =
-  crossProject(JSPlatform, JVMPlatform)
+  crossProject(JSPlatform, JVMPlatform, NativePlatform)
     .crossType(CrossType.Pure)
     .in(file("modules/fs2"))
     .dependsOn(core)
@@ -66,7 +66,7 @@ lazy val fs2 =
     )
 
 lazy val refined =
-  crossProject(JSPlatform, JVMPlatform)
+  crossProject(JSPlatform, JVMPlatform, NativePlatform)
     .crossType(CrossType.Pure)
     .in(file("modules/refined"))
     .dependsOn(core)
@@ -77,7 +77,7 @@ lazy val refined =
     )
 
 lazy val tests =
-  crossProject(JSPlatform, JVMPlatform)
+  crossProject(JSPlatform, JVMPlatform, NativePlatform)
     .crossType(CrossType.Pure)
     .in(file("modules/tests"))
     .dependsOn(core, refined)

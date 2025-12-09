@@ -51,8 +51,8 @@ object Pipes {
             case Partial(_)     => (r.feed(s), Nil)
           }
           val (r1, as) = exhaust(r0, acc)
-          Pull.output(Chunk.seq(as.reverse)) >> go(r1)(rest)
-        case None => Pull.output(Chunk.seq(exhaust(r.done, Nil)._2))
+          Pull.output(Chunk.from(as.reverse)) >> go(r1)(rest)
+        case None => Pull.output(Chunk.from(exhaust(r.done, Nil)._2))
       }
     }
 
@@ -78,8 +78,8 @@ object Pipes {
             case Partial(_)     => (r.feed(s), Nil)
           }
           val (r1, as) = exhaust(r0, acc)
-          Pull.output(Chunk.seq(as.reverse)) >> go(r1)(rest)
-        case None => Pull.output(Chunk.seq(exhaust(r.done, Nil)._2))
+          Pull.output(Chunk.from(as.reverse)) >> go(r1)(rest)
+        case None => Pull.output(Chunk.from(exhaust(r.done, Nil)._2))
       }
     }
     go(p.parse(""))(s).stream
